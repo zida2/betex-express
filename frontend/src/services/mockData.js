@@ -27,10 +27,16 @@ export const DEMO_USERS = {
 // Statistiques du dashboard
 export const DEMO_STATS = {
   totalPackages: 156,
-  pendingPackages: 23,
-  inTransitPackages: 45,
-  deliveredPackages: 88,
-  activeDrivers: 12,
+  totalDrivers: 12,
+  activeDrivers: 8,
+  completionRate: 92,
+  packagesByStatus: {
+    pending: 23,
+    in_delivery: 45,
+    in_transit: 45,
+    delivered: 88,
+    delivery_failed: 5
+  },
   availableDrivers: 8,
   totalZones: 5,
   todayDeliveries: 34

@@ -56,8 +56,8 @@ const handleDemoRequest = async (method, url, data) => {
     return { data: await mockData.mockLogin(data.email, data.password) };
   }
   
-  // Dashboard stats
-  if (url.includes('/dashboard/stats')) {
+  // Dashboard stats et overview
+  if (url.includes('/dashboard/stats') || url.includes('/dashboard/overview')) {
     return { data: await mockData.mockGetStats() };
   }
   
