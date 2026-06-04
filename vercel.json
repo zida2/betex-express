@@ -1,22 +1,11 @@
 {
-  "version": 2,
-  "name": "betex-express",
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/build",
   "installCommand": "cd frontend && npm install",
-  "framework": null,
-  "functions": {},
-  "routes": [
+  "rewrites": [
     {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  ],
-  "env": {
-    "REACT_APP_API_URL": "/api/v1",
-    "REACT_APP_SOCKET_URL": ""
-  }
+  ]
 }
