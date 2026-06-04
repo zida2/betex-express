@@ -7,11 +7,11 @@
     "build": "cd frontend && npm install && npm run build",
     "start": "cd frontend && npm start",
     "dev": "docker-compose up -d",
-    "install": "cd frontend && npm install && cd ../backend && npm install"
+    "install": "cd frontend && npm install"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/votre-username/betex-express.git"
+    "url": "git+https://github.com/zida2/betex-express.git"
   },
   "keywords": [
     "delivery",
@@ -24,7 +24,7 @@
   "author": "BETEX EXPRESS Team",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/votre-username/betex-express/issues"
+    "url": "https://github.com/zida2/betex-express/issues"
   },
-  "homepage": "https://github.com/votre-username/betex-express#readme"
+  "homepage": "https://github.com/zida2/betex-express#readme"
 }
