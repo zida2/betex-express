@@ -47,34 +47,6 @@ api.interceptors.response.use(
   }
 );
 
-// Wrapper pour activer le mode démo
-const apiWithDemo = {
-  get: async (url, config) => {
-    if (DEMO_MODE) {
-      return handleDemoRequest('GET', url);
-    }
-    return api.get(url, config);
-  },
-  post: async (url, data, config) => {
-    if (DEMO_MODE) {
-      return handleDemoRequest('POST', url, data);
-    }
-    return api.post(url, data, config);
-  },
-  put: async (url, data, config) => {
-    if (DEMO_MODE) {
-      return handleDemoRequest('PUT', url, data);
-    }
-    return api.put(url, data, config);
-  },
-  delete: async (url, config) => {
-    if (DEMO_MODE) {
-      return handleDemoRequest('DELETE', url);
-    }
-    return api.delete(url, config);
-  }
-};
-
 // Gestion des requêtes en mode démo
 const handleDemoRequest = async (method, url, data) => {
   console.log(`🎭 MODE DÉMO: ${method} ${url}`);
@@ -114,6 +86,44 @@ const handleDemoRequest = async (method, url, data) => {
   
   // Default response
   return { data: { success: true, message: 'Mode démo actif' } };
+};
+
+// Wrapper pour activer le mode démo
+const apiWithDemo = {
+  // Exposer les propriétés de base d'axios
+  defaults: api.defaults,
+  interceptors: api.interceptors,
+  
+  get: async (url, config) => {
+    if (DEMO_MODE) {
+      return handleDemoRequest('GET', url);
+    }
+    return api.get(url, config);
+  },
+  post: async (url, data, config) => {
+    if (DEMO_MODE) {
+      return handleDemoRequest('POST', url, data);
+    }
+    return api.post(url, data, config);
+  },
+  put: async (url, data, config) => {
+    if (DEMO_MODE) {
+      return handleDemoRequest('PUT', url, data);
+    }
+    return api.put(url, data, config);
+  },
+  delete: async (url, config) => {
+    if (DEMO_MODE) {
+      return handleDemoRequest('DELETE', url);
+    }
+    return api.delete(url, config);
+  },
+  patch: async (url, data, config) => {
+    if (DEMO_MODE) {
+      return handleDemoRequest('PATCH', url, data);
+    }
+    return api.patch(url, data, config);
+  }
 };
 
 export default apiWithDemo;
