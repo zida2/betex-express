@@ -1,9 +1,13 @@
 /**
  * API Service
- * Axios instance for API calls
+ * Axios instance for API calls with Demo Mode support
  */
 
 import axios from 'axios';
+import * as mockData from './mockData';
+
+// Demo mode activé si REACT_APP_DEMO_MODE=true
+const DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true';
 
 // Use relative path so Nginx proxy handles it
 const API_URL = process.env.REACT_APP_API_URL || '/api/v1';
@@ -43,4 +47,73 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+// Wrapper pour activer le mode démo
+const apiWithDemo = {
+  get: async (url, config) => {
+    if (DEMO_MODE) {
+      return handleDemoRequest('GET', url);
+    }
+    return api.get(url, config);
+  },
+  post: async (url, data, config) => {
+    if (DEMO_MODE) {
+      return handleDemoRequest('POST', url, data);
+    }
+    return api.post(url, data, config);
+  },
+  put: async (url, data, config) => {
+    if (DEMO_MODE) {
+      return handleDemoRequest('PUT', url, data);
+    }
+    return api.put(url, data, config);
+  },
+  delete: async (url, config) => {
+    if (DEMO_MODE) {
+      return handleDemoRequest('DELETE', url);
+    }
+    return api.delete(url, config);
+  }
+};
+
+// Gestion des requêtes en mode démo
+const handleDemoRequest = async (method, url, data) => {
+  console.log(`🎭 MODE DÉMO: ${method} ${url}`);
+  
+  // Routes de login
+  if (url.includes('/auth/login')) {
+    return { data: await mockData.mockLogin(data.email, data.password) };
+  }
+  
+  // Dashboard stats
+  if (url.includes('/dashboard/stats')) {
+    return { data: await mockData.mockGetStats() };
+  }
+  
+  // Packages
+  if (url.includes('/packages') && method === 'GET') {
+    return { data: await mockData.mockGetPackages() };
+  }
+  if (url.includes('/packages') && method === 'POST') {
+    return { data: await mockData.mockCreatePackage(data) };
+  }
+  
+  // Drivers
+  if (url.includes('/drivers')) {
+    return { data: await mockData.mockGetDrivers() };
+  }
+  
+  // Suggest driver
+  if (url.includes('/optimization/suggest-driver')) {
+    return { data: await mockData.mockSuggestDriver(data) };
+  }
+  
+  // Zones
+  if (url.includes('/zones')) {
+    return { data: await mockData.mockGetZones() };
+  }
+  
+  // Default response
+  return { data: { success: true, message: 'Mode démo actif' } };
+};
+
+export default apiWithDemo;
