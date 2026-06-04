@@ -10,6 +10,13 @@ Après ce déploiement, vous aurez :
 
 ---
 
+## ⚠️ IMPORTANT : Déploiement Manuel via Dashboard
+
+**N'utilisez PAS le fichier render.yaml automatique.**  
+Suivez les étapes ci-dessous dans le dashboard Render pour déployer chaque service séparément.
+
+---
+
 ## 📋 ÉTAPES RAPIDES (15 minutes)
 
 ### **1. Créer un compte Render**
