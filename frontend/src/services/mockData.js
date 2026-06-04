@@ -209,15 +209,30 @@ export const mockGetStats = async () => {
 };
 
 // Fonction pour obtenir les colis
-export const mockGetPackages = async () => {
+export const mockGetPackages = async (params = {}) => {
   return new Promise((resolve) => {
     setTimeout(() => {
+      let filteredPackages = [...DEMO_PACKAGES];
+      
+      // Filtrer par livreur si driverId est fourni
+      if (params.driverId) {
+        filteredPackages = DEMO_PACKAGES.filter(pkg => 
+          pkg.assignedDriver && pkg.assignedDriver.id === params.driverId
+        );
+      }
+      
+      // Filtrer par statut si fourni
+      if (params.status) {
+        const statuses = params.status.split(',');
+        filteredPackages = filteredPackages.filter(pkg =>
+          statuses.includes(pkg.status)
+        );
+      }
+      
       resolve({
         success: true,
-        data: {
-          packages: DEMO_PACKAGES,
-          total: DEMO_PACKAGES.length
-        }
+        data: filteredPackages,
+        total: filteredPackages.length
       });
     }, 400);
   });
@@ -287,6 +302,24 @@ export const mockGetZones = async () => {
         data: {
           zones: DEMO_ZONES,
           total: DEMO_ZONES.length
+        }
+      });
+    }, 300);
+  });
+};
+
+// Fonction pour obtenir les statistiques d'un livreur
+export const mockGetDriverStats = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        success: true,
+        data: {
+          successfulDeliveries: 42,
+          totalDeliveries: 48,
+          rating: 4.8,
+          completedToday: 5,
+          onTimeRate: 95
         }
       });
     }, 300);

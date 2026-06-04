@@ -48,8 +48,8 @@ api.interceptors.response.use(
 );
 
 // Gestion des requêtes en mode démo
-const handleDemoRequest = async (method, url, data) => {
-  console.log(`🎭 MODE DÉMO: ${method} ${url}`);
+const handleDemoRequest = async (method, url, data, params = {}) => {
+  console.log(`🎭 MODE DÉMO: ${method} ${url}`, params);
   
   // Routes de login
   if (url.includes('/auth/login')) {
@@ -63,15 +63,24 @@ const handleDemoRequest = async (method, url, data) => {
   
   // Packages
   if (url.includes('/packages') && method === 'GET') {
-    return { data: await mockData.mockGetPackages() };
+    return { data: await mockData.mockGetPackages(params) };
   }
   if (url.includes('/packages') && method === 'POST') {
     return { data: await mockData.mockCreatePackage(data) };
   }
+  if (url.includes('/packages') && method === 'PATCH') {
+    return { data: { success: true, message: 'Statut mis à jour (mode démo)' } };
+  }
   
   // Drivers
-  if (url.includes('/drivers')) {
+  if (url.includes('/drivers') && method === 'GET') {
     return { data: await mockData.mockGetDrivers() };
+  }
+  if (url.includes('/drivers') && url.includes('/statistics')) {
+    return { data: await mockData.mockGetDriverStats() };
+  }
+  if (url.includes('/drivers') && method === 'PATCH') {
+    return { data: { success: true, message: 'Statut livreur mis à jour (mode démo)' } };
   }
   
   // Suggest driver
@@ -96,7 +105,9 @@ const apiWithDemo = {
   
   get: async (url, config) => {
     if (DEMO_MODE) {
-      return handleDemoRequest('GET', url);
+      // Extraire les params de config si présents
+      const params = config?.params || {};
+      return handleDemoRequest('GET', url, null, params);
     }
     return api.get(url, config);
   },
