@@ -1,0 +1,94 @@
+﻿.routes-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding-bottom: 80px;
+}
+
+.routes-list {
+  padding: 16px;
+}
+
+.routes-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.routes-table thead {
+  display: none;
+}
+
+.routes-table tbody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.routes-table tr {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.routes-table td {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.routes-table td::before {
+  content: attr(data-label);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.route-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.packages-checkbox-list {
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--bg-tertiary);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.checkbox-item:active {
+  transform: scale(0.98);
+  background: var(--bg-secondary);
+}
+
+.checkbox-item input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.checkbox-item span {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-primary);
+}

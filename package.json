@@ -1,0 +1,30 @@
+{
+  "name": "betex-express",
+  "version": "1.1.0",
+  "description": "Plateforme de gestion de livraison intelligente",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd frontend && npm start",
+    "dev": "docker-compose up -d",
+    "install": "cd frontend && npm install && cd ../backend && npm install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/votre-username/betex-express.git"
+  },
+  "keywords": [
+    "delivery",
+    "logistics",
+    "react",
+    "nodejs",
+    "gps",
+    "real-time"
+  ],
+  "author": "BETEX EXPRESS Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/votre-username/betex-express/issues"
+  },
+  "homepage": "https://github.com/votre-username/betex-express#readme"
+}

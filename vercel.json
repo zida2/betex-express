@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "name": "betex-express",
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    "REACT_APP_API_URL": "/api/v1",
+    "REACT_APP_SOCKET_URL": ""
+  },
+  "functions": {
+    "frontend/src/**": {
+      "includeFiles": "frontend/build/**"
+    }
+  }
+}

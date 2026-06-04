@@ -1,0 +1,153 @@
+﻿.stock-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding-bottom: 80px;
+}
+
+.stock-header {
+  background: var(--gradient-primary);
+  padding: 20px;
+  box-shadow: var(--shadow-md);
+}
+
+.stock-header h1 {
+  font-size: 24px;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.stock-header p {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.stock-container {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.alerts-section {
+  background: rgba(255, 51, 102, 0.1);
+  border: 1px solid var(--accent-danger);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.alerts-section h2 {
+  color: var(--accent-danger);
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.alert-item {
+  background: var(--bg-card);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--accent-danger);
+}
+
+.alert-info strong {
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.alert-info p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: 2px 0;
+}
+
+.zone-selection {
+  background: var(--bg-card);
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.zone-selection label {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.zone-select {
+  width: 100%;
+}
+
+.stocks-section {
+  background: var(--bg-card);
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.stocks-section h2 {
+  color: var(--text-primary);
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.stocks-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stocks-table thead {
+  display: none;
+}
+
+.stocks-table tbody tr {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+}
+
+.stocks-table tbody tr.low-stock {
+  border-left: 3px solid var(--accent-danger);
+}
+
+.stocks-table td {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+.stocks-table td::before {
+  content: attr(data-label);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.stock-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.form-buttons button {
+  flex: 1;
+}
+
+.action-buttons {
+  margin: 16px 0;
+}
