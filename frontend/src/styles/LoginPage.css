@@ -81,3 +81,117 @@
   text-align: center;
   margin-bottom: 20px;
 }
+
+/* Section identifiants de démonstration */
+.demo-credentials {
+  margin-top: 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+  border: 2px dashed rgba(139, 92, 246, 0.3);
+  border-radius: var(--radius-lg);
+  animation: pulse-border 2s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% {
+    border-color: rgba(139, 92, 246, 0.3);
+  }
+  50% {
+    border-color: rgba(139, 92, 246, 0.6);
+  }
+}
+
+.demo-title {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.demo-accounts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demo-account {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.demo-account:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.demo-account-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.demo-icon {
+  font-size: 24px;
+}
+
+.demo-account-header strong {
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.demo-account-info {
+  padding-left: 32px;
+  margin-bottom: 8px;
+}
+
+.demo-account-info p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-family: 'Courier New', monospace;
+  margin: 4px 0;
+}
+
+.btn-demo {
+  width: 100%;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-demo:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.btn-demo:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .demo-credentials {
+    padding: 16px;
+  }
+  
+  .demo-title {
+    font-size: 12px;
+  }
+  
+  .demo-account-info p {
+    font-size: 12px;
+  }
+}

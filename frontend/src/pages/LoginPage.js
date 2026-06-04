@@ -93,6 +93,58 @@ const LoginPage = () => {
           </button>
         </form>
 
+        {/* Identifiants de démonstration */}
+        {process.env.REACT_APP_DEMO_MODE === 'true' && (
+          <div className="demo-credentials">
+            <div className="demo-title">
+              🎭 MODE DÉMONSTRATION
+            </div>
+            <div className="demo-accounts">
+              <div className="demo-account">
+                <div className="demo-account-header">
+                  <span className="demo-icon">👨‍💼</span>
+                  <strong>Administrateur</strong>
+                </div>
+                <div className="demo-account-info">
+                  <p>📧 admin@betex.com</p>
+                  <p>🔑 admin123</p>
+                </div>
+                <button
+                  type="button"
+                  className="btn-demo"
+                  onClick={() => {
+                    setEmail('admin@betex.com');
+                    setPassword('admin123');
+                  }}
+                >
+                  Remplir
+                </button>
+              </div>
+              
+              <div className="demo-account">
+                <div className="demo-account-header">
+                  <span className="demo-icon">🚗</span>
+                  <strong>Livreur</strong>
+                </div>
+                <div className="demo-account-info">
+                  <p>📧 livreur@betex.com</p>
+                  <p>🔑 livreur123</p>
+                </div>
+                <button
+                  type="button"
+                  className="btn-demo"
+                  onClick={() => {
+                    setEmail('livreur@betex.com');
+                    setPassword('livreur123');
+                  }}
+                >
+                  Remplir
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="login-footer">
           <p>© 2024 BETEX EXPRESS - Tous droits réservés</p>
         </div>
