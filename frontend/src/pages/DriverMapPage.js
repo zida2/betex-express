@@ -90,16 +90,23 @@ const DriverMapPage = () => {
       map.remove();
     }
 
+    // Vérifier que Leaflet est chargé
+    if (!window.L) {
+      console.error('Leaflet not loaded');
+      return;
+    }
+
     const newMap = window.L.map('driver-map').setView([driverPosition.lat, driverPosition.lng], 13);
 
     window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
     }).addTo(newMap);
 
     // Icône du livreur (position actuelle)
     const driverIcon = window.L.divIcon({
-      html: '<div style="background: #00d4ff; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">🚚</div>',
-      iconSize: [40, 40],
+      html: '<div style="background: linear-gradient(135deg, #00d4ff 0%, #7b2ff7 100%); border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,212,255,0.6);">🚚</div>',
+      iconSize: [50, 50],
       className: 'driver-marker'
     });
 
@@ -110,14 +117,14 @@ const DriverMapPage = () => {
     // Point de livraison
     if (packageData.receiverLat && packageData.receiverLng) {
       const deliveryIcon = window.L.divIcon({
-        html: '<div style="background: #10b981; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">🎯</div>',
-        iconSize: [35, 35],
+        html: '<div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 3px solid white; box-shadow: 0 4px 12px rgba(16,185,129,0.6);">🎯</div>',
+        iconSize: [40, 40],
         className: 'delivery-marker'
       });
 
       window.L.marker([packageData.receiverLat, packageData.receiverLng], { icon: deliveryIcon })
         .addTo(newMap)
-        .bindPopup(`<b>🎯 LIVRAISON</b><br>${packageData.receiverName}<br>${packageData.receiverAddress}`);
+        .bindPopup(`<b>🎯 LIVRAISON</b><br><strong>${packageData.receiverName}</strong><br>${packageData.receiverAddress}`);
     }
 
     // Tracer l'itinéraire

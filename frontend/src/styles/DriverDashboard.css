@@ -2,6 +2,16 @@
   min-height: 100vh;
   background: var(--bg-primary);
   padding-bottom: 80px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--gradient-primary);
+  box-shadow: var(--shadow-md);
 }
 
 .stats-summary {
@@ -10,6 +20,7 @@
   gap: 12px;
   padding: 16px;
   background: var(--bg-secondary);
+  margin-top: 60px;
 }
 
 .stat-item {
