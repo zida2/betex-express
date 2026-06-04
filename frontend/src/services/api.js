@@ -88,9 +88,43 @@ const handleDemoRequest = async (method, url, data, params = {}) => {
     return { data: await mockData.mockSuggestDriver(data) };
   }
   
+  // Workload
+  if (url.includes('/optimization/workload') && method === 'GET') {
+    return { data: await mockData.mockGetWorkload() };
+  }
+  
+  // Assign packages
+  if (url.includes('/optimization/assign-packages') && method === 'POST') {
+    return { data: await mockData.mockAssignPackages(data) };
+  }
+  
+  // Routes
+  if (url.includes('/routes') && method === 'GET') {
+    return { data: await mockData.mockGetRoutes() };
+  }
+  if (url.includes('/routes') && method === 'POST') {
+    return { data: await mockData.mockCreateRoute(data) };
+  }
+  
   // Zones
   if (url.includes('/zones')) {
     return { data: await mockData.mockGetZones() };
+  }
+
+  // History endpoint
+  if (url.includes('/history') && method === 'GET') {
+    return { data: { success: true, data: [], message: 'Historique des livraisons (mode démo)' } };
+  }
+
+  // Chat endpoints
+  if (url.includes('/chat/conversations') && method === 'GET') {
+    return { data: { success: true, data: [], message: 'Conversations (mode démo)' } };
+  }
+  if (url.includes('/chat/messages') && method === 'GET') {
+    return { data: { success: true, data: [], message: 'Messages (mode démo)' } };
+  }
+  if (url.includes('/chat/send') && method === 'POST') {
+    return { data: { success: true, message: 'Message envoyé (mode démo)' } };
   }
   
   // Default response

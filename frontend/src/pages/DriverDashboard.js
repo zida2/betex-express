@@ -28,11 +28,17 @@ const DriverDashboard = () => {
 
   const loadDriverData = async () => {
     try {
-      // Load assigned packages
+      // Load only active packages (collected and in_delivery)
       const packagesResponse = await api.get('/packages', {
         params: { driverId: user.id, status: 'collected,in_delivery' }
       });
-      setPackages(packagesResponse.data.data);
+      
+      const data = packagesResponse.data.data;
+      // Filter to ensure we only have active deliveries
+      const activePackages = (Array.isArray(data) ? data : []).filter(pkg => 
+        pkg.status === 'collected' || pkg.status === 'in_delivery'
+      );
+      setPackages(activePackages);
 
       // Load driver statistics
       const statsResponse = await api.get(`/drivers/${user.id}/statistics`);
@@ -143,6 +149,24 @@ const DriverDashboard = () => {
           </div>
         </div>
 
+        {/* Quick Actions */}
+        <div className="quick-actions">
+          <button 
+            className="action-btn primary"
+            onClick={() => navigate('/driver/history')}
+          >
+            <span className="action-icon">📋</span>
+            <span className="action-text">Historique</span>
+          </button>
+          <button 
+            className="action-btn info"
+            onClick={() => navigate('/driver/stats')}
+          >
+            <span className="action-icon">📊</span>
+            <span className="action-text">Statistiques</span>
+          </button>
+        </div>
+
         <div className="packages-section">
           <h2>📦 Mes colis ({packages.length})</h2>
           
@@ -155,43 +179,78 @@ const DriverDashboard = () => {
               {packages.map((pkg) => (
                 <div key={pkg.id} className="package-card">
                   <div className="package-header">
-                    <h3>{pkg.customerName}</h3>
+                    <div className="package-title">
+                      <h3>📦 {pkg.trackingNumber}</h3>
+                      <span className="package-priority">
+                        {pkg.priority === 'urgent' && '🔥 URGENT'}
+                        {pkg.priority === 'high' && '⚡ PRIORITAIRE'}
+                      </span>
+                    </div>
                     <span className={`status-badge status-${pkg.status}`}>
-                      {pkg.status}
+                      {pkg.status === 'collected' && '📦 À livrer'}
+                      {pkg.status === 'in_delivery' && '🚚 En livraison'}
                     </span>
                   </div>
                   
-                  <div className="package-details">
-                    <p><strong>📞 Téléphone:</strong> {pkg.customerPhone}</p>
-                    <p><strong>📍 Adresse:</strong> {pkg.address}</p>
-                    <p><strong>🗺️ Zone:</strong> {pkg.Zone?.name || 'N/A'}</p>
-                    {pkg.notes && <p><strong>📝 Notes:</strong> {pkg.notes}</p>}
+                  {/* Informations de livraison */}
+                  <div className="delivery-section">
+                    <h4 className="section-title">🎯 LIVRAISON</h4>
+                    <div className="package-details">
+                      <p><strong>👤 Client:</strong> {pkg.customerName || pkg.receiverName}</p>
+                      <p><strong>📞 Téléphone:</strong> {pkg.customerPhone || pkg.receiverPhone}</p>
+                      <p><strong>📍 Adresse:</strong> {pkg.address || pkg.receiverAddress}</p>
+                      <p><strong>🗺️ Zone:</strong> {pkg.Zone?.name || 'N/A'}</p>
+                      {pkg.description && <p><strong>📝 Contenu:</strong> {pkg.description}</p>}
+                      {pkg.weight && <p><strong>⚖️ Poids:</strong> {pkg.weight} kg</p>}
+                      {pkg.notes && (
+                        <div className="package-notes">
+                          <p><strong>📋 Notes importantes:</strong></p>
+                          <p className="notes-text">{pkg.notes}</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="package-actions">
                     {pkg.status === 'collected' && (
-                      <button 
-                        className="btn-action btn-primary"
-                        onClick={() => handlePackageStatusUpdate(pkg.id, 'in_delivery')}
-                      >
-                        🚚 En route
-                      </button>
+                      <>
+                        <button 
+                          className="btn-action btn-secondary"
+                          onClick={() => navigate(`/driver/map/${pkg.id}`)}
+                        >
+                          🗺️ Voir itinéraire
+                        </button>
+                        <button 
+                          className="btn-action btn-primary"
+                          onClick={() => handlePackageStatusUpdate(pkg.id, 'in_delivery')}
+                        >
+                          🚚 Commencer livraison
+                        </button>
+                      </>
                     )}
                     
                     {pkg.status === 'in_delivery' && (
                       <>
                         <button 
-                          className="btn-action btn-success"
-                          onClick={() => handlePackageStatusUpdate(pkg.id, 'delivered')}
+                          className="btn-action btn-secondary"
+                          onClick={() => navigate(`/driver/map/${pkg.id}`)}
                         >
-                          ✅ Livré
+                          🗺️ Voir itinéraire
                         </button>
-                        <button 
-                          className="btn-action btn-danger"
-                          onClick={() => handlePackageStatusUpdate(pkg.id, 'delivery_failed')}
-                        >
-                          ❌ Échec
-                        </button>
+                        <div className="status-actions">
+                          <button 
+                            className="btn-action btn-success"
+                            onClick={() => handlePackageStatusUpdate(pkg.id, 'delivered')}
+                          >
+                            ✅ Livré avec succès
+                          </button>
+                          <button 
+                            className="btn-action btn-danger"
+                            onClick={() => handlePackageStatusUpdate(pkg.id, 'delivery_failed')}
+                          >
+                            ❌ Échec de livraison
+                          </button>
+                        </div>
                       </>
                     )}
                   </div>

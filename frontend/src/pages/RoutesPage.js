@@ -138,16 +138,24 @@ const RoutesPage = () => {
             <div className="form-group">
               <label>Colis à assigner</label>
               <div className="packages-checkbox-list">
-                {packages.map(pkg => (
-                  <label key={pkg.id} className="checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={formData.packageIds.includes(pkg.id)}
-                      onChange={() => handlePackageSelect(pkg.id)}
-                    />
-                    <span>{pkg.customerName} - {pkg.address}</span>
-                  </label>
-                ))}
+                {packages.filter(pkg => pkg.status === 'pending' || pkg.status === 'in_transit').length === 0 ? (
+                  <div className="empty-packages-list">
+                    <p>📦 Aucun colis disponible pour l'assignation</p>
+                  </div>
+                ) : (
+                  packages.filter(pkg => pkg.status === 'pending' || pkg.status === 'in_transit').map(pkg => (
+                    <label key={pkg.id} className="checkbox-item">
+                      <input
+                        type="checkbox"
+                        checked={formData.packageIds.includes(pkg.id)}
+                        onChange={() => handlePackageSelect(pkg.id)}
+                      />
+                      <span>
+                        📦 #{pkg.trackingNumber || pkg.id} - {pkg.receiverName || pkg.customerName || 'Non spécifié'} - 📍 {pkg.receiverAddress || pkg.address || 'Non spécifiée'}
+                      </span>
+                    </label>
+                  ))
+                )}
               </div>
             </div>
 

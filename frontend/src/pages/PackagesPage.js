@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import LocationPicker from '../components/LocationPicker';
+import { translateStatus, getStatusIcon } from '../utils/translations';
 import '../styles/PackagesPage.css';
 
 const PackagesPage = () => {
   const [packages, setPackages] = useState([]);
+  const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [suggestedDriver, setSuggestedDriver] = useState(null);
+  const [selectedDriver, setSelectedDriver] = useState(null);
   const [findingDriver, setFindingDriver] = useState(false);
+  const [showDriverSelection, setShowDriverSelection] = useState(false);
   const [formData, setFormData] = useState({
     senderName: '', senderPhone: '', senderAddress: '', senderLatitude: '', senderLongitude: '',
     receiverName: '', receiverPhone: '', receiverAddress: '', receiverLatitude: '', receiverLongitude: '',
@@ -21,8 +25,13 @@ const PackagesPage = () => {
 
   const loadData = async () => {
     try {
-      const packagesRes = await api.get('/packages');
+      const [packagesRes, driversRes] = await Promise.all([
+        api.get('/packages'),
+        api.get('/drivers')
+      ]);
       setPackages(Array.isArray(packagesRes.data.data) ? packagesRes.data.data : []);
+      const driversData = driversRes.data.data?.drivers || driversRes.data.data || [];
+      setDrivers(driversData);
     } catch (error) {
       console.error('Erreur:', error);
     } finally {
@@ -64,7 +73,9 @@ const PackagesPage = () => {
         latitude: parseFloat(formData.senderLatitude),
         longitude: parseFloat(formData.senderLongitude)
       });
-      setSuggestedDriver(response.data.data);
+      setSuggestedDriver(response.data.data?.driver || response.data.data);
+      setSelectedDriver(response.data.data?.driver || response.data.data);
+      setShowDriverSelection(false);
     } catch (error) {
       console.error('Erreur:', error);
       alert(error.response?.data?.message || 'Impossible de trouver un livreur');
@@ -73,11 +84,21 @@ const PackagesPage = () => {
     }
   };
 
+  const handleManualDriverSelection = () => {
+    setShowDriverSelection(!showDriverSelection);
+    setSuggestedDriver(null);
+  };
+
+  const selectDriver = (driver) => {
+    setSelectedDriver(driver);
+    setShowDriverSelection(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!suggestedDriver) {
-      alert('Veuillez d\'abord trouver un livreur disponible');
+    if (!selectedDriver) {
+      alert('Veuillez d\'abord choisir un livreur');
       return;
     }
 
@@ -98,12 +119,14 @@ const PackagesPage = () => {
         deliveryPrice: formData.deliveryPrice ? parseFloat(formData.deliveryPrice) : 0,
         weight: formData.weight ? parseFloat(formData.weight) : null,
         notes: formData.notes,
-        driverId: suggestedDriver.id
+        driverId: selectedDriver.id
       });
       
       alert('Livraison creee avec succes!');
       setShowForm(false);
       setSuggestedDriver(null);
+      setSelectedDriver(null);
+      setShowDriverSelection(false);
       setFormData({
         senderName: '', senderPhone: '', senderAddress: '', senderLatitude: '', senderLongitude: '',
         receiverName: '', receiverPhone: '', receiverAddress: '', receiverLatitude: '', receiverLongitude: '',
@@ -270,31 +293,81 @@ const PackagesPage = () => {
               />
             </div>
 
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={findNearestDriver}
-              disabled={findingDriver}
-            >
-              {findingDriver ? 'Recherche...' : 'Trouver livreur le plus proche'}
-            </button>
+            <div className="driver-selection-section">
+              <div className="driver-buttons">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={findNearestDriver}
+                  disabled={findingDriver}
+                >
+                  {findingDriver ? '🔍 Recherche...' : '🎯 Suggérer livreur proche'}
+                </button>
 
-            {suggestedDriver && (
-              <div className="suggested-driver">
-                <h4>LIVREUR SUGGERE</h4>
-                <div className="driver-details">
-                  <p><strong>Nom:</strong> {suggestedDriver.name}</p>
-                  <p><strong>Telephone:</strong> {suggestedDriver.phone}</p>
-                  <p><strong>Distance:</strong> {suggestedDriver.distance.toFixed(2)} km</p>
-                  <p><strong>Taux de reussite:</strong> {suggestedDriver.successRate}%</p>
-                  <p><strong>Statut:</strong> <span className={`status-badge status-${suggestedDriver.status}`}>{suggestedDriver.status}</span></p>
-                  <p><strong>Livraisons totales:</strong> {suggestedDriver.totalDeliveries}</p>
-                </div>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={handleManualDriverSelection}
+                >
+                  {showDriverSelection ? '✖ Annuler' : '👤 Choisir manuellement'}
+                </button>
               </div>
-            )}
 
-            <button type="submit" className="btn-success" disabled={!suggestedDriver}>
-              {suggestedDriver ? 'Creer la livraison' : 'Trouver d\'abord un livreur'}
+              {showDriverSelection && (
+                <div className="drivers-list-selection">
+                  <h4>📋 LIVREURS DISPONIBLES</h4>
+                  {drivers.filter(d => d.status === 'available' || d.status === 'active').map(driver => (
+                    <div 
+                      key={driver.id} 
+                      className={`driver-option ${selectedDriver?.id === driver.id ? 'selected' : ''}`}
+                      onClick={() => selectDriver(driver)}
+                    >
+                      <div className="driver-option-header">
+                        <strong>{driver.name}</strong>
+                        <span className={`status-badge status-${driver.status}`}>
+                          {translateStatus(driver.status)}
+                        </span>
+                      </div>
+                      <p>📞 {driver.phone}</p>
+                      <p>📦 {driver.assignedPackages || 0} colis en cours</p>
+                      <p>✅ {driver.completedToday || 0} livrés aujourd'hui</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {suggestedDriver && (
+                <div className="suggested-driver">
+                  <h4>🎯 LIVREUR SUGGÉRÉ (LE PLUS PROCHE)</h4>
+                  <div className="driver-details">
+                    <p><strong>Nom:</strong> {suggestedDriver.name}</p>
+                    <p><strong>Téléphone:</strong> {suggestedDriver.phone}</p>
+                    <p><strong>Distance:</strong> {suggestedDriver.distance?.toFixed(2) || 'N/A'} km</p>
+                    <p><strong>Statut:</strong> <span className={`status-badge status-${suggestedDriver.status}`}>
+                      {translateStatus(suggestedDriver.status)}
+                    </span></p>
+                    <p><strong>Colis en cours:</strong> {suggestedDriver.assignedPackages || 0}</p>
+                    <p><strong>Livrés aujourd'hui:</strong> {suggestedDriver.completedToday || 0}</p>
+                  </div>
+                </div>
+              )}
+
+              {selectedDriver && !suggestedDriver && (
+                <div className="selected-driver">
+                  <h4>✅ LIVREUR SÉLECTIONNÉ</h4>
+                  <div className="driver-details">
+                    <p><strong>Nom:</strong> {selectedDriver.name}</p>
+                    <p><strong>Téléphone:</strong> {selectedDriver.phone}</p>
+                    <p><strong>Statut:</strong> <span className={`status-badge status-${selectedDriver.status}`}>
+                      {translateStatus(selectedDriver.status)}
+                    </span></p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button type="submit" className="btn-success" disabled={!selectedDriver}>
+              {selectedDriver ? '✅ Créer la livraison' : '⚠️ Choisir d\'abord un livreur'}
             </button>
           </form>
         </div>
@@ -312,13 +385,13 @@ const PackagesPage = () => {
               <div key={pkg.id} className="package-card">
                 <div className="package-header">
                   <span className={`status-badge status-${pkg.status}`}>
-                    {pkg.status}
+                    {getStatusIcon(pkg.status)} {translateStatus(pkg.status)}
                   </span>
                   <span className="package-type">{pkg.packageType}</span>
                 </div>
                 <div className="package-info">
                   <p><strong>De:</strong> {pkg.senderName} ({pkg.senderPhone})</p>
-                  <p><strong>A:</strong> {pkg.customerName} ({pkg.customerPhone})</p>
+                  <p><strong>À:</strong> {pkg.customerName} ({pkg.customerPhone})</p>
                   <p><strong>Prix livraison:</strong> {pkg.deliveryPrice} FCFA</p>
                   {pkg.packagePrice > 0 && (
                     <p><strong>Prix colis:</strong> {pkg.packagePrice} FCFA</p>

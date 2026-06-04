@@ -7,13 +7,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import '../styles/AdminDashboard.css';
+import NotificationCenter from '../components/NotificationCenter';
+import ChatSystem from '../components/ChatSystem';
 import '../styles/AdminDashboard.css';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showChat, setShowChat] = useState(false);
   
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -56,42 +59,80 @@ const AdminDashboard = () => {
         </div>
       </header>
 
+      <NotificationCenter 
+        isOpen={showNotifications} 
+        onClose={() => setShowNotifications(false)} 
+      />
+
+      <ChatSystem 
+        isOpen={showChat} 
+        onClose={() => setShowChat(false)} 
+      />
+
       <nav className="dashboard-nav">
         <button 
           className={activeTab === 'overview' ? 'active' : ''}
           onClick={() => setActiveTab('overview')}
+          data-label="Vue d'ensemble"
+          title="Vue d'ensemble"
         >
-          📊 Vue d'ensemble
+          📊<span className="nav-text"> Accueil</span>
         </button>
         <button 
           className={activeTab === 'packages' ? 'active' : ''}
           onClick={() => navigate('/admin/packages')}
+          data-label="Gestion des colis"
+          title="Colis"
         >
-          📦 Colis
+          📦<span className="nav-text"> Colis</span>
         </button>
         <button 
           className={activeTab === 'drivers' ? 'active' : ''}
           onClick={() => navigate('/admin/drivers')}
+          data-label="Gestion des livreurs"
+          title="Livreurs"
         >
-          👨‍🚚 Livreurs
+          👨‍🚚<span className="nav-text"> Livreurs</span>
+        </button>
+        <button 
+          className={activeTab === 'map' ? 'active' : ''}
+          onClick={() => navigate('/admin/map')}
+          data-label="Suivi GPS temps réel"
+          title="Carte GPS"
+        >
+          🗺️<span className="nav-text"> Carte</span>
+        </button>
+        <button 
+          className={activeTab === 'history' ? 'active' : ''}
+          onClick={() => navigate('/admin/history')}
+          data-label="Historique des livraisons"
+          title="Historique"
+        >
+          📜<span className="nav-text"> Historique</span>
         </button>
         <button 
           className={activeTab === 'routes' ? 'active' : ''}
           onClick={() => navigate('/admin/routes')}
+          data-label="Gestion des tournées"
+          title="Tournées"
         >
-          🗺️ Tournées
+          🚛<span className="nav-text"> Tournées</span>
         </button>
         <button 
           className={activeTab === 'stock' ? 'active' : ''}
           onClick={() => navigate('/admin/stock')}
+          data-label="Gestion des stocks"
+          title="Stocks"
         >
-          📊 Stocks
+          📊<span className="nav-text"> Stocks</span>
         </button>
         <button 
           className={activeTab === 'optimization' ? 'active' : ''}
           onClick={() => navigate('/admin/optimization')}
+          data-label="Optimisation des livraisons"
+          title="Optimisation"
         >
-          ⚡ Optimisation
+          ⚡<span className="nav-text"> Optim</span>
         </button>
       </nav>
 

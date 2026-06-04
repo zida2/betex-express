@@ -9,11 +9,16 @@ import { useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import DriverDashboard from './pages/DriverDashboard';
+import DriverHistoryPage from './pages/DriverHistoryPage';
+import DriverStatsPage from './pages/DriverStatsPage';
+import DriverMapPage from './pages/DriverMapPage';
 import PackagesPage from './pages/PackagesPage';
 import DriversPage from './pages/DriversPage';
 import RoutesPage from './pages/RoutesPage';
 import StockPage from './pages/StockPage';
 import OptimizationPage from './pages/OptimizationPage';
+import MapTrackingPage from './pages/MapTrackingPage';
+import HistoryPage from './pages/HistoryPage';
 import './App.css';
 
 // Root redirect Component
@@ -112,12 +117,57 @@ function AppRoutes() {
           </ProtectedRoute>
         } 
       />
+
+      <Route 
+        path="/admin/map" 
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'dispatcher']}>
+            <MapTrackingPage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/admin/history" 
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'dispatcher']}>
+            <HistoryPage />
+          </ProtectedRoute>
+        } 
+      />
       
       <Route 
         path="/driver/dashboard" 
         element={
           <ProtectedRoute allowedRoles={['driver']}>
             <DriverDashboard />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/driver/history" 
+        element={
+          <ProtectedRoute allowedRoles={['driver']}>
+            <DriverHistoryPage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/driver/stats" 
+        element={
+          <ProtectedRoute allowedRoles={['driver']}>
+            <DriverStatsPage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/driver/map/:packageId" 
+        element={
+          <ProtectedRoute allowedRoles={['driver']}>
+            <DriverMapPage />
           </ProtectedRoute>
         } 
       />

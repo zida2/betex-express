@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import '../styles/DriversPage.css';
+import { translateStatus, getStatusIcon } from '../utils/translations';
 import '../styles/DriversPage.css';
 
 const DriversPage = () => {
@@ -162,51 +162,73 @@ const DriversPage = () => {
         </div>
       )}
 
-      <div className="drivers-list">
+      <div className="drivers-grid">
         {drivers.length === 0 ? (
           <div className="empty-state">
-            <p>Aucun livreur pour le moment</p>
+            <div className="empty-icon">👨‍🚚</div>
+            <h3>Aucun livreur</h3>
+            <p>Ajoutez votre premier livreur pour commencer</p>
           </div>
         ) : (
-          <table className="drivers-table">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>Téléphone</th>
-                <th>Email</th>
-                <th>Véhicule</th>
-                <th>Statut</th>
-                <th>Livraisons</th>
-                <th>Note</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {drivers.map(driver => (
-                <tr key={driver.id}>
-                  <td>{driver.name}</td>
-                  <td>{driver.phone}</td>
-                  <td>{driver.email || '-'}</td>
-                  <td>{driver.vehicleType || '-'}</td>
-                  <td>
-                    <span className={`status-badge status-${driver.status}`}>
-                      {driver.status}
-                    </span>
-                  </td>
-                  <td>{driver.totalDeliveries || 0}</td>
-                  <td>⭐ {driver.rating || 0}/5</td>
-                  <td>
-                    <button 
-                      className="btn-small btn-danger"
-                      onClick={() => handleDelete(driver.id)}
-                    >
-                      Supprimer
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          drivers.map(driver => (
+            <div key={driver.id} className="driver-card">
+              <div className="driver-header">
+                <div className="driver-avatar">
+                  👤
+                </div>
+                <div className="driver-main-info">
+                  <h3>{driver.name}</h3>
+                  <span className={`status-badge badge-${driver.status}`}>
+                    {getStatusIcon(driver.status)} {translateStatus(driver.status)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="driver-body">
+                <div className="info-row">
+                  <span className="info-icon">📞</span>
+                  <span className="info-value">{driver.phone}</span>
+                </div>
+                {driver.email && (
+                  <div className="info-row">
+                    <span className="info-icon">📧</span>
+                    <span className="info-value">{driver.email}</span>
+                  </div>
+                )}
+                {driver.vehicleType && (
+                  <div className="info-row">
+                    <span className="info-icon">🚗</span>
+                    <span className="info-value">{driver.vehicleType} {driver.vehiclePlate && `(${driver.vehiclePlate})`}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="driver-stats">
+                <div className="stat-item">
+                  <span className="stat-value">{driver.assignedPackages || 0}</span>
+                  <span className="stat-label">En cours</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">{driver.completedToday || driver.totalDeliveries || 0}</span>
+                  <span className="stat-label">Livrés</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-value">⭐ {driver.rating || 0}/5</span>
+                  <span className="stat-label">Note</span>
+                </div>
+              </div>
+
+              <div className="driver-footer">
+                <button 
+                  className="btn-delete"
+                  onClick={() => handleDelete(driver.id)}
+                  title="Supprimer"
+                >
+                  🗑️ Supprimer
+                </button>
+              </div>
+            </div>
+          ))
         )}
       </div>
     </div>

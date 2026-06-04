@@ -47,14 +47,17 @@ export const DEMO_PACKAGES = [
   {
     id: 1,
     trackingNumber: 'BX2024001',
-    senderName: 'Kouadio Aya',
-    senderPhone: '+225 07 08 09 10 11',
-    senderAddress: 'Cocody, Abidjan',
-    receiverName: 'Koné Ibrahim',
-    receiverPhone: '+225 05 06 07 08 09',
-    receiverAddress: 'Yopougon, Abidjan',
-    receiverLat: 5.3364,
-    receiverLng: -4.0267,
+    senderName: 'Ouédraogo Paul',
+    senderPhone: '+226 70 12 34 56',
+    senderAddress: 'Zone du Bois, Ouagadougou',
+    receiverName: 'Sawadogo Marie',
+    receiverPhone: '+226 76 54 32 10',
+    receiverAddress: 'Gounghin, Ouagadougou',
+    customerName: 'Sawadogo Marie',
+    customerPhone: '+226 76 54 32 10',
+    address: 'Gounghin, Ouagadougou',
+    receiverLat: 12.3850,
+    receiverLng: -1.5100,
     weight: 2.5,
     description: 'Documents importants',
     status: 'pending',
@@ -65,36 +68,44 @@ export const DEMO_PACKAGES = [
   {
     id: 2,
     trackingNumber: 'BX2024002',
-    senderName: 'Diallo Aminata',
-    senderPhone: '+225 07 12 34 56 78',
-    senderAddress: 'Marcory, Abidjan',
+    senderName: 'Compaoré Aminata',
+    senderPhone: '+226 70 11 22 33',
+    senderAddress: 'Dassasgho, Ouagadougou',
     receiverName: 'Traoré Seydou',
-    receiverPhone: '+225 05 98 76 54 32',
-    receiverAddress: 'Abobo, Abidjan',
-    receiverLat: 5.4223,
-    receiverLng: -4.0160,
+    receiverPhone: '+226 75 44 33 22',
+    receiverAddress: 'Ouaga 2000, Ouagadougou',
+    customerName: 'Traoré Seydou',
+    customerPhone: '+226 75 44 33 22',
+    address: 'Ouaga 2000, Ouagadougou',
+    receiverLat: 12.3400,
+    receiverLng: -1.4750,
     weight: 5.0,
     description: 'Colis fragile - Électronique',
-    status: 'in_transit',
+    notes: 'Appeler avant livraison',
+    status: 'in_delivery',
     priority: 'high',
     createdAt: new Date(Date.now() - 86400000).toISOString(),
     assignedDriver: {
       id: 2,
       name: 'Jean Kouassi',
-      phone: '+225 07 00 00 00 01'
-    }
+      phone: '+226 70 00 00 01'
+    },
+    Zone: { name: 'Ouaga 2000' }
   },
   {
     id: 3,
     trackingNumber: 'BX2024003',
-    senderName: 'N\'Guessan Marie',
-    senderPhone: '+225 07 11 22 33 44',
-    senderAddress: 'Plateau, Abidjan',
-    receiverName: 'Bamba Fatou',
-    receiverPhone: '+225 05 44 33 22 11',
-    receiverAddress: 'Koumassi, Abidjan',
-    receiverLat: 5.2931,
-    receiverLng: -3.9470,
+    senderName: 'Kaboré Marie',
+    senderPhone: '+226 70 99 88 77',
+    senderAddress: 'Somgandé, Ouagadougou',
+    receiverName: 'Zongo Fatou',
+    receiverPhone: '+226 75 11 22 33',
+    receiverAddress: 'Tampouy, Ouagadougou',
+    customerName: 'Zongo Fatou',
+    customerPhone: '+226 75 11 22 33',
+    address: 'Tampouy, Ouagadougou',
+    receiverLat: 12.4050,
+    receiverLng: -1.5350,
     weight: 1.2,
     description: 'Vêtements',
     status: 'delivered',
@@ -102,10 +113,99 @@ export const DEMO_PACKAGES = [
     createdAt: new Date(Date.now() - 172800000).toISOString(),
     deliveredAt: new Date(Date.now() - 86400000).toISOString(),
     assignedDriver: {
-      id: 3,
-      name: 'Yao Emmanuel',
-      phone: '+225 07 00 00 00 02'
-    }
+      id: 2,
+      name: 'Jean Kouassi',
+      phone: '+226 70 00 00 01'
+    },
+    Zone: { name: 'Tampouy' }
+  },
+  {
+    id: 6,
+    trackingNumber: 'BX2024006',
+    senderName: 'Diallo Ibrahim',
+    senderPhone: '+226 70 33 44 55',
+    senderAddress: 'Zone du Bois, Ouagadougou',
+    receiverName: 'Nikiema Awa',
+    receiverPhone: '+226 76 88 99 00',
+    receiverAddress: 'Cissin, Ouagadougou',
+    customerName: 'Nikiema Awa',
+    customerPhone: '+226 76 88 99 00',
+    address: 'Cissin, Ouagadougou',
+    receiverLat: 12.3950,
+    receiverLng: -1.5450,
+    weight: 3.2,
+    description: 'Matériel de bureau',
+    notes: 'Livraison urgente',
+    status: 'collected',
+    priority: 'high',
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+    assignedDriver: {
+      id: 2,
+      name: 'Jean Kouassi',
+      phone: '+226 70 00 00 01'
+    },
+    Zone: { name: 'Cissin' }
+  },
+  {
+    id: 7,
+    trackingNumber: 'BX2024007',
+    senderName: 'Kone Salif',
+    senderPhone: '+226 70 22 11 00',
+    senderAddress: 'Dassasgho, Ouagadougou',
+    receiverName: 'Ouattara Fati',
+    receiverPhone: '+226 75 99 88 77',
+    receiverAddress: 'Zone 1, Ouagadougou',
+    customerName: 'Ouattara Fati',
+    customerPhone: '+226 75 99 88 77',
+    address: 'Zone 1, Ouagadougou',
+    receiverLat: 12.3650,
+    receiverLng: -1.5250,
+    weight: 2.0,
+    description: 'Nourriture',
+    status: 'in_delivery',
+    priority: 'urgent',
+    createdAt: new Date(Date.now() - 7200000).toISOString(),
+    assignedDriver: {
+      id: 2,
+      name: 'Jean Kouassi',
+      phone: '+226 70 00 00 01'
+    },
+    Zone: { name: 'Zone 1' }
+  },
+  {
+    id: 21,
+    trackingNumber: 'BX2024021',
+    senderName: 'Boutique SAMA Electronics',
+    senderPhone: '+226 70 15 25 35',
+    senderAddress: 'Avenue Kwame Nkrumah, Zone du Bois, Ouagadougou',
+    receiverName: 'Compaoré Aminata',
+    receiverPhone: '+226 76 48 52 69',
+    receiverAddress: 'Secteur 15, Ouaga 2000, Ouagadougou',
+    customerName: 'Compaoré Aminata',
+    customerPhone: '+226 76 48 52 69',
+    address: 'Secteur 15, Ouaga 2000, Ouagadougou',
+    receiverLat: 12.3420,
+    receiverLng: -1.4720,
+    weight: 1.5,
+    description: 'Smartphone Samsung Galaxy - FRAGILE',
+    notes: '⚠️ URGENT: Commande payée en avance. Client attend livraison avant 18h. Appeler 30min avant arrivée.',
+    status: 'pending', // Mission assignée, doit d'abord récupérer
+    priority: 'urgent',
+    createdAt: new Date(Date.now() - 300000).toISOString(), // Il y a 5 minutes
+    assignedDriver: {
+      id: 2,
+      name: 'Jean Kouassi',
+      phone: '+226 70 00 00 01'
+    },
+    Zone: { name: 'Ouaga 2000' },
+    // Informations de récupération
+    pickupLocation: 'Boutique SAMA Electronics',
+    pickupAddress: 'Avenue Kwame Nkrumah, Zone du Bois, Ouagadougou',
+    pickupPhone: '+226 70 15 25 35',
+    pickupInstructions: '📍 Face à la pharmacie centrale. Demander Moussa au comptoir. Code pickup: #SAMA2024',
+    pickupLat: 12.3714,
+    pickupLng: -1.5197,
+    pickupContact: 'Moussa Traoré'
   }
 ];
 
@@ -114,35 +214,47 @@ export const DEMO_DRIVERS = [
   {
     id: 2,
     name: 'Jean Kouassi',
-    phone: '+225 07 00 00 00 01',
+    phone: '+226 70 00 00 01',
     email: 'livreur@betex.com',
     status: 'active',
-    currentLat: 5.3600,
-    currentLng: -4.0083,
-    assignedPackages: 3,
-    completedToday: 5
+    currentLat: 12.3714,
+    currentLng: -1.5197,
+    assignedPackages: 2,
+    completedToday: 5,
+    totalDeliveries: 52,
+    rating: 4.8,
+    vehicleType: 'Moto',
+    vehiclePlate: 'BF-1234-AB'
   },
   {
     id: 3,
     name: 'Yao Emmanuel',
-    phone: '+225 07 00 00 00 02',
+    phone: '+226 70 00 00 02',
     email: 'yao.emmanuel@betex.com',
     status: 'available',
-    currentLat: 5.3500,
-    currentLng: -4.0200,
+    currentLat: 12.3850,
+    currentLng: -1.5350,
     assignedPackages: 0,
-    completedToday: 8
+    completedToday: 8,
+    totalDeliveries: 45,
+    rating: 4.6,
+    vehicleType: 'Voiture',
+    vehiclePlate: 'BF-5678-CD'
   },
   {
     id: 4,
     name: 'Koné Abdoulaye',
-    phone: '+225 07 00 00 00 03',
+    phone: '+226 70 00 00 03',
     email: 'kone.abdoulaye@betex.com',
     status: 'active',
-    currentLat: 5.3400,
-    currentLng: -3.9900,
+    currentLat: 12.3580,
+    currentLng: -1.5080,
     assignedPackages: 2,
-    completedToday: 6
+    completedToday: 6,
+    totalDeliveries: 38,
+    rating: 4.7,
+    vehicleType: 'Moto',
+    vehiclePlate: 'BF-9012-EF'
   }
 ];
 
@@ -150,17 +262,17 @@ export const DEMO_DRIVERS = [
 export const DEMO_ZONES = [
   {
     id: 1,
-    name: 'Cocody',
-    description: 'Zone résidentielle haut standing',
-    coordinates: [[5.3364, -4.0267], [5.3500, -4.0100], [5.3600, -4.0200]],
+    name: 'Zone du Bois',
+    description: 'Zone commerciale centrale',
+    coordinates: [[12.3714, -1.5197], [12.3800, -1.5100], [12.3750, -1.5250]],
     activePackages: 12,
     assignedDrivers: 3
   },
   {
     id: 2,
-    name: 'Yopougon',
-    description: 'Grande zone populaire',
-    coordinates: [[5.3364, -4.0867], [5.3200, -4.0700], [5.3100, -4.0900]],
+    name: 'Gounghin',
+    description: 'Zone résidentielle',
+    coordinates: [[12.3850, -1.5100], [12.3900, -1.5050], [12.3800, -1.5150]],
     activePackages: 18,
     assignedDrivers: 4
   }
@@ -216,8 +328,9 @@ export const mockGetPackages = async (params = {}) => {
       
       // Filtrer par livreur si driverId est fourni
       if (params.driverId) {
+        const driverId = parseInt(params.driverId);
         filteredPackages = DEMO_PACKAGES.filter(pkg => 
-          pkg.assignedDriver && pkg.assignedDriver.id === params.driverId
+          pkg.assignedDriver && pkg.assignedDriver.id === driverId
         );
       }
       
@@ -315,13 +428,286 @@ export const mockGetDriverStats = async () => {
       resolve({
         success: true,
         data: {
-          successfulDeliveries: 42,
-          totalDeliveries: 48,
+          successfulDeliveries: 48,
+          totalDeliveries: 52,
           rating: 4.8,
           completedToday: 5,
           onTimeRate: 95
         }
       });
     }, 300);
+  });
+};
+
+// Fonction pour obtenir l'historique des livraisons
+export const mockGetHistory = async (params = {}) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const oneWeekAgo = Date.now() - (7 * 86400000);
+      const allPackages = [
+        ...DEMO_PACKAGES,
+        // Livraisons d'il y a une semaine (10 livraisons)
+        {
+          id: 10,
+          trackingNumber: 'BX2024010',
+          senderName: 'Bakayoko Ahmed',
+          receiverName: 'Ouattara Mariam',
+          customerName: 'Ouattara Mariam',
+          address: 'Gounghin, Ouagadougou',
+          receiverAddress: 'Gounghin, Ouagadougou',
+          receiverPhone: '+226 76 11 22 33',
+          status: 'delivered',
+          createdAt: new Date(oneWeekAgo - 1000000).toISOString(),
+          deliveredAt: new Date(oneWeekAgo).toISOString(),
+          assignedDriver: { id: 2, name: 'Jean Kouassi' }
+        },
+        {
+          id: 11,
+          trackingNumber: 'BX2024011',
+          senderName: 'Coulibaly Issa',
+          receiverName: 'Sanogo Fatoumata',
+          customerName: 'Sanogo Fatoumata',
+          address: 'Tampouy, Ouagadougou',
+          receiverAddress: 'Tampouy, Ouagadougou',
+          receiverPhone: '+226 75 22 33 44',
+          status: 'delivered',
+          createdAt: new Date(oneWeekAgo - 2000000).toISOString(),
+          deliveredAt: new Date(oneWeekAgo - 500000).toISOString(),
+          assignedDriver: { id: 2, name: 'Jean Kouassi' }
+        },
+        {
+          id: 12,
+          trackingNumber: 'BX2024012',
+          senderName: 'Diarra Moussa',
+          receiverName: 'Koné Aïssata',
+          customerName: 'Koné Aïssata',
+          address: 'Cissin, Ouagadougou',
+          receiverAddress: 'Cissin, Ouagadougou',
+          receiverPhone: '+226 70 33 44 55',
+          description: 'Électronique',
+          status: 'delivered',
+          createdAt: new Date(oneWeekAgo - 3000000).toISOString(),
+          deliveredAt: new Date(oneWeekAgo - 1000000).toISOString(),
+          assignedDriver: { id: 2, name: 'Jean Kouassi' }
+        },
+        {
+          id: 13,
+          trackingNumber: 'BX2024013',
+          senderName: 'Traoré Salif',
+          receiverName: 'Ouédraogo Rasmata',
+          customerName: 'Ouédraogo Rasmata',
+          address: 'Zone 1, Ouagadougou',
+          receiverAddress: 'Zone 1, Ouagadougou',
+          receiverPhone: '+226 76 44 55 66',
+          description: 'Documents',
+          status: 'delivered',
+          createdAt: new Date(oneWeekAgo - 4000000).toISOString(),
+          deliveredAt: new Date(oneWeekAgo - 1500000).toISOString(),
+          assignedDriver: { id: 2, name: 'Jean Kouassi' }
+        },
+        {
+          id: 14,
+          trackingNumber: 'BX2024014',
+          senderName: 'Sawadogo Ali',
+          receiverName: 'Compaoré Awa',
+          customerName: 'Compaoré Awa',
+          address: 'Ouaga 2000, Ouagadougou',
+          receiverAddress: 'Ouaga 2000, Ouagadougou',
+          receiverPhone: '+226 75 55 66 77',
+          description: 'Vêtements',
+          status: 'delivered',
+          createdAt: new Date(oneWeekAgo - 5000000).toISOString(),
+          deliveredAt: new Date(oneWeekAgo - 2000000).toISOString(),
+          assignedDriver: { id: 2, name: 'Jean Kouassi' }
+        },
+        {
+          id: 15,
+          trackingNumber: 'BX2024015',
+          senderName: 'Kaboré Moussa',
+          receiverName: 'Nikiema Ibrahim',
+          customerName: 'Nikiema Ibrahim',
+          address: 'Dassasgho, Ouagadougou',
+          receiverAddress: 'Dassasgho, Ouagadougou',
+          receiverPhone: '+226 70 66 77 88',
+          description: 'Nourriture',
+          status: 'delivered',
+          createdAt: new Date(oneWeekAgo - 6000000).toISOString(),
+          deliveredAt: new Date(oneWeekAgo - 2500000).toISOString(),
+          assignedDriver: { id: 2, name: 'Jean Kouassi' }
+        },
+        {
+          id: 16,
+          trackingNumber: 'BX2024016',
+          senderName: 'Zongo Seydou',
+          receiverName: 'Diallo Mariam',
+          customerName: 'Diallo Mariam',
+          address: 'Somgandé, Ouagadougou',
+          receiverAddress: 'Somgandé, Ouagadougou',
+          receiverPhone: '+226 76 77 88 99',
+          description: 'Colis fragile',
+          status: 'delivered',
+          createdAt: new Date(oneWeekAgo - 7000000).toISOString(),
+          deliveredAt: new Date(oneWeekAgo - 3000000).toISOString(),
+          assignedDriver: { id: 2, name: 'Jean Kouassi' }
+        },
+        {
+          id: 17,
+          trackingNumber: 'BX2024017',
+          senderName: 'Ouattara Paul',
+          receiverName: 'Traoré Aminata',
+          customerName: 'Traoré Aminata',
+          address: 'Zone du Bois, Ouagadougou',
+          receiverAddress: 'Zone du Bois, Ouagadougou',
+          receiverPhone: '+226 75 88 99 00',
+          description: 'Équipements',
+          status: 'delivered',
+          createdAt: new Date(oneWeekAgo - 8000000).toISOString(),
+          deliveredAt: new Date(oneWeekAgo - 3500000).toISOString(),
+          assignedDriver: { id: 2, name: 'Jean Kouassi' }
+        },
+        {
+          id: 18,
+          trackingNumber: 'BX2024018',
+          senderName: 'Nikiema Souleymane',
+          receiverName: 'Sawadogo Fati',
+          customerName: 'Sawadogo Fati',
+          address: 'Gounghin, Ouagadougou',
+          receiverAddress: 'Gounghin, Ouagadougou',
+          receiverPhone: '+226 70 99 00 11',
+          description: 'Fournitures',
+          status: 'delivered',
+          createdAt: new Date(oneWeekAgo - 9000000).toISOString(),
+          deliveredAt: new Date(oneWeekAgo - 4000000).toISOString(),
+          assignedDriver: { id: 2, name: 'Jean Kouassi' }
+        },
+        {
+          id: 19,
+          trackingNumber: 'BX2024019',
+          senderName: 'Compaoré Issouf',
+          receiverName: 'Kaboré Salimata',
+          customerName: 'Kaboré Salimata',
+          address: 'Tampouy, Ouagadougou',
+          receiverAddress: 'Tampouy, Ouagadougou',
+          receiverPhone: '+226 76 00 11 22',
+          description: 'Accessoires',
+          status: 'delivered',
+          createdAt: new Date(oneWeekAgo - 10000000).toISOString(),
+          deliveredAt: new Date(oneWeekAgo - 4500000).toISOString(),
+          assignedDriver: { id: 2, name: 'Jean Kouassi' }
+        },
+        // Quelques échecs
+        {
+          id: 20,
+          trackingNumber: 'BX2024020',
+          senderName: 'Diallo Mamadou',
+          receiverName: 'Ouédraogo Raogo',
+          customerName: 'Ouédraogo Raogo',
+          address: 'Pissy, Ouagadougou',
+          receiverAddress: 'Pissy, Ouagadougou',
+          receiverPhone: '+226 75 11 22 33',
+          description: 'Colis non récupéré',
+          status: 'delivery_failed',
+          createdAt: new Date(oneWeekAgo - 11000000).toISOString(),
+          assignedDriver: { id: 2, name: 'Jean Kouassi' }
+        }
+      ];
+      
+      // Filtrer par livreur si driverId est fourni
+      let filteredPackages = allPackages;
+      if (params.driverId) {
+        const driverId = parseInt(params.driverId);
+        filteredPackages = allPackages.filter(pkg => 
+          pkg.assignedDriver && pkg.assignedDriver.id === driverId
+        );
+      }
+      
+      resolve({
+        success: true,
+        data: filteredPackages,
+        total: filteredPackages.length
+      });
+    }, 400);
+  });
+};
+
+// Fonction pour obtenir la charge de travail des livreurs
+export const mockGetWorkload = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const workload = DEMO_DRIVERS.map(driver => ({
+        driverId: driver.id,
+        driverName: driver.name,
+        status: driver.status,
+        assignedPackages: driver.assignedPackages || 0,
+        totalWeight: (driver.assignedPackages || 0) * 3.5, // Poids moyen par colis
+        successRate: 0.92 + (Math.random() * 0.08) // Entre 92% et 100%
+      }));
+      
+      resolve({
+        success: true,
+        data: workload
+      });
+    }, 400);
+  });
+};
+
+// Fonction pour assigner plusieurs colis
+export const mockAssignPackages = async (data) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const { packageIds } = data;
+      
+      resolve({
+        success: true,
+        data: packageIds.map(id => ({
+          packageId: id,
+          assignedDriver: DEMO_DRIVERS[0],
+          message: 'Colis assigné avec succès (MODE DÉMO)'
+        })),
+        message: `${packageIds.length} colis assignés avec succès (MODE DÉMO)`
+      });
+    }, 800);
+  });
+};
+
+// Fonction pour obtenir les tournées
+export const mockGetRoutes = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        success: true,
+        data: {
+          routes: [
+            {
+              id: 1,
+              Driver: DEMO_DRIVERS[0],
+              phase: 'Collecte matin',
+              status: 'in_progress',
+              totalPackages: 5,
+              completedPackages: 2,
+              estimatedDuration: 45
+            }
+          ]
+        }
+      });
+    }, 400);
+  });
+};
+
+// Fonction pour créer une tournée
+export const mockCreateRoute = async (data) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        success: true,
+        data: {
+          id: Date.now(),
+          ...data,
+          status: 'pending',
+          createdAt: new Date().toISOString()
+        },
+        message: 'Tournée créée avec succès (MODE DÉMO)'
+      });
+    }, 600);
   });
 };
