@@ -462,7 +462,7 @@ const ClientPortal = () => {
 
                 <form className="delivery-form">
                   <fieldset>
-                    <legend>⏰ Date et heure de livraison</legend>
+                    <legend>⏰ Sélectionnez votre créneau de collecte</legend>
                     
                     <div className="form-row">
                       <div className="form-group">
@@ -475,16 +475,46 @@ const ClientPortal = () => {
                           required
                         />
                       </div>
+                    </div>
 
-                      <div className="form-group">
-                        <label>Heure souhaitée <span className="required">*</span></label>
-                        <input
-                          type="time"
-                          name="scheduledTime"
-                          value={deliveryRequest.scheduledTime}
-                          onChange={handleDeliveryChange}
-                          required
-                        />
+                    {/* Time Slot Selection */}
+                    <div className="time-slots-selection">
+                      <p className="slots-info">Choisissez votre créneau de collecte préféré:</p>
+                      
+                      <div className="slots-grid">
+                        {/* Morning Slot */}
+                        <div 
+                          className={`slot-card ${deliveryRequest.scheduledTime === '07:00-10:00' ? 'selected' : ''}`}
+                          onClick={() => setDeliveryRequest(prev => ({
+                            ...prev,
+                            scheduledTime: '07:00-10:00'
+                          }))}
+                        >
+                          <div className="slot-icon">☀️</div>
+                          <h4>Collecte du Matin</h4>
+                          <p className="slot-time">7h00 - 10h00</p>
+                          <p className="slot-description">Collecte en début de journée</p>
+                          {deliveryRequest.scheduledTime === '07:00-10:00' && (
+                            <div className="slot-check">✓ Sélectionné</div>
+                          )}
+                        </div>
+
+                        {/* Evening Slot */}
+                        <div 
+                          className={`slot-card ${deliveryRequest.scheduledTime === '15:00-17:00' ? 'selected' : ''}`}
+                          onClick={() => setDeliveryRequest(prev => ({
+                            ...prev,
+                            scheduledTime: '15:00-17:00'
+                          }))}
+                        >
+                          <div className="slot-icon">🌙</div>
+                          <h4>Collecte du Soir</h4>
+                          <p className="slot-time">15h00 - 17h00</p>
+                          <p className="slot-description">Collecte en fin d'après-midi</p>
+                          {deliveryRequest.scheduledTime === '15:00-17:00' && (
+                            <div className="slot-check">✓ Sélectionné</div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </fieldset>

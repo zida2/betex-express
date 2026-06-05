@@ -1253,3 +1253,191 @@ fieldset.fieldset-optional legend {
     font-size: 0.65rem;
   }
 }
+
+
+/* ============ TIME SLOTS SELECTION ============ */
+.time-slots-selection {
+  margin-top: 1.5rem;
+}
+
+.slots-info {
+  color: #374151;
+  font-weight: 600;
+  margin: 0 0 1.2rem 0;
+  font-size: 0.95rem;
+}
+
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.slot-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.slot-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0) 100%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 0;
+}
+
+.slot-card:hover:not(.disabled) {
+  transform: translateY(-4px);
+  border-color: #3b82f6;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+}
+
+.slot-card:hover:not(.disabled)::before {
+  opacity: 1;
+}
+
+.slot-card.selected {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.15);
+}
+
+.slot-card.selected::before {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0) 100%);
+  opacity: 1;
+}
+
+.slot-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f3f4f6;
+}
+
+.slot-card.disabled:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: #e5e7eb;
+}
+
+.slot-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.8rem;
+  position: relative;
+  z-index: 1;
+}
+
+.slot-card h4 {
+  color: #1f2937;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  position: relative;
+  z-index: 1;
+}
+
+.slot-time {
+  color: #2563eb;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0.5rem 0 0.3rem 0;
+  position: relative;
+  z-index: 1;
+}
+
+.slot-description {
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin: 0.3rem 0 0.8rem 0;
+  position: relative;
+  z-index: 1;
+}
+
+.slot-check {
+  margin-top: 0.8rem;
+  padding: 0.5rem 1rem;
+  background: #10b981;
+  color: white;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ============ RESPONSIVE TIME SLOTS ============ */
+@media (max-width: 768px) {
+  .slots-grid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+
+  .slot-card {
+    min-height: 180px;
+    padding: 1.2rem;
+  }
+
+  .slot-icon {
+    font-size: 2.2rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .slot-card h4 {
+    font-size: 1rem;
+  }
+
+  .slot-time {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .slot-card {
+    min-height: 160px;
+    padding: 1rem;
+  }
+
+  .slot-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .slot-card h4 {
+    font-size: 0.95rem;
+    margin: 0 0 0.4rem 0;
+  }
+
+  .slot-time {
+    font-size: 0.9rem;
+    margin: 0.4rem 0 0.2rem 0;
+  }
+
+  .slot-description {
+    font-size: 0.8rem;
+    margin: 0.2rem 0 0.6rem 0;
+  }
+
+  .slot-check {
+    margin-top: 0.6rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}
