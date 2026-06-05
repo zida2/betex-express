@@ -377,54 +377,60 @@ const DeliveryRequestsPage = () => {
         </div>
       )}
 
-      {/* Status Filters */}
+      {/* Filters Section */}
       <div className="filters">
         <div className="filter-group">
-          <label>État:</label>
+          <label>🔍 État de la demande</label>
           <button
             className={`filter-btn ${filter === 'pending_approval' ? 'active' : ''}`}
             onClick={() => setFilter('pending_approval')}
+            title="Demandes en attente d'approbation"
           >
-            ⏳ En attente ({requests.filter(r => r.status === 'pending_approval').length})
+            ⏳ En attente <span style={{fontSize: '0.75rem', opacity: 0.8}}>({requests.filter(r => r.status === 'pending_approval').length})</span>
           </button>
           <button
             className={`filter-btn ${filter === 'approved' ? 'active' : ''}`}
             onClick={() => setFilter('approved')}
+            title="Demandes approuvées"
           >
-            ✅ Approuvées ({requests.filter(r => r.status === 'approved').length})
+            ✅ Approuvées <span style={{fontSize: '0.75rem', opacity: 0.8}}>({requests.filter(r => r.status === 'approved').length})</span>
           </button>
           <button
             className={`filter-btn ${filter === 'rejected' ? 'active' : ''}`}
             onClick={() => setFilter('rejected')}
+            title="Demandes rejetées"
           >
-            ❌ Rejetées ({requests.filter(r => r.status === 'rejected').length})
+            ❌ Rejetées <span style={{fontSize: '0.75rem', opacity: 0.8}}>({requests.filter(r => r.status === 'rejected').length})</span>
           </button>
           <button
             className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
+            title="Toutes les demandes"
           >
-            📊 Toutes ({requests.length})
+            📊 Toutes <span style={{fontSize: '0.75rem', opacity: 0.8}}>({requests.length})</span>
           </button>
         </div>
 
-        {/* Delivery Type Filters */}
         <div className="filter-group">
-          <label>Type de livraison:</label>
+          <label>🚚 Type de livraison</label>
           <button
             className={`filter-btn ${deliveryTypeFilter === 'express' ? 'active' : ''}`}
             onClick={() => setDeliveryTypeFilter('express')}
+            title="Livraisons express - Basé sur la distance"
           >
-            🚀 Express ({requests.filter(r => r.deliveryOption === 'express').length})
+            🚀 Express <span style={{fontSize: '0.75rem', opacity: 0.8}}>({requests.filter(r => r.deliveryOption === 'express').length})</span>
           </button>
           <button
             className={`filter-btn ${deliveryTypeFilter === 'scheduled' ? 'active' : ''}`}
             onClick={() => setDeliveryTypeFilter('scheduled')}
+            title="Livraisons programmées - Créneau horaire"
           >
-            📅 Programmée ({requests.filter(r => r.deliveryOption === 'scheduled').length})
+            📅 Programmée <span style={{fontSize: '0.75rem', opacity: 0.8}}>({requests.filter(r => r.deliveryOption === 'scheduled').length})</span>
           </button>
           <button
             className={`filter-btn ${deliveryTypeFilter === 'all' ? 'active' : ''}`}
             onClick={() => setDeliveryTypeFilter('all')}
+            title="Tous les types de livraison"
           >
             📦 Tous les types
           </button>
