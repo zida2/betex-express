@@ -17,6 +17,8 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [showNotifications, setShowNotifications] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [isStatsCollapsed, setIsStatsCollapsed] = useState(true);
+  const [isActionsCollapsed, setIsActionsCollapsed] = useState(true);
   
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -143,111 +145,130 @@ const AdminDashboard = () => {
       </nav>
 
       <main className="dashboard-main">
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon">📦</div>
-            <div className="stat-info">
-              <h3>Total Colis</h3>
-              <p className="stat-value">{stats?.totalPackages || 0}</p>
-            </div>
+        <div className="stats-section">
+          <div className="stats-header" onClick={() => setIsStatsCollapsed(!isStatsCollapsed)}>
+            <h2>Statistiques</h2>
+            <button className="collapse-btn">
+              <span className={`collapse-arrow ${isStatsCollapsed ? 'collapsed' : ''}`}>▼</span>
+            </button>
           </div>
+          
+          {!isStatsCollapsed && (
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-icon">📦</div>
+                <div className="stat-info">
+                  <h3>Total Colis</h3>
+                  <p className="stat-value">{stats?.totalPackages || 0}</p>
+                </div>
+              </div>
 
-          <div className="stat-card">
-            <div className="stat-icon">✅</div>
-            <div className="stat-info">
-              <h3>Livrés</h3>
-              <p className="stat-value">{stats?.packagesByStatus?.delivered || 0}</p>
-            </div>
-          </div>
+              <div className="stat-card">
+                <div className="stat-icon">✅</div>
+                <div className="stat-info">
+                  <h3>Livrés</h3>
+                  <p className="stat-value">{stats?.packagesByStatus?.delivered || 0}</p>
+                </div>
+              </div>
 
-          <div className="stat-card">
-            <div className="stat-icon">🚚</div>
-            <div className="stat-info">
-              <h3>En livraison</h3>
-              <p className="stat-value">{stats?.packagesByStatus?.in_delivery || 0}</p>
-            </div>
-          </div>
+              <div className="stat-card">
+                <div className="stat-icon">🚚</div>
+                <div className="stat-info">
+                  <h3>En livraison</h3>
+                  <p className="stat-value">{stats?.packagesByStatus?.in_delivery || 0}</p>
+                </div>
+              </div>
 
-          <div className="stat-card">
-            <div className="stat-icon">⏳</div>
-            <div className="stat-info">
-              <h3>En attente</h3>
-              <p className="stat-value">{stats?.packagesByStatus?.pending || 0}</p>
-            </div>
-          </div>
+              <div className="stat-card">
+                <div className="stat-icon">⏳</div>
+                <div className="stat-info">
+                  <h3>En attente</h3>
+                  <p className="stat-value">{stats?.packagesByStatus?.pending || 0}</p>
+                </div>
+              </div>
 
-          <div className="stat-card">
-            <div className="stat-icon">👨‍🚚</div>
-            <div className="stat-info">
-              <h3>Total Livreurs</h3>
-              <p className="stat-value">{stats?.totalDrivers || 0}</p>
-            </div>
-          </div>
+              <div className="stat-card">
+                <div className="stat-icon">👨‍🚚</div>
+                <div className="stat-info">
+                  <h3>Total Livreurs</h3>
+                  <p className="stat-value">{stats?.totalDrivers || 0}</p>
+                </div>
+              </div>
 
-          <div className="stat-card">
-            <div className="stat-icon">🟢</div>
-            <div className="stat-info">
-              <h3>Livreurs Actifs</h3>
-              <p className="stat-value">{stats?.activeDrivers || 0}</p>
-            </div>
-          </div>
+              <div className="stat-card">
+                <div className="stat-icon">🟢</div>
+                <div className="stat-info">
+                  <h3>Livreurs Actifs</h3>
+                  <p className="stat-value">{stats?.activeDrivers || 0}</p>
+                </div>
+              </div>
 
-          <div className="stat-card">
-            <div className="stat-icon">📈</div>
-            <div className="stat-info">
-              <h3>Taux de réussite</h3>
-              <p className="stat-value">{stats?.completionRate || 0}%</p>
-            </div>
-          </div>
+              <div className="stat-card">
+                <div className="stat-icon">📈</div>
+                <div className="stat-info">
+                  <h3>Taux de réussite</h3>
+                  <p className="stat-value">{stats?.completionRate || 0}%</p>
+                </div>
+              </div>
 
-          <div className="stat-card">
-            <div className="stat-icon">❌</div>
-            <div className="stat-info">
-              <h3>Échecs</h3>
-              <p className="stat-value">{stats?.packagesByStatus?.delivery_failed || 0}</p>
+              <div className="stat-card">
+                <div className="stat-icon">❌</div>
+                <div className="stat-info">
+                  <h3>Échecs</h3>
+                  <p className="stat-value">{stats?.packagesByStatus?.delivery_failed || 0}</p>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="quick-actions">
-          <h2>Actions rapides</h2>
-          <div className="actions-grid">
-            <button 
-              className="action-btn"
-              onClick={() => navigate('/admin/packages')}
-            >
-              <span className="action-icon">➕</span>
-              <span>Nouveau colis</span>
-            </button>
-            <button 
-              className="action-btn"
-              onClick={() => navigate('/admin/routes')}
-            >
-              <span className="action-icon">🗺️</span>
-              <span>Créer tournée</span>
-            </button>
-            <button 
-              className="action-btn"
-              onClick={() => navigate('/admin/drivers')}
-            >
-              <span className="action-icon">👤</span>
-              <span>Ajouter livreur</span>
-            </button>
-            <button 
-              className="action-btn"
-              onClick={() => navigate('/admin/stock')}
-            >
-              <span className="action-icon">📊</span>
-              <span>Gérer stocks</span>
-            </button>
-            <button 
-              className="action-btn"
-              onClick={() => navigate('/admin/optimization')}
-            >
-              <span className="action-icon">⚡</span>
-              <span>Optimiser livraisons</span>
+          <div className="actions-header" onClick={() => setIsActionsCollapsed(!isActionsCollapsed)}>
+            <h2>Actions rapides</h2>
+            <button className="collapse-btn">
+              <span className={`collapse-arrow ${isActionsCollapsed ? 'collapsed' : ''}`}>▼</span>
             </button>
           </div>
+          
+          {!isActionsCollapsed && (
+            <div className="actions-grid">
+              <button 
+                className="action-btn"
+                onClick={() => navigate('/admin/packages')}
+              >
+                <span className="action-icon">➕</span>
+                <span>Nouveau colis</span>
+              </button>
+              <button 
+                className="action-btn"
+                onClick={() => navigate('/admin/routes')}
+              >
+                <span className="action-icon">🗺️</span>
+                <span>Créer tournée</span>
+              </button>
+              <button 
+                className="action-btn"
+                onClick={() => navigate('/admin/drivers')}
+              >
+                <span className="action-icon">👤</span>
+                <span>Ajouter livreur</span>
+              </button>
+              <button 
+                className="action-btn"
+                onClick={() => navigate('/admin/stock')}
+              >
+                <span className="action-icon">📊</span>
+                <span>Gérer stocks</span>
+              </button>
+              <button 
+                className="action-btn"
+                onClick={() => navigate('/admin/optimization')}
+              >
+                <span className="action-icon">⚡</span>
+                <span>Optimiser livraisons</span>
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>
