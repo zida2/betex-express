@@ -60,7 +60,28 @@ api.interceptors.response.use(
     }
     return response;
   },
-  (error) => {
+  async (error) => {
+    // In DEMO_MODE, handle failed requests by returning mock data
+    if (DEMO_MODE && error.response?.status === 405) {
+      const method = error.config?.method?.toUpperCase();
+      const url = error.config?.url;
+      
+      console.warn(`Demo mode: Intercepting failed ${method} ${url}, returning mock data`);
+      
+      // Handle login in demo mode
+      if (method === 'POST' && url.includes('/auth/login')) {
+        const { email, password } = error.config?.data ? JSON.parse(error.config.data) : {};
+        return mockData.mockLogin(email, password);
+      }
+      
+      // Handle other demo requests
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({ data: { data: [] } });
+        }, 300);
+      });
+    }
+
     // Handle unauthorized
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
