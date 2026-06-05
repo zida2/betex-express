@@ -496,39 +496,54 @@ const ClientPortal = () => {
               <div className="requests-list">
                 {requests.map(request => (
                   <div key={request.id} className="request-card">
-                    <div className="request-header">
-                      <h3>Demande #{request.id}</h3>
+                    {/* Status Badge - Visible at top */}
+                    <div className="request-status">
                       <span className={`status-badge status-${request.status}`}>
                         {getStatusBadge(request.status)}
                       </span>
                     </div>
 
+                    {/* Header with ID */}
+                    <div className="request-header">
+                      <h3>Demande #{request.id}</h3>
+                    </div>
+
+                    {/* Main Content - Better organized */}
                     <div className="request-content">
-                      <div className="request-row">
-                        <div>
-                          <strong>📤 Départ:</strong>
-                          <p>{request.senderAddress}</p>
-                          <p>{request.senderPhone}</p>
-                        </div>
-                        <div>
-                          <strong>📥 Destination:</strong>
-                          <p>{request.receiverAddress}</p>
-                          <p>{request.receiverPhone}</p>
+                      {/* Departure & Destination */}
+                      <div className="request-section-box">
+                        <div className="request-info-pair">
+                          <div className="info-column">
+                            <strong>📤 Départ:</strong>
+                            <p className="address">{request.senderAddress || 'Non spécifié'}</p>
+                            <p className="phone">{request.senderPhone}</p>
+                          </div>
+                          <div className="info-column">
+                            <strong>📥 Destination:</strong>
+                            <p className="address">{request.receiverAddress || 'Non spécifié'}</p>
+                            <p className="phone">{request.receiverPhone}</p>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="request-row">
-                        <div>
-                          <strong>👨‍🚚 Livreur:</strong>
-                          <p>{request.driverName || 'À assigner'}</p>
-                        </div>
-                        <div>
-                          <strong>📦 Colis:</strong>
-                          <p>{request.description || 'Non spécifié'}</p>
+                      {/* Package & Driver Info */}
+                      <div className="request-section-box">
+                        <div className="request-info-pair">
+                          <div className="info-column">
+                            <strong>📦 Colis:</strong>
+                            <p>{request.description || 'Non spécifié'}</p>
+                            {request.weight && <p className="weight">{request.weight} kg</p>}
+                          </div>
+                          <div className="info-column">
+                            <strong>👨‍🚚 Livreur:</strong>
+                            <p>{request.driverName || 'À assigner'}</p>
+                            {request.driverPhone && <p className="phone">{request.driverPhone}</p>}
+                          </div>
                         </div>
                       </div>
                     </div>
 
+                    {/* Status Info Messages */}
                     {request.status === 'pending_approval' && (
                       <div className="request-info pending">
                         ⏳ En attente d'approbation...
@@ -544,6 +559,18 @@ const ClientPortal = () => {
                     {request.status === 'approved' && (
                       <div className="request-info approved">
                         ✅ Le livreur va vous contacter!
+                      </div>
+                    )}
+
+                    {request.status === 'in_transit' && (
+                      <div className="request-info in-transit">
+                        🚚 Votre colis est en cours de livraison
+                      </div>
+                    )}
+
+                    {request.status === 'completed' && (
+                      <div className="request-info completed">
+                        ✔️ Livraison complétée avec succès!
                       </div>
                     )}
                   </div>

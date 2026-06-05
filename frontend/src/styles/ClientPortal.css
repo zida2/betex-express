@@ -522,27 +522,37 @@ legend {
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
 }
 
+/* Status Badge at Top */
+.request-status {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+}
+
 .request-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #f3f4f6;
+  margin-bottom: 1.5rem;
   padding-bottom: 1rem;
+  border-bottom: 2px solid #f3f4f6;
 }
 
 .request-header h3 {
   margin: 0;
   color: #1f2937;
   font-weight: 700;
+  font-size: 1.1rem;
 }
 
 .status-badge {
-  padding: 0.6rem 1.2rem;
-  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   white-space: nowrap;
+  display: inline-block;
+  letter-spacing: 0.2px;
 }
 
 .status-pending_approval {
@@ -563,30 +573,74 @@ legend {
   border: 1px solid #fecaca;
 }
 
-.request-content {
-  margin-bottom: 1rem;
+.status-in_transit {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
 }
 
-.request-row {
+.status-completed {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.request-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Section Box - Groups related info */
+.request-section-box {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.request-info-pair {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 1rem;
 }
 
-.request-row strong {
+.info-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-column strong {
   color: #1f2937;
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 0.95rem;
   font-weight: 700;
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 0.3rem;
 }
 
-.request-row p {
-  margin: 0.3rem 0;
+.info-column p {
+  margin: 0;
   font-size: 0.9rem;
-  line-height: 1.6;
   color: #6b7280;
+  line-height: 1.5;
+}
+
+.info-column p.address {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.info-column p.phone {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.info-column p.weight {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  font-style: italic;
 }
 
 .request-info {
@@ -612,6 +666,18 @@ legend {
   background: #fee2e2;
   border-left: 4px solid #fecaca;
   color: #991b1b;
+}
+
+.request-info.in-transit {
+  background: #dbeafe;
+  border-left: 4px solid #bfdbfe;
+  color: #1e40af;
+}
+
+.request-info.completed {
+  background: #dcfce7;
+  border-left: 4px solid #bbf7d0;
+  color: #15803d;
 }
 
 /* Loading State */
