@@ -217,14 +217,16 @@ const DeliveryRequestsPage = () => {
       // Try to load from API first
       try {
         const response = await api.get('/delivery-requests');
+        console.log('API Response:', response.data.data);
         setRequests(response.data.data || mockDeliveryRequests);
       } catch (error) {
         // If API fails, use mock data
-        console.warn('Using mock delivery requests');
+        console.warn('API failed, using mock delivery requests:', mockDeliveryRequests.length);
         setRequests(mockDeliveryRequests);
       }
     } catch (error) {
       console.error('Failed to load requests:', error);
+      console.log('Setting mock data as fallback:', mockDeliveryRequests.length);
       setRequests(mockDeliveryRequests);
     } finally {
       setLoading(false);

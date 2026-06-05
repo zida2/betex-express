@@ -3,38 +3,35 @@
 .delivery-requests-page {
   min-height: 100vh;
   background: #0f0f1e;
-  padding-top: 190px;
+  padding-top: 0;
 }
 
 .requests-header {
   background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-  padding: 2rem;
+  padding: 1rem 2rem;
   color: white;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1001;
+  position: relative;
   width: 100%;
   box-sizing: border-box;
+  margin-bottom: 1rem;
 }
 
 .requests-header h1 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.6rem;
+  margin: 0 0 0.3rem 0;
+  font-size: 1.5rem;
 }
 
 .requests-header p {
   margin: 0;
   color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 /* Alert */
 .alert {
-  position: fixed;
-  top: 110px;
+  position: sticky;
+  top: 0;
   left: 2rem;
   right: 2rem;
   padding: 1rem 1.5rem;
@@ -42,6 +39,7 @@
   z-index: 999;
   font-weight: 600;
   max-width: 600px;
+  margin: 1rem 2rem;
   animation: slideDown 0.3s ease;
 }
 
@@ -71,16 +69,12 @@
 /* Filters */
 .filters {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.8rem;
   padding: 1rem 2rem;
   background: #1a1a2e;
   border-bottom: 2px solid #2a5298;
-  position: fixed;
-  top: 120px;
-  left: 0;
-  right: 0;
-  z-index: 500;
-  overflow-x: auto;
+  margin-bottom: 1rem;
 }
 
 .filter-btn {
@@ -94,6 +88,7 @@
   transition: all 0.3s ease;
   white-space: nowrap;
   font-size: 0.95rem;
+  flex-shrink: 0;
 }
 
 .filter-btn:hover {
@@ -470,7 +465,6 @@
   }
 }
 
-
 /* New Delivery Type Filtering Styles */
 .filter-group {
   display: flex;
@@ -484,6 +478,7 @@
   font-weight: 600;
   color: white;
   font-size: 0.9rem;
+  margin-right: 0.5rem;
 }
 
 /* Delivery Type Badge */
