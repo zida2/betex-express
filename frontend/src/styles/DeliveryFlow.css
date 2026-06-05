@@ -505,33 +505,192 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .delivery-flow-container {
-    padding: 15px;
+    padding: 12px;
+    margin: 10px 0;
+  }
+
+  .delivery-flow-container h3 {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+  }
+
+  .flow-section {
+    margin: 15px 0;
+    padding: 12px;
+    border-left-width: 3px;
   }
 
   .section-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .section-header h4 {
+    margin: 0;
+  }
+
+  .btn-toggle {
+    width: 100%;
+    padding: 10px;
+    text-align: left;
   }
 
   .time-slots-container {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .zones-list {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .driver-card-header {
     flex-direction: column;
     gap: 10px;
+    align-items: flex-start;
   }
 
   .driver-distance {
     text-align: left;
+    width: 100%;
+  }
+
+  .drivers-list-express {
+    gap: 10px;
+  }
+
+  .driver-card-express {
+    padding: 12px;
   }
 
   .summary-row {
     flex-direction: column;
     gap: 5px;
+    padding: 8px;
+  }
+
+  .time-slot-card {
+    padding: 12px;
+  }
+
+  .zone-card {
+    padding: 10px;
+  }
+
+  .slot-header h5,
+  .zone-header h5 {
+    font-size: 0.95em;
+  }
+
+  .detail-row {
+    font-size: 0.9em;
+    padding: 6px 0;
+  }
+
+  .slot-capacity-bar {
+    height: 5px;
+    margin: 8px 0;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .delivery-flow-container {
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 8px;
+  }
+
+  .delivery-flow-container h3 {
+    font-size: 1em;
+    margin-bottom: 12px;
+  }
+
+  .delivery-flow-container h4 {
+    font-size: 0.95em;
+  }
+
+  .flow-section {
+    margin: 10px 0;
+    padding: 10px;
+    border-left: 3px solid #007bff;
+  }
+
+  .section-header {
+    gap: 8px;
+  }
+
+  .btn-toggle {
+    padding: 8px;
+    font-size: 0.9em;
+  }
+
+  .time-slots-container,
+  .zones-list,
+  .drivers-list-express {
+    gap: 8px;
+  }
+
+  .time-slot-card,
+  .zone-card,
+  .driver-card-express {
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  .driver-card-header {
+    gap: 8px;
+  }
+
+  .driver-basic h5 {
+    font-size: 0.95em;
+  }
+
+  .rating-badge {
+    font-size: 0.8em;
+    padding: 2px 6px;
+  }
+
+  .slot-header h5,
+  .zone-header h5 {
+    font-size: 0.9em;
+    margin: 0 0 5px 0;
+  }
+
+  .slot-status {
+    font-size: 0.8em;
+  }
+
+  .detail-row {
+    font-size: 0.85em;
+  }
+
+  .summary-content {
+    padding: 10px;
+  }
+
+  .summary-row {
+    padding: 6px;
+    font-size: 0.9em;
+  }
+
+  .summary-row.highlight {
+    padding: 8px;
+  }
+
+  .pricing-info {
+    padding: 8px;
+    font-size: 0.85em;
+  }
+
+  .zone-info {
+    padding: 10px;
+    font-size: 0.9em;
+  }
+
+  .zone-info p {
+    margin: 4px 0;
   }
 }
