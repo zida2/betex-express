@@ -221,83 +221,121 @@
 /* Drivers Grid */
 .drivers-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
 }
 
 .driver-card {
   background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1.5rem;
+  border: none;
+  border-radius: 12px;
+  padding: 0;
   transition: all 0.3s ease;
   cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .driver-card:hover {
-  border-color: #3b82f6;
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.2);
+  border: 1px solid #3b82f6;
 }
 
+/* Driver Card Header with Avatar */
 .driver-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #f3f4f6;
-  padding-bottom: 0.8rem;
+  align-items: center;
+  gap: 1.5rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  padding: 1.5rem;
+  margin: 0;
+  border-bottom: none;
 }
 
 .driver-header h3 {
   margin: 0;
   font-size: 1.2rem;
-  color: #1f2937;
+  color: white;
   flex: 1;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.3px;
 }
 
 .distance-badge {
-  background: #3b82f6;
+  background: rgba(255, 255, 255, 0.2);
   color: white;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Driver Info Section */
+.driver-info {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
 }
 
 .driver-info p {
-  margin: 0.7rem 0;
-  font-size: 0.95rem;
-  line-height: 1.6;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
   color: #6b7280;
 }
 
 .driver-info strong {
   color: #1f2937;
   font-weight: 700;
+  display: inline-block;
+  min-width: 70px;
+}
+
+/* Status indicator inline */
+.driver-info p:has(strong:contains("Statut")) {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Icon styling */
+.driver-info p:first-child {
+  font-weight: 600;
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .btn-select-driver {
   width: 100%;
-  background: #3b82f6;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   border: none;
   color: white;
-  padding: 0.9rem;
-  border-radius: 6px;
+  padding: 1rem;
+  border-radius: 0;
   cursor: pointer;
-  font-weight: 600;
-  margin-top: 1rem;
+  font-weight: 700;
+  margin-top: 0;
   transition: all 0.3s ease;
   font-size: 0.95rem;
+  letter-spacing: 0.3px;
 }
 
 .btn-select-driver:hover {
-  background: #2563eb;
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: scaleY(1.05);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Delivery Form */

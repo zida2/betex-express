@@ -289,22 +289,23 @@ const ClientPortal = () => {
                         {filteredDrivers.map(driver => (
                           <div key={driver.id} className="driver-card">
                             <div className="driver-header">
-                              <h3>{driver.name}</h3>
+                              <h3>👤 {driver.name}</h3>
                               {driver.distance && (
                                 <span className="distance-badge">📍 {driver.distance} km</span>
                               )}
                             </div>
 
                             <div className="driver-info">
-                              <p><strong>Téléphone:</strong> {driver.phone}</p>
-                              <p><strong>Véhicule:</strong> {driver.vehicleType}</p>
-                              <p><strong>Plaque:</strong> {driver.vehiclePlate}</p>
-                              <p><strong>Statut:</strong> 
+                              <p><strong>🚗</strong> {driver.vehicleType}</p>
+                              <p><strong>📋</strong> {driver.vehiclePlate}</p>
+                              <p><strong>📞</strong> {driver.phone}</p>
+                              <p><strong>⭐</strong> {driver.rating || 4.5}/5</p>
+                              <p>
+                                <strong>Status:</strong> 
                                 {driver.status === 'available' && ' 🟢 Disponible'}
                                 {driver.status === 'active' && ' 🟡 En cours'}
                                 {driver.status === 'offline' && ' ⚫ Hors ligne'}
                               </p>
-                              <p><strong>Évaluation:</strong> ⭐ {driver.rating || 4.5}/5</p>
                             </div>
 
                             <button
