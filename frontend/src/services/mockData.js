@@ -827,3 +827,308 @@ export const mockCreateRoute = async (data) => {
     }, 600);
   });
 };
+
+// Demandes de livraison de démo
+export const DEMO_DELIVERY_REQUESTS = [
+  {
+    id: 'req-001',
+    status: 'pending_approval',
+    senderName: 'Jean Kouassi',
+    senderPhone: '+226 70 12 34 56',
+    senderAddress: 'Zone du Bois, Ouagadougou',
+    senderLat: 12.3714,
+    senderLng: -1.5197,
+    receiverName: 'Marie Dupont',
+    receiverPhone: '+226 76 54 32 10',
+    receiverAddress: 'Gounghin, Ouagadougou',
+    receiverLat: 12.3850,
+    receiverLng: -1.5100,
+    description: 'Livre de Littérature',
+    weight: 0.5,
+    packagePrice: 0,
+    deliveryPrice: null,
+    adminNotes: null,
+    driverId: null,
+    driverName: null,
+    driverPhone: null,
+    createdAt: new Date(Date.now() - 600000).toISOString(),
+    approvedAt: null
+  },
+  {
+    id: 'req-002',
+    status: 'approved',
+    senderName: 'Compaoré Aminata',
+    senderPhone: '+226 70 11 22 33',
+    senderAddress: 'Dassasgho, Ouagadougou',
+    senderLat: 12.3650,
+    senderLng: -1.5250,
+    receiverName: 'Traoré Seydou',
+    receiverPhone: '+226 75 44 33 22',
+    receiverAddress: 'Ouaga 2000, Ouagadougou',
+    receiverLat: 12.3400,
+    receiverLng: -1.4750,
+    description: 'Vêtements (3 paquets)',
+    weight: 2.0,
+    packagePrice: 0,
+    deliveryPrice: 4000,
+    adminNotes: 'Livraison urgente avant 14h',
+    driverId: 'driver-2',
+    driverName: 'Jean Kouassi',
+    driverPhone: '+226 70 00 00 01',
+    createdAt: new Date(Date.now() - 1800000).toISOString(),
+    approvedAt: new Date(Date.now() - 900000).toISOString()
+  },
+  {
+    id: 'req-003',
+    status: 'approved',
+    senderName: 'Kaboré Marie',
+    senderPhone: '+226 70 99 88 77',
+    senderAddress: 'Somgandé, Ouagadougou',
+    senderLat: 12.3950,
+    senderLng: -1.5450,
+    receiverName: 'Zongo Fatou',
+    receiverPhone: '+226 75 11 22 33',
+    receiverAddress: 'Tampouy, Ouagadougou',
+    receiverLat: 12.4050,
+    receiverLng: -1.5350,
+    description: 'Électronique - Portable',
+    weight: 0.8,
+    packagePrice: 0,
+    deliveryPrice: 5000,
+    adminNotes: 'Colis fragile - Appeler avant livraison',
+    driverId: 'driver-3',
+    driverName: 'Yao Emmanuel',
+    driverPhone: '+226 70 00 00 02',
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+    approvedAt: new Date(Date.now() - 2700000).toISOString()
+  },
+  {
+    id: 'req-004',
+    status: 'pending_approval',
+    senderName: 'Diallo Ibrahim',
+    senderPhone: '+226 70 33 44 55',
+    senderAddress: 'Zone du Bois, Ouagadougou',
+    senderLat: 12.3714,
+    senderLng: -1.5197,
+    receiverName: 'Nikiema Awa',
+    receiverPhone: '+226 76 88 99 00',
+    receiverAddress: 'Cissin, Ouagadougou',
+    receiverLat: 12.3950,
+    receiverLng: -1.5450,
+    description: 'Matériel de bureau - Imprimante',
+    weight: 5.0,
+    packagePrice: 0,
+    deliveryPrice: null,
+    adminNotes: null,
+    driverId: null,
+    driverName: null,
+    driverPhone: null,
+    createdAt: new Date(Date.now() - 300000).toISOString(),
+    approvedAt: null
+  },
+  {
+    id: 'req-005',
+    status: 'pending_approval',
+    senderName: 'Kone Salif',
+    senderPhone: '+226 70 22 11 00',
+    senderAddress: 'Dassasgho, Ouagadougou',
+    senderLat: 12.3650,
+    senderLng: -1.5250,
+    receiverName: 'Ouattara Fati',
+    receiverPhone: '+226 75 99 88 77',
+    receiverAddress: 'Zone 1, Ouagadougou',
+    receiverLat: 12.3650,
+    receiverLng: -1.5250,
+    description: 'Nourriture préparée (urgent)',
+    weight: 1.5,
+    packagePrice: 0,
+    deliveryPrice: null,
+    adminNotes: null,
+    driverId: null,
+    driverName: null,
+    driverPhone: null,
+    createdAt: new Date(Date.now() - 180000).toISOString(),
+    approvedAt: null
+  },
+  {
+    id: 'req-006',
+    status: 'rejected',
+    senderName: 'Boutique Fashion Plus',
+    senderPhone: '+226 70 55 66 77',
+    senderAddress: 'Zone du Bois, Ouagadougou',
+    senderLat: 12.3714,
+    senderLng: -1.5197,
+    receiverName: 'Sawadogo Aïssata',
+    receiverPhone: '+226 76 77 88 99',
+    receiverAddress: 'Patte d\'oie, Ouagadougou',
+    receiverLat: 12.3800,
+    receiverLng: -1.5400,
+    description: 'Vêtements importés',
+    weight: 3.0,
+    packagePrice: 0,
+    deliveryPrice: null,
+    adminNotes: 'Zone non couverte',
+    driverId: null,
+    driverName: null,
+    driverPhone: null,
+    rejectionReason: 'Zone de livraison non couverte - Demander au client de changer l\'adresse',
+    createdAt: new Date(Date.now() - 7200000).toISOString(),
+    approvedAt: null,
+    rejectedAt: new Date(Date.now() - 6300000).toISOString()
+  }
+];
+
+// Fonction pour obtenir les demandes de livraison
+export const mockGetDeliveryRequests = async (params = {}) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      let filteredRequests = [...DEMO_DELIVERY_REQUESTS];
+      
+      // Filtrer par statut si fourni
+      if (params.status) {
+        filteredRequests = filteredRequests.filter(req => 
+          req.status === params.status
+        );
+      }
+      
+      resolve({
+        data: {
+          data: filteredRequests,
+          total: filteredRequests.length
+        }
+      });
+    }, 400);
+  });
+};
+
+// Fonction pour créer une demande de livraison
+export const mockCreateDeliveryRequest = async (data) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const newRequest = {
+        id: `req-${Date.now()}`,
+        status: 'pending_approval',
+        ...data,
+        deliveryPrice: null,
+        adminNotes: null,
+        driverId: null,
+        driverName: null,
+        driverPhone: null,
+        createdAt: new Date().toISOString(),
+        approvedAt: null
+      };
+      
+      DEMO_DELIVERY_REQUESTS.unshift(newRequest);
+      
+      resolve({
+        data: {
+          data: newRequest,
+          message: 'Demande créée avec succès (MODE DÉMO)'
+        }
+      });
+    }, 600);
+  });
+};
+
+// Fonction pour approuver une demande
+export const mockApproveDeliveryRequest = async (requestId, data) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const request = DEMO_DELIVERY_REQUESTS.find(r => r.id === requestId);
+      
+      if (request) {
+        request.status = 'approved';
+        request.deliveryPrice = data.deliveryPrice;
+        request.adminNotes = data.adminNotes || null;
+        request.driverId = data.driverId;
+        request.driverName = data.driverName;
+        request.driverPhone = data.driverPhone;
+        request.approvedAt = new Date().toISOString();
+        
+        resolve({
+          data: {
+            data: request,
+            message: 'Demande approuvée et assignée au livreur (MODE DÉMO)'
+          }
+        });
+      } else {
+        resolve({
+          data: {
+            error: 'Demande non trouvée'
+          }
+        });
+      }
+    }, 600);
+  });
+};
+
+// Fonction pour rejeter une demande
+export const mockRejectDeliveryRequest = async (requestId, rejectionReason) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const request = DEMO_DELIVERY_REQUESTS.find(r => r.id === requestId);
+      
+      if (request) {
+        request.status = 'rejected';
+        request.rejectionReason = rejectionReason;
+        request.rejectedAt = new Date().toISOString();
+        
+        resolve({
+          data: {
+            data: request,
+            message: 'Demande rejetée (MODE DÉMO)'
+          }
+        });
+      } else {
+        resolve({
+          data: {
+            error: 'Demande non trouvée'
+          }
+        });
+      }
+    }, 600);
+  });
+};
+
+// Fonction pour envoyer un message au client
+export const mockSendMessageToClient = async (requestId, message, messageType = 'whatsapp') => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const request = DEMO_DELIVERY_REQUESTS.find(r => r.id === requestId);
+      
+      if (request) {
+        const whatsappLink = `https://wa.me/${request.receiverPhone.replace(/\s+/g, '')}?text=${encodeURIComponent(message)}`;
+        
+        resolve({
+          data: {
+            data: {
+              request: request,
+              whatsappLink: whatsappLink,
+              message: 'Message préparé avec succès (MODE DÉMO)'
+            }
+          }
+        });
+      } else {
+        resolve({
+          data: {
+            error: 'Demande non trouvée'
+          }
+        });
+      }
+    }, 400);
+  });
+};
+
+// Fonction pour obtenir les livreurs disponibles
+export const mockGetAvailableDrivers = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        data: {
+          data: DEMO_DRIVERS,
+          message: 'Livreurs disponibles récupérés (MODE DÉMO)'
+        }
+      });
+    }, 300);
+  });
+};

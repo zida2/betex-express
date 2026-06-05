@@ -68,17 +68,32 @@ const handleDemoRequest = async (method, url, data = null, params = null) => {
     return await mockData.mockGetRoutes();
   }
 
-  if (method === 'GET' && url.includes('/driver-stats') || url.includes('/driverStats')) {
-    return await mockData.mockGetDriverStats();
+  if (method === 'GET' && url.includes('/delivery-requests') && !url.includes('/delivery-requests/')) {
+    return await mockData.mockGetDeliveryRequests(params);
   }
 
-  // Default empty response
-  return Promise.resolve({
-    data: {
-      data: [],
-      success: true
-    }
-  });
+  if (method === 'POST' && url.includes('/delivery-requests') && !url.includes('/delivery-requests/')) {
+    return await mockData.mockCreateDeliveryRequest(data);
+  }
+
+  if (method === 'POST' && url.includes('/delivery-requests/') && url.includes('/approve')) {
+    const requestId = url.split('/')[url.split('/').length - 2];
+    return await mockData.mockApproveDeliveryRequest(requestId, data);
+  }
+
+  if (method === 'POST' && url.includes('/delivery-requests/') && url.includes('/reject')) {
+    const requestId = url.split('/')[url.split('/').length - 2];
+    return await mockData.mockRejectDeliveryRequest(requestId, data.rejectionReason);
+  }
+
+  if (method === 'POST' && url.includes('/delivery-requests/') && url.includes('/send-message')) {
+    const requestId = url.split('/')[url.split('/').length - 2];
+    return await mockData.mockSendMessageToClient(requestId, data.clientMessage, data.messageType);
+  }
+
+  if (method === 'GET' && url.includes('/delivery-requests/available/drivers')) {
+    return await mockData.mockGetAvailableDrivers();
+  }
 };
 
 // Override axios methods for demo mode
