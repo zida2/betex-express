@@ -27,8 +27,7 @@ const ClientPortal = () => {
     receiverLng: null,
     weight: '',
     description: '',
-    packagePrice: '',
-    deliveryPrice: ''
+    packagePrice: ''
   });
   const [requests, setRequests] = useState([]);
   const [message, setMessage] = useState('');
@@ -191,8 +190,7 @@ const ClientPortal = () => {
         receiverLng: null,
         weight: '',
         description: '',
-        packagePrice: '',
-        deliveryPrice: ''
+        packagePrice: ''
       });
       setSelectedDriver(null);
       setTimeout(() => setMessage(''), 3000);
@@ -457,7 +455,7 @@ const ClientPortal = () => {
                         />
                       </div>
 
-                      <div className="form-group">
+                      <div className="form-group hidden-field">
                         <label>Prix colis (FCFA)</label>
                         <input
                           type="number"
@@ -465,17 +463,6 @@ const ClientPortal = () => {
                           value={deliveryRequest.packagePrice}
                           onChange={handleDeliveryChange}
                           placeholder="50000"
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Prix livraison (FCFA)</label>
-                        <input
-                          type="number"
-                          name="deliveryPrice"
-                          value={deliveryRequest.deliveryPrice}
-                          onChange={handleDeliveryChange}
-                          placeholder="5000"
                         />
                       </div>
                     </div>
