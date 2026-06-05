@@ -18,17 +18,17 @@ const ScheduledDeliveryFlow = ({
   const timeSlots = [
     {
       id: 'slot-1',
-      label: 'Créneau du matin',
-      startTime: '09:00',
-      endTime: '12:00',
+      label: 'Collecte du matin',
+      startTime: '07:00',
+      endTime: '10:00',
       capacity: 50,
       booked: 42,
       available: true
     },
     {
       id: 'slot-2',
-      label: 'Créneau de l\'après-midi',
-      startTime: '14:00',
+      label: 'Collecte du soir',
+      startTime: '15:00',
       endTime: '17:00',
       capacity: 50,
       booked: 38,

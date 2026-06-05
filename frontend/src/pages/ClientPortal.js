@@ -590,17 +590,18 @@ const ClientPortal = () => {
                 </div>
               </fieldset>
 
-              <fieldset>
-                <legend>📦 Colis (optionnel)</legend>
+              <fieldset className="fieldset-optional">
+                <legend>📦 Détails du Colis (optionnel)</legend>
+                <p className="optional-info">✨ Remplissez ces informations pour une meilleure prise en charge</p>
                 
                 <div className="form-group">
-                  <label>Description</label>
+                  <label>Description du contenu</label>
                   <textarea
                     name="description"
                     value={deliveryRequest.description}
                     onChange={handleDeliveryChange}
-                    placeholder="Ex: Vêtements, électronique, nourriture..."
-                    rows="2"
+                    placeholder="Ex: Vêtements, électronique, nourriture, documents..."
+                    rows="3"
                   />
                 </div>
 
@@ -612,19 +613,19 @@ const ClientPortal = () => {
                       name="weight"
                       value={deliveryRequest.weight}
                       onChange={handleDeliveryChange}
-                      placeholder="0.5"
+                      placeholder="Ex: 0.5, 2.3..."
                       step="0.1"
                     />
                   </div>
 
                   <div className="form-group">
-                    <label>Prix colis (FCFA)</label>
+                    <label>Valeur du colis (FCFA)</label>
                     <input
                       type="number"
                       name="packagePrice"
                       value={deliveryRequest.packagePrice}
                       onChange={handleDeliveryChange}
-                      placeholder="50000"
+                      placeholder="Ex: 50000"
                     />
                   </div>
                 </div>

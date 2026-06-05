@@ -403,11 +403,41 @@ fieldset {
   background: #f9fafb;
 }
 
+fieldset.fieldset-optional {
+  border: 3px solid #3b82f6;
+  background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  position: relative;
+}
+
+fieldset.fieldset-optional::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 0 8px 8px 0;
+}
+
+.optional-info {
+  color: #1e40af;
+  font-size: 0.9rem;
+  margin: -0.5rem 0 1rem 0;
+  font-weight: 500;
+}
+
 legend {
   color: #1f2937;
   font-weight: 700;
   font-size: 1.05rem;
   padding: 0 0.5rem;
+}
+
+fieldset.fieldset-optional legend {
+  color: #1e40af;
+  font-size: 1.1rem;
 }
 
 .form-group {
