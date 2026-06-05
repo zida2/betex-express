@@ -24,6 +24,7 @@ import ClientPortal from './pages/ClientPortal';
 import DeliveryRequestsPage from './pages/DeliveryRequestsPage';
 import DeliveryLocationCapture from './pages/DeliveryLocationCapture';
 import PricingSettingsPage from './pages/PricingSettingsPage';
+import RevenueDashboard from './pages/RevenueDashboard';
 import './App.css';
 
 // Root redirect Component
@@ -200,6 +201,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['admin']}>
             <PricingSettingsPage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/admin/revenue" 
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'dispatcher']}>
+            <RevenueDashboard />
           </ProtectedRoute>
         } 
       />

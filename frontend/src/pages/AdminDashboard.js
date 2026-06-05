@@ -149,6 +149,13 @@ const AdminDashboard = () => {
         >
           💰<span className="nav-text">Tarifs</span>
         </button>
+        <button 
+          className={activeTab === 'revenue' ? 'active' : ''}
+          onClick={() => navigate('/admin/revenue')}
+          title="Chiffre d'affaires et bénéfices"
+        >
+          📊<span className="nav-text">Chiffre</span>
+        </button>
       </nav>
 
       <main className="dashboard-main">
