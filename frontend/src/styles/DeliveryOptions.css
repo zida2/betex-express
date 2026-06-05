@@ -15,9 +15,10 @@
 
 .delivery-options-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
   margin: 20px 0;
+  width: 100%;
 }
 
 .delivery-option {
@@ -132,24 +133,22 @@
 @media (max-width: 768px) {
   .delivery-options-container {
     margin: 15px 0;
-    padding: 15px;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 12px;
   }
 
   .delivery-options-container h3 {
-    font-size: 1.1em;
-    margin-bottom: 15px;
+    font-size: 1.05em;
+    margin-bottom: 12px;
   }
 
   .delivery-options-grid {
     grid-template-columns: 1fr;
-    gap: 15px;
-    margin: 15px 0;
+    gap: 12px;
+    margin: 12px 0;
   }
 
   .delivery-option {
-    padding: 15px;
-    min-height: auto;
+    padding: 12px;
   }
 
   .option-icon {
@@ -159,17 +158,6 @@
 
   .option-content h4 {
     font-size: 1em;
-    margin-bottom: 5px;
-  }
-
-  .option-subtitle {
-    font-size: 0.85em;
-    margin-bottom: 8px;
-  }
-
-  .option-features {
-    font-size: 0.9em;
-    margin: 8px 0;
   }
 
   .option-features li {
@@ -183,69 +171,7 @@
   }
 
   .option-selector {
-    top: 10px;
-    right: 10px;
     width: 24px;
     height: 24px;
-  }
-
-  .checkmark {
-    font-size: 1em;
-  }
-}
-
-/* Extra small devices */
-@media (max-width: 480px) {
-  .delivery-options-container {
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 8px;
-  }
-
-  .delivery-options-container h3 {
-    font-size: 1em;
-    margin-bottom: 10px;
-  }
-
-  .delivery-options-grid {
-    gap: 10px;
-    margin: 10px 0;
-  }
-
-  .delivery-option {
-    padding: 12px;
-    border-radius: 8px;
-  }
-
-  .option-icon {
-    font-size: 1.8em;
-    margin-bottom: 8px;
-  }
-
-  .option-content h4 {
-    font-size: 0.95em;
-  }
-
-  .option-subtitle {
-    font-size: 0.8em;
-  }
-
-  .option-features {
-    font-size: 0.85em;
-  }
-
-  .option-features li {
-    margin: 2px 0;
-  }
-
-  .price-range {
-    font-size: 0.8em;
-    padding: 6px;
-  }
-
-  .option-selected-info {
-    margin-top: 10px;
-    padding: 10px;
-    font-size: 0.9em;
   }
 }
