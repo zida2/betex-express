@@ -1,108 +1,53 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import '../styles/DeliveryFlow.css';
+import { 
+  calculateDistanceToDriver, 
+  calculateExpressPrice,
+  DEMO_EXPRESS_DRIVERS 
+} from '../utils/demoData';
 
 const ExpressDeliveryFlow = ({ 
   drivers, 
   selectedDriver, 
   onSelectDriver, 
   pickupLocation,
+  deliveryLocation,
   onPricingCalculate 
 }) => {
   const [showDriverList, setShowDriverList] = useState(false);
+  const [driverDistances, setDriverDistances] = useState({});
 
-  // Demo data - Available drivers for Express delivery
-  const demoExpressDrivers = [
-    {
-      id: 'driver-1',
-      firstName: 'Jean',
-      lastName: 'Kouame',
-      cnib: '01234567',
-      phone: '+225 07 55 55 55 55',
-      email: 'jean.kouame@mail.com',
-      vehicleType: 'Moto',
-      vehiclePlate: 'AB-123-CD',
-      status: 'available',
-      rating: 4.8,
-      distance: 2.5,
-      latitude: 6.8276,
-      longitude: -5.2893,
-      completedToday: 12,
-      assignedPackages: 2
-    },
-    {
-      id: 'driver-2',
-      firstName: 'Marie',
-      lastName: 'Diallo',
-      cnib: '02345678',
-      phone: '+225 01 66 66 66 66',
-      email: 'marie.diallo@mail.com',
-      vehicleType: 'Voiture',
-      vehiclePlate: 'EF-456-GH',
-      status: 'available',
-      rating: 4.6,
-      distance: 3.1,
-      latitude: 6.8250,
-      longitude: -5.2850,
-      completedToday: 18,
-      assignedPackages: 1
-    },
-    {
-      id: 'driver-3',
-      firstName: 'Ahmed',
-      lastName: 'Ibrahim',
-      cnib: '03456789',
-      phone: '+225 05 77 77 77 77',
-      email: 'ahmed.ibrahim@mail.com',
-      vehicleType: 'Moto',
-      vehiclePlate: 'IJ-789-KL',
-      status: 'available',
-      rating: 4.7,
-      distance: 1.8,
-      latitude: 6.8300,
-      longitude: -5.2900,
-      completedToday: 15,
-      assignedPackages: 3
-    },
-    {
-      id: 'driver-4',
-      firstName: 'Sophie',
-      lastName: 'Blanc',
-      cnib: '04567890',
-      phone: '+225 09 88 88 88 88',
-      email: 'sophie.blanc@mail.com',
-      vehicleType: 'Voiture',
-      vehiclePlate: 'MN-012-OP',
-      status: 'available',
-      rating: 4.9,
-      distance: 4.2,
-      latitude: 6.8200,
-      longitude: -5.2800,
-      completedToday: 22,
-      assignedPackages: 0
+  // Calculate real distances from all drivers to pickup location
+  useEffect(() => {
+    if (pickupLocation && pickupLocation.latitude && pickupLocation.longitude) {
+      const distances = {};
+      DEMO_EXPRESS_DRIVERS.forEach(driver => {
+        distances[driver.id] = calculateDistanceToDriver(driver, pickupLocation);
+      });
+      setDriverDistances(distances);
     }
-  ];
+  }, [pickupLocation]);
 
-  // Calculate distance-based pricing
-  const calculateExpressPrice = (distance) => {
-    const BASE_PRICE = 500; // Base price in FCFA
-    const PRICE_PER_KM = 250; // Price per km in FCFA
-    return BASE_PRICE + (distance * PRICE_PER_KM);
-  };
-
-  // Sort drivers by distance
+  // Sort drivers by real distance
   const sortedDrivers = useMemo(() => {
-    return [...demoExpressDrivers].sort((a, b) => a.distance - b.distance);
-  }, []);
+    return [...DEMO_EXPRESS_DRIVERS].sort((a, b) => {
+      const distA = driverDistances[a.id] || 999;
+      const distB = driverDistances[b.id] || 999;
+      return distA - distB;
+    });
+  }, [driverDistances]);
 
   const handleSelectDriver = (driver) => {
+    const distance = driverDistances[driver.id] || 0;
+    const calculatedPrice = calculateExpressPrice(distance);
+    
     onSelectDriver(driver);
-    const calculatedPrice = calculateExpressPrice(driver.distance);
     onPricingCalculate({
       deliveryOption: 'express',
       pricingModel: 'distance_based',
       basePrice: 500,
       pricePerKm: 250,
-      distance: driver.distance,
+      distance: distance,
       totalPrice: calculatedPrice,
       driverId: driver.id,
       driverName: `${driver.firstName} ${driver.lastName}`
@@ -119,6 +64,9 @@ const ExpressDeliveryFlow = ({
         {pickupLocation ? (
           <div className="distance-info">
             <p>✓ Localisation d'enlèvement: {pickupLocation.address}</p>
+            {deliveryLocation && (
+              <p>✓ Localisation de livraison: {deliveryLocation.address}</p>
+            )}
             <p className="pricing-formula">
               💰 <strong>Tarification:</strong> 500 FCFA (base) + (distance × 250 FCFA/km)
             </p>
@@ -145,7 +93,8 @@ const ExpressDeliveryFlow = ({
         {showDriverList && (
           <div className="drivers-list-express">
             {sortedDrivers.map(driver => {
-              const price = calculateExpressPrice(driver.distance);
+              const distance = driverDistances[driver.id] || 0;
+              const price = calculateExpressPrice(distance);
               const isSelected = selectedDriver?.id === driver.id;
 
               return (
@@ -162,7 +111,7 @@ const ExpressDeliveryFlow = ({
                       </span>
                     </div>
                     <div className="driver-distance">
-                      <span className="distance-value">{driver.distance} km</span>
+                      <span className="distance-value">{distance} km</span>
                       <span className="price-value">{price} FCFA</span>
                     </div>
                   </div>
@@ -218,11 +167,11 @@ const ExpressDeliveryFlow = ({
             </div>
             <div className="summary-row">
               <span>📏 Distance:</span>
-              <strong>{selectedDriver.distance} km</strong>
+              <strong>{driverDistances[selectedDriver.id] || 0} km</strong>
             </div>
             <div className="summary-row highlight">
               <span>💰 Prix de livraison:</span>
-              <strong>{calculateExpressPrice(selectedDriver.distance)} FCFA</strong>
+              <strong>{calculateExpressPrice(driverDistances[selectedDriver.id] || 0)} FCFA</strong>
             </div>
           </div>
         </div>

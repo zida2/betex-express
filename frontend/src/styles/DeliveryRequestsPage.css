@@ -469,3 +469,160 @@
     width: 100%;
   }
 }
+
+
+/* New Delivery Type Filtering Styles */
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: white;
+  font-size: 0.9rem;
+}
+
+/* Delivery Type Badge */
+.delivery-type-badge {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-top: 0.3rem;
+}
+
+.delivery-type-badge.large {
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+}
+
+/* Express badge */
+.type-express .delivery-type-badge {
+  background: rgba(255, 152, 0, 0.2);
+  color: #ffa726;
+}
+
+/* Scheduled badge */
+.type-scheduled .delivery-type-badge {
+  background: rgba(33, 150, 243, 0.2);
+  color: #42a5f5;
+}
+
+/* Pricing Info in List */
+.preview-pricing {
+  font-size: 0.85rem;
+  color: #b0bec5;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  border-left: 2px solid #ffa726;
+}
+
+/* Info Section styling */
+.info-section {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #2196f3;
+}
+
+.info-section h3 {
+  margin-top: 0;
+  color: #42a5f5;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.info-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.info-field {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.8rem;
+  border-radius: 6px;
+}
+
+.info-field label {
+  display: block;
+  color: #90caf9;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.info-field p {
+  margin: 0;
+  color: white;
+  font-size: 0.95rem;
+  word-break: break-word;
+}
+
+/* Status Section */
+.status-section {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #4caf50;
+}
+
+.status-section h3 {
+  margin-top: 0;
+  color: #81c784;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+/* Request Preview with type styling */
+.request-item-preview.type-express {
+  border-top: 3px solid #ffa726;
+}
+
+.request-item-preview.type-scheduled {
+  border-top: 3px solid #42a5f5;
+}
+
+/* No Selection Message */
+.no-selection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #90caf9;
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Edit Section styling */
+.edit-section {
+  background: rgba(76, 175, 80, 0.08);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #4caf50;
+}
+
+.edit-section h3 {
+  margin-top: 0;
+  color: #81c784;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+/* Loading spinner */
+.loading-small {
+  color: #90caf9;
+  font-size: 0.9rem;
+  padding: 0.5rem;
+}

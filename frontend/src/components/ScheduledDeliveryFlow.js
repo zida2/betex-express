@@ -1,5 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import '../styles/DeliveryFlow.css';
+import { 
+  determineZoneByCoordinates, 
+  DEMO_ZONES 
+} from '../utils/demoData';
 
 const ScheduledDeliveryFlow = ({ 
   deliveryLocation, 
@@ -8,42 +12,7 @@ const ScheduledDeliveryFlow = ({
   onPricingCalculate 
 }) => {
   const [showZones, setShowZones] = useState(false);
-
-  // Demo data - Zones with pricing
-  const demoZones = [
-    {
-      id: 'zone-1',
-      name: 'Zone Plateau',
-      description: 'Centre-ville, Plateau',
-      price: 1500,
-      deliveryTime: '9h00 - 12h00 ou 14h00 - 17h00',
-      coverage: 'Abidjan Centre'
-    },
-    {
-      id: 'zone-2',
-      name: 'Zone Treichville',
-      description: 'Treichville, Adjamé',
-      price: 1200,
-      deliveryTime: '9h00 - 12h00 ou 14h00 - 17h00',
-      coverage: 'Treichville, Adjamé, Marcory'
-    },
-    {
-      id: 'zone-3',
-      name: 'Zone Yopougon',
-      description: 'Yopougon, Abobo',
-      price: 1000,
-      deliveryTime: '9h00 - 12h00 ou 14h00 - 17h00',
-      coverage: 'Yopougon, Abobo, Songon'
-    },
-    {
-      id: 'zone-4',
-      name: 'Zone Cocody',
-      description: 'Cocody, Deux-Plateaux',
-      price: 2000,
-      deliveryTime: '9h00 - 12h00 ou 14h00 - 17h00',
-      coverage: 'Cocody, Deux-Plateaux, Bingerville'
-    }
-  ];
+  const [zoneError, setZoneError] = useState(null);
 
   // Time slots for scheduled delivery (2 per day)
   const timeSlots = [
@@ -67,17 +36,30 @@ const ScheduledDeliveryFlow = ({
     }
   ];
 
-  // Determine zone based on delivery location (demo logic)
-  const determineZone = () => {
-    // For demo: randomly assign a zone based on location
-    if (!deliveryLocation) return null;
-    // In real app, this would use geospatial lookup
-    return demoZones[0]; // Default to first zone for demo
-  };
+  // Determine zone based on delivery location using real geolocation
+  const selectedZone = useMemo(() => {
+    if (!deliveryLocation || !deliveryLocation.latitude || !deliveryLocation.longitude) {
+      setZoneError(null);
+      return null;
+    }
 
-  const selectedZone = useMemo(() => determineZone(), [deliveryLocation]);
+    const zone = determineZoneByCoordinates(deliveryLocation.latitude, deliveryLocation.longitude);
+    
+    if (zone) {
+      setZoneError(null);
+      return zone;
+    } else {
+      setZoneError('📍 La localisation de livraison est en dehors de la zone de service');
+      return null;
+    }
+  }, [deliveryLocation]);
 
   const handleSelectTimeSlot = (slot) => {
+    if (!selectedZone) {
+      alert('⚠️ Veuillez d\'abord sélectionner une localisation de livraison valide');
+      return;
+    }
+
     onSelectTimeSlot(slot);
     
     const pricing = {
@@ -116,11 +98,18 @@ const ScheduledDeliveryFlow = ({
           <>
             <div className="zone-info">
               <p>✓ Adresse: {deliveryLocation.address}</p>
-              {selectedZone && (
+              {selectedZone ? (
                 <>
                   <p>✓ Zone détectée: <strong>{selectedZone.name}</strong></p>
                   <p>📦 Couverture: {selectedZone.coverage}</p>
+                  <p>💰 Tarif: <strong>{selectedZone.price} FCFA</strong></p>
                 </>
+              ) : zoneError ? (
+                <div className="alert alert-error">
+                  {zoneError}
+                </div>
+              ) : (
+                <p className="zone-loading">🔍 Détection de la zone...</p>
               )}
             </div>
             <button
@@ -133,7 +122,7 @@ const ScheduledDeliveryFlow = ({
 
             {showZones && (
               <div className="zones-list">
-                {demoZones.map(zone => (
+                {DEMO_ZONES.map(zone => (
                   <div
                     key={zone.id}
                     className={`zone-card ${selectedZone?.id === zone.id ? 'selected' : ''}`}
@@ -164,7 +153,7 @@ const ScheduledDeliveryFlow = ({
         <div className="flow-section">
           <h4>⏰ Sélectionnez votre créneau horaire</h4>
           <p className="zone-selection-info">
-            💰 <strong>Tarif Zone {selectedZone.name}:</strong> {selectedZone.price} FCFA
+            💰 <strong>Tarif Zone {selectedZone.name}:</strong> {selectedZone.price} FCFA (fixe)
           </p>
 
           <div className="time-slots-container">

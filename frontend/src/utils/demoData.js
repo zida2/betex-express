@@ -1,134 +1,133 @@
 /**
  * Demo Data for Delivery Options Feature
  * Provides mock data for Express and Scheduled delivery modes
+ * LOCATION: Ouagadougou, Burkina Faso
  */
 
+// Demo drivers with real Ouagadougou coordinates
 export const DEMO_EXPRESS_DRIVERS = [
   {
     id: 'driver-1',
-    firstName: 'Jean',
-    lastName: 'Kouame',
+    firstName: 'Amadou',
+    lastName: 'Traore',
     cnib: '01234567',
-    phone: '+225 07 55 55 55 55',
-    email: 'jean.kouame@mail.com',
+    phone: '+226 70 50 50 50',
+    email: 'amadou.traore@mail.com',
     vehicleType: 'Moto',
-    vehiclePlate: 'AB-123-CD',
+    vehiclePlate: 'BF-001-OUA',
     status: 'available',
     rating: 4.8,
-    distance: 2.5,
-    latitude: 6.8276,
-    longitude: -5.2893,
+    latitude: 12.3656,
+    longitude: -1.5197,
     completedToday: 12,
     assignedPackages: 2
   },
   {
     id: 'driver-2',
-    firstName: 'Marie',
+    firstName: 'Fatoumata',
     lastName: 'Diallo',
     cnib: '02345678',
-    phone: '+225 01 66 66 66 66',
-    email: 'marie.diallo@mail.com',
+    phone: '+226 70 60 60 60',
+    email: 'fatoumata.diallo@mail.com',
     vehicleType: 'Voiture',
-    vehiclePlate: 'EF-456-GH',
+    vehiclePlate: 'BF-002-OUA',
     status: 'available',
     rating: 4.6,
-    distance: 3.1,
-    latitude: 6.8250,
-    longitude: -5.2850,
+    latitude: 12.3700,
+    longitude: -1.5250,
     completedToday: 18,
     assignedPackages: 1
   },
   {
     id: 'driver-3',
-    firstName: 'Ahmed',
-    lastName: 'Ibrahim',
+    firstName: 'Ibrahim',
+    lastName: 'Sow',
     cnib: '03456789',
-    phone: '+225 05 77 77 77 77',
-    email: 'ahmed.ibrahim@mail.com',
+    phone: '+226 70 70 70 70',
+    email: 'ibrahim.sow@mail.com',
     vehicleType: 'Moto',
-    vehiclePlate: 'IJ-789-KL',
+    vehiclePlate: 'BF-003-OUA',
     status: 'available',
     rating: 4.7,
-    distance: 1.8,
-    latitude: 6.8300,
-    longitude: -5.2900,
+    latitude: 12.3550,
+    longitude: -1.5150,
     completedToday: 15,
     assignedPackages: 3
   },
   {
     id: 'driver-4',
     firstName: 'Sophie',
-    lastName: 'Blanc',
+    lastName: 'Sanou',
     cnib: '04567890',
-    phone: '+225 09 88 88 88 88',
-    email: 'sophie.blanc@mail.com',
+    phone: '+226 70 80 80 80',
+    email: 'sophie.sanou@mail.com',
     vehicleType: 'Voiture',
-    vehiclePlate: 'MN-012-OP',
+    vehiclePlate: 'BF-004-OUA',
     status: 'available',
     rating: 4.9,
-    distance: 4.2,
-    latitude: 6.8200,
-    longitude: -5.2800,
+    latitude: 12.3600,
+    longitude: -1.5300,
     completedToday: 22,
     assignedPackages: 0
   }
 ];
 
+// Ouagadougou zones with geographic bounds and pricing
 export const DEMO_ZONES = [
   {
     id: 'zone-1',
-    name: 'Zone Plateau',
-    description: 'Centre-ville, Plateau',
+    name: 'Zone Centre-Ville',
+    description: 'Centre-ville, Plateau central',
     price: 1500,
     deliveryTime: '9h00 - 12h00 ou 14h00 - 17h00',
-    coverage: 'Abidjan Centre',
+    coverage: 'Ouagadougou Centre, Plateau',
     bounds: {
-      minLat: 6.82,
-      maxLat: 6.84,
-      minLng: -5.30,
-      maxLng: -5.27
+      minLat: 12.35,
+      maxLat: 12.38,
+      minLng: -1.55,
+      maxLng: -1.50
     }
   },
   {
     id: 'zone-2',
-    name: 'Zone Treichville',
-    description: 'Treichville, Adjamé',
+    name: 'Zone Secteur 1-2',
+    description: 'Secteurs 1, 2, 3, 4',
     price: 1200,
     deliveryTime: '9h00 - 12h00 ou 14h00 - 17h00',
-    coverage: 'Treichville, Adjamé, Marcory',
+    coverage: 'Secteurs 1, 2, 3, 4',
     bounds: {
-      minLat: 6.81,
-      maxLat: 6.83,
-      minLng: -5.32,
-      maxLng: -5.28
+      minLat: 12.33,
+      maxLat: 12.36,
+      minLng: -1.58,
+      maxLng: -1.52
     }
   },
   {
     id: 'zone-3',
-    name: 'Zone Yopougon',
-    description: 'Yopougon, Abobo',
+    name: 'Zone Secteur 5-6',
+    description: 'Secteurs 5, 6, 7',
     price: 1000,
     deliveryTime: '9h00 - 12h00 ou 14h00 - 17h00',
-    coverage: 'Yopougon, Abobo, Songon',
+    coverage: 'Secteurs 5, 6, 7, Gounghin',
     bounds: {
-      minLat: 6.79,
-      maxLat: 6.82,
-      minLng: -5.35,
-      maxLng: -5.31
+      minLat: 12.30,
+      maxLat: 12.35,
+      minLng: -1.52,
+      maxLng: -1.48
     }
   },
   {
     id: 'zone-4',
-    name: 'Zone Cocody',
-    description: 'Cocody, Deux-Plateaux',
+    name: 'Zone Nord',
+    description: 'Secteur 9, 10, Kyassa',
     price: 2000,
     deliveryTime: '9h00 - 12h00 ou 14h00 - 17h00',
-    coverage: 'Cocody, Deux-Plateaux, Bingerville',
+    coverage: 'Secteurs 9, 10, 11, Kyassa',
     bounds: {
-      minLat: 6.84,
-      maxLat: 6.86,
-      minLng: -5.25,
-      maxLng: -5.22
+      minLat: 12.39,
+      maxLat: 12.43,
+      minLng: -1.53,
+      maxLng: -1.48
     }
   }
 ];
@@ -161,12 +160,71 @@ export const PRICING_CONFIG = {
   },
   scheduled: {
     zones: {
-      'zone-1': 1500, // Plateau
-      'zone-2': 1200, // Treichville
-      'zone-3': 1000, // Yopougon
-      'zone-4': 2000  // Cocody
+      'zone-1': 1500, // Centre-Ville
+      'zone-2': 1200, // Secteur 1-2
+      'zone-3': 1000, // Secteur 5-6
+      'zone-4': 2000  // Nord
     }
   }
+};
+
+/**
+ * Haversine formula - Calculate distance between two coordinates
+ * @param {number} lat1 - Latitude of point 1
+ * @param {number} lon1 - Longitude of point 1
+ * @param {number} lat2 - Latitude of point 2
+ * @param {number} lon2 - Longitude of point 2
+ * @returns {number} Distance in kilometers
+ */
+export const haversineDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c; // Distance in km
+  return Math.round(distance * 100) / 100; // Round to 2 decimal places
+};
+
+/**
+ * Calculate real distance from driver to pickup location
+ * @param {Object} driver - Driver object with latitude, longitude
+ * @param {Object} pickupLocation - Pickup location with latitude, longitude
+ * @returns {number} Distance in kilometers
+ */
+export const calculateDistanceToDriver = (driver, pickupLocation) => {
+  if (!driver || !pickupLocation || !pickupLocation.latitude || !pickupLocation.longitude) {
+    return 0;
+  }
+  return haversineDistance(
+    driver.latitude,
+    driver.longitude,
+    pickupLocation.latitude,
+    pickupLocation.longitude
+  );
+};
+
+/**
+ * Calculate real distance between pickup and delivery
+ * @param {Object} pickupLocation - Pickup location with latitude, longitude
+ * @param {Object} deliveryLocation - Delivery location with latitude, longitude
+ * @returns {number} Distance in kilometers
+ */
+export const calculateDeliveryDistance = (pickupLocation, deliveryLocation) => {
+  if (!pickupLocation || !deliveryLocation || 
+      !pickupLocation.latitude || !pickupLocation.longitude ||
+      !deliveryLocation.latitude || !deliveryLocation.longitude) {
+    return 0;
+  }
+  return haversineDistance(
+    pickupLocation.latitude,
+    pickupLocation.longitude,
+    deliveryLocation.latitude,
+    deliveryLocation.longitude
+  );
 };
 
 /**
@@ -176,7 +234,7 @@ export const PRICING_CONFIG = {
  */
 export const calculateExpressPrice = (distance) => {
   const { basePrice, pricePerKm } = PRICING_CONFIG.express;
-  return basePrice + (distance * pricePerKm);
+  return Math.round(basePrice + (distance * pricePerKm));
 };
 
 /**
@@ -186,11 +244,15 @@ export const calculateExpressPrice = (distance) => {
  * @returns {Object} Zone object or null if outside bounds
  */
 export const determineZoneByCoordinates = (latitude, longitude) => {
-  return DEMO_ZONES.find(zone => {
+  if (!latitude || !longitude) return null;
+  
+  const zone = DEMO_ZONES.find(zone => {
     const { minLat, maxLat, minLng, maxLng } = zone.bounds;
     return latitude >= minLat && latitude <= maxLat &&
            longitude >= minLng && longitude <= maxLng;
-  }) || DEMO_ZONES[0]; // Default to first zone if not found
+  });
+  
+  return zone || null; // Return null if outside all zones (not auto-default)
 };
 
 /**

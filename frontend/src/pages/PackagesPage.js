@@ -345,8 +345,13 @@ const PackagesPage = () => {
                 onSelectDriver={setSelectedDriver}
                 pickupLocation={{
                   address: formData.senderAddress,
-                  latitude: formData.senderLatitude,
-                  longitude: formData.senderLongitude
+                  latitude: parseFloat(formData.senderLatitude) || null,
+                  longitude: parseFloat(formData.senderLongitude) || null
+                }}
+                deliveryLocation={{
+                  address: formData.receiverAddress,
+                  latitude: parseFloat(formData.receiverLatitude) || null,
+                  longitude: parseFloat(formData.receiverLongitude) || null
                 }}
                 onPricingCalculate={setPricingInfo}
               />
@@ -357,8 +362,8 @@ const PackagesPage = () => {
               <ScheduledDeliveryFlow
                 deliveryLocation={{
                   address: formData.receiverAddress,
-                  latitude: formData.receiverLatitude,
-                  longitude: formData.receiverLongitude
+                  latitude: parseFloat(formData.receiverLatitude) || null,
+                  longitude: parseFloat(formData.receiverLongitude) || null
                 }}
                 selectedTimeSlot={selectedTimeSlot}
                 onSelectTimeSlot={setSelectedTimeSlot}
