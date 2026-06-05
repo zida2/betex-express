@@ -5,6 +5,8 @@
   padding-top: 60px;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .dashboard-header {
@@ -12,10 +14,12 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 1000;
   background: var(--gradient-primary);
   box-shadow: var(--shadow-md);
   min-height: 60px;
+  width: 100%;
+  will-change: transform;
 }
 
 .stats-summary {

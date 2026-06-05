@@ -3,6 +3,8 @@
   background: var(--bg-primary);
   padding-bottom: 80px;
   padding-top: 60px;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .dashboard-header {
@@ -13,11 +15,13 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
   min-height: 60px;
+  width: 100%;
+  will-change: transform;
 }
 
 .header-left {

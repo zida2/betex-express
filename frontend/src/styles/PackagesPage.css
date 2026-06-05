@@ -3,6 +3,8 @@
   background: var(--bg-primary);
   padding-bottom: 80px;
   padding-top: 80px;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .page-header {
@@ -13,8 +15,10 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 1000;
   min-height: 80px;
+  width: 100%;
+  will-change: transform;
 }
 
 .page-header h1 {
