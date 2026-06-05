@@ -1,5 +1,5 @@
 /**
- * API Service - DEMO MODE FORCED
+ * API Service - DEMO MODE
  * Returns mock data directly without calling backend
  */
 
@@ -9,7 +9,8 @@ import * as mockData from './mockData';
 const DEMO_MODE = true;
 const API_URL = process.env.REACT_APP_API_URL || '/api/v1';
 
-console.log('[API] ✅ DEMO MODE FORCED - All requests return mock data');
+console.log('[API] 🎬 DEMO MODE - All requests return mock data');
+console.log('[API] URL: ' + API_URL);
 
 // Create axios instance (not really used in demo mode)
 const api = axios.create({

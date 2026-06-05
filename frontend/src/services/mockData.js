@@ -830,8 +830,83 @@ export const mockCreateRoute = async (data) => {
 
 // Demandes de livraison de démo
 export const DEMO_DELIVERY_REQUESTS = [
+  // Client: Sophie Yao - 3 demandes
   {
     id: 'req-001',
+    status: 'pending_approval',
+    senderName: 'Boutique Mode Sophie',
+    senderPhone: '+225 21 11 22 33 44',
+    senderAddress: 'Cocody, Rue du Commerce 123',
+    senderLat: 5.3599,
+    senderLng: -3.9847,
+    receiverName: 'Sophie Yao',
+    receiverPhone: '+225 07 88 99 11 22',
+    receiverAddress: 'Plateau, Immeuble Central 5B',
+    receiverLat: 5.3205,
+    receiverLng: -4.0137,
+    description: 'Robes et accessoires (3 articles)',
+    weight: 2.5,
+    packagePrice: 35000,
+    deliveryPrice: null,
+    adminNotes: null,
+    driverId: null,
+    driverName: null,
+    driverPhone: null,
+    createdAt: new Date(Date.now() - 18000000).toISOString(),
+    approvedAt: null
+  },
+  {
+    id: 'req-002',
+    status: 'approved',
+    senderName: 'Pharmacie Centrale',
+    senderPhone: '+225 21 33 44 55 66',
+    senderAddress: 'Adjamé, Liberté 456',
+    senderLat: 5.3569,
+    senderLng: -4.0262,
+    receiverName: 'Sophie Yao',
+    receiverPhone: '+225 07 88 99 11 22',
+    receiverAddress: 'Plateau, Immeuble Central 5B',
+    receiverLat: 5.3205,
+    receiverLng: -4.0137,
+    description: 'Médicaments + Vitamines (ordonnance)',
+    weight: 0.5,
+    packagePrice: 8500,
+    deliveryPrice: 2500,
+    adminNotes: 'Livraison urgent - Client malade',
+    driverId: 2,
+    driverName: 'Jean Kouassi',
+    driverPhone: '+226 70 00 00 01',
+    createdAt: new Date(Date.now() - 14400000).toISOString(),
+    approvedAt: new Date(Date.now() - 10800000).toISOString()
+  },
+  {
+    id: 'req-003',
+    status: 'completed',
+    senderName: 'Restaurant Chez Tantine',
+    senderPhone: '+225 21 55 66 77 88',
+    senderAddress: 'Marcory, Zone 4 - 789',
+    senderLat: 5.2892,
+    senderLng: -3.9778,
+    receiverName: 'Sophie Yao',
+    receiverPhone: '+225 07 88 99 11 22',
+    receiverAddress: 'Plateau, Immeuble Central 5B',
+    receiverLat: 5.3205,
+    receiverLng: -4.0137,
+    description: 'Repas complet (4 portions) + Jus frais',
+    weight: 3.0,
+    packagePrice: 12500,
+    deliveryPrice: 2000,
+    adminNotes: 'Livraison à chaud - Fait hier matin',
+    driverId: 3,
+    driverName: 'Yao Emmanuel',
+    driverPhone: '+226 70 00 00 02',
+    createdAt: new Date(Date.now() - 90000000).toISOString(),
+    approvedAt: new Date(Date.now() - 86400000).toISOString()
+  },
+  
+  // Autres demandes
+  {
+    id: 'req-004',
     status: 'pending_approval',
     senderName: 'Jean Kouassi',
     senderPhone: '+226 70 12 34 56',
@@ -855,7 +930,7 @@ export const DEMO_DELIVERY_REQUESTS = [
     approvedAt: null
   },
   {
-    id: 'req-002',
+    id: 'req-005',
     status: 'approved',
     senderName: 'Compaoré Aminata',
     senderPhone: '+226 70 11 22 33',
@@ -879,7 +954,7 @@ export const DEMO_DELIVERY_REQUESTS = [
     approvedAt: new Date(Date.now() - 900000).toISOString()
   },
   {
-    id: 'req-003',
+    id: 'req-006',
     status: 'approved',
     senderName: 'Kaboré Marie',
     senderPhone: '+226 70 99 88 77',
@@ -903,7 +978,7 @@ export const DEMO_DELIVERY_REQUESTS = [
     approvedAt: new Date(Date.now() - 2700000).toISOString()
   },
   {
-    id: 'req-004',
+    id: 'req-007',
     status: 'pending_approval',
     senderName: 'Diallo Ibrahim',
     senderPhone: '+226 70 33 44 55',
@@ -927,7 +1002,7 @@ export const DEMO_DELIVERY_REQUESTS = [
     approvedAt: null
   },
   {
-    id: 'req-005',
+    id: 'req-008',
     status: 'pending_approval',
     senderName: 'Kone Salif',
     senderPhone: '+226 70 22 11 00',
@@ -951,7 +1026,7 @@ export const DEMO_DELIVERY_REQUESTS = [
     approvedAt: null
   },
   {
-    id: 'req-006',
+    id: 'req-009',
     status: 'rejected',
     senderName: 'Boutique Fashion Plus',
     senderPhone: '+226 70 55 66 77',
@@ -988,6 +1063,15 @@ export const mockGetDeliveryRequests = async (params = {}) => {
       if (params.status) {
         filteredRequests = filteredRequests.filter(req => 
           req.status === params.status
+        );
+      }
+      
+      // Filtrer par nom du destinataire (pour le portail client)
+      // En mode démo, le client voit ses propres demandes
+      if (params.receiverPhone) {
+        filteredRequests = filteredRequests.filter(req =>
+          req.receiverPhone === params.receiverPhone || 
+          req.receiverName === params.receiverName
         );
       }
       

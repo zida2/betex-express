@@ -55,7 +55,13 @@ const ClientPortal = () => {
 
   const loadMyRequests = async () => {
     try {
-      const response = await api.get('/delivery-requests');
+      // En mode démo, filtre par le client par défaut "Sophie Yao"
+      const response = await api.get('/delivery-requests', { 
+        params: {
+          receiverName: 'Sophie Yao',
+          receiverPhone: '+225 07 88 99 11 22'
+        }
+      });
       setRequests(response.data.data || []);
     } catch (error) {
       console.error('Failed to load requests:', error);
