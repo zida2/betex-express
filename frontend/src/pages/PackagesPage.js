@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import LocationPicker from '../components/LocationPicker';
+import DeliveryOptions from '../components/DeliveryOptions';
+import ExpressDeliveryFlow from '../components/ExpressDeliveryFlow';
+import ScheduledDeliveryFlow from '../components/ScheduledDeliveryFlow';
 import { translateStatus, getStatusIcon } from '../utils/translations';
 import '../styles/PackagesPage.css';
 
@@ -9,10 +12,18 @@ const PackagesPage = () => {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [suggestedDriver, setSuggestedDriver] = useState(null);
+  
+  // Delivery options state
+  const [deliveryOption, setDeliveryOption] = useState(null); // 'express' or 'scheduled'
   const [selectedDriver, setSelectedDriver] = useState(null);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
+  const [pricingInfo, setPricingInfo] = useState(null);
+  
+  // Legacy state for backward compatibility
+  const [suggestedDriver, setSuggestedDriver] = useState(null);
   const [findingDriver, setFindingDriver] = useState(false);
   const [showDriverSelection, setShowDriverSelection] = useState(false);
+  
   const [formData, setFormData] = useState({
     senderName: '', senderPhone: '', senderAddress: '', senderLatitude: '', senderLongitude: '',
     receiverName: '', receiverPhone: '', receiverAddress: '', receiverLatitude: '', receiverLongitude: '',
@@ -96,14 +107,30 @@ const PackagesPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!selectedDriver) {
-      alert('Veuillez d\'abord choisir un livreur');
+
+    // Validation based on delivery option
+    if (!deliveryOption) {
+      alert('Veuillez choisir un type de livraison (Express ou Programmée)');
+      return;
+    }
+
+    if (deliveryOption === 'express' && !selectedDriver) {
+      alert('Veuillez sélectionner un livreur pour la livraison Express');
+      return;
+    }
+
+    if (deliveryOption === 'scheduled' && !selectedTimeSlot) {
+      alert('Veuillez sélectionner un créneau horaire pour la livraison Programmée');
+      return;
+    }
+
+    if (!pricingInfo) {
+      alert('Erreur: Les informations de tarification ne sont pas disponibles');
       return;
     }
 
     try {
-      await api.post('/packages', {
+      const payload = {
         customerName: formData.receiverName,
         customerPhone: formData.receiverPhone,
         address: formData.receiverAddress,
@@ -116,27 +143,48 @@ const PackagesPage = () => {
         deliveryLongitude: parseFloat(formData.receiverLongitude),
         packageType: formData.packageType,
         packagePrice: formData.packagePrice ? parseFloat(formData.packagePrice) : 0,
-        deliveryPrice: formData.deliveryPrice ? parseFloat(formData.deliveryPrice) : 0,
         weight: formData.weight ? parseFloat(formData.weight) : null,
         notes: formData.notes,
-        driverId: selectedDriver.id
-      });
+        deliveryOption: deliveryOption,
+        deliveryPrice: pricingInfo.totalPrice
+      };
+
+      if (deliveryOption === 'express') {
+        payload.driverId = selectedDriver.id;
+        payload.pricingModel = 'distance_based';
+        payload.distance = selectedDriver.distance;
+      } else {
+        payload.timeSlotId = selectedTimeSlot.id;
+        payload.zone = pricingInfo.zone?.id;
+        payload.pricingModel = 'zone_based';
+      }
+
+      await api.post('/packages', payload);
+
+      alert(`✅ Livraison ${deliveryOption === 'express' ? 'Express' : 'Programmée'} créée avec succès!`);
       
-      alert('Livraison creee avec succes!');
-      setShowForm(false);
-      setSuggestedDriver(null);
-      setSelectedDriver(null);
-      setShowDriverSelection(false);
-      setFormData({
-        senderName: '', senderPhone: '', senderAddress: '', senderLatitude: '', senderLongitude: '',
-        receiverName: '', receiverPhone: '', receiverAddress: '', receiverLatitude: '', receiverLongitude: '',
-        packageType: '', packagePrice: '', deliveryPrice: '', weight: '', notes: ''
-      });
+      // Reset form
+      resetForm();
       loadData();
     } catch (error) {
       console.error('Erreur:', error);
-      alert(error.response?.data?.message || 'Erreur lors de la creation');
+      alert(error.response?.data?.message || 'Erreur lors de la création');
     }
+  };
+
+  const resetForm = () => {
+    setShowForm(false);
+    setDeliveryOption(null);
+    setSuggestedDriver(null);
+    setSelectedDriver(null);
+    setSelectedTimeSlot(null);
+    setPricingInfo(null);
+    setShowDriverSelection(false);
+    setFormData({
+      senderName: '', senderPhone: '', senderAddress: '', senderLatitude: '', senderLongitude: '',
+      receiverName: '', receiverPhone: '', receiverAddress: '', receiverLatitude: '', receiverLongitude: '',
+      packageType: '', packagePrice: '', deliveryPrice: '', weight: '', notes: ''
+    });
   };
 
   if (loading) {
@@ -254,19 +302,6 @@ const PackagesPage = () => {
                   min="0"
                 />
               </div>
-
-              <div className="form-group">
-                <label>Prix de livraison (FCFA) *</label>
-                <input
-                  type="number"
-                  name="deliveryPrice"
-                  value={formData.deliveryPrice}
-                  onChange={handleChange}
-                  required
-                  placeholder="1000"
-                  min="0"
-                />
-              </div>
             </div>
 
             <div className="form-group">
@@ -293,147 +328,107 @@ const PackagesPage = () => {
               />
             </div>
 
-            <div className="driver-selection-section">
-              <div className="driver-buttons">
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  onClick={findNearestDriver}
-                  disabled={findingDriver}
-                >
-                  {findingDriver ? '🔍 Recherche...' : '🎯 Suggérer livreur proche'}
-                </button>
+            {/* NEW: DELIVERY OPTIONS SECTION */}
+            <hr style={{ margin: '20px 0', borderColor: '#ddd' }} />
+            <h3>📦 TYPE DE LIVRAISON</h3>
+            
+            <DeliveryOptions 
+              selectedOption={deliveryOption}
+              onSelectOption={setDeliveryOption}
+            />
 
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  onClick={handleManualDriverSelection}
-                >
-                  {showDriverSelection ? '✖ Annuler' : '👤 Choisir manuellement'}
-                </button>
+            {/* EXPRESS DELIVERY FLOW */}
+            {deliveryOption === 'express' && (
+              <ExpressDeliveryFlow
+                drivers={drivers}
+                selectedDriver={selectedDriver}
+                onSelectDriver={setSelectedDriver}
+                pickupLocation={{
+                  address: formData.senderAddress,
+                  latitude: formData.senderLatitude,
+                  longitude: formData.senderLongitude
+                }}
+                onPricingCalculate={setPricingInfo}
+              />
+            )}
+
+            {/* SCHEDULED DELIVERY FLOW */}
+            {deliveryOption === 'scheduled' && (
+              <ScheduledDeliveryFlow
+                deliveryLocation={{
+                  address: formData.receiverAddress,
+                  latitude: formData.receiverLatitude,
+                  longitude: formData.receiverLongitude
+                }}
+                selectedTimeSlot={selectedTimeSlot}
+                onSelectTimeSlot={setSelectedTimeSlot}
+                onPricingCalculate={setPricingInfo}
+              />
+            )}
+
+            {/* PRICING REVIEW */}
+            {pricingInfo && (
+              <div className="pricing-review-section">
+                <h4>💰 Résumé du Tarif</h4>
+                <div className="pricing-breakdown">
+                  <div className="breakdown-row">
+                    <span>Type de livraison:</span>
+                    <strong>{deliveryOption === 'express' ? '🚀 Express' : '📅 Programmée'}</strong>
+                  </div>
+                  {deliveryOption === 'express' && (
+                    <>
+                      <div className="breakdown-row">
+                        <span>Distance:</span>
+                        <strong>{pricingInfo.distance} km</strong>
+                      </div>
+                      <div className="breakdown-row">
+                        <span>Prix base:</span>
+                        <strong>{pricingInfo.basePrice} FCFA</strong>
+                      </div>
+                      <div className="breakdown-row">
+                        <span>Prix distance:</span>
+                        <strong>{(pricingInfo.distance * pricingInfo.pricePerKm)} FCFA</strong>
+                      </div>
+                    </>
+                  )}
+                  {deliveryOption === 'scheduled' && (
+                    <>
+                      <div className="breakdown-row">
+                        <span>Zone:</span>
+                        <strong>{pricingInfo.zone?.name}</strong>
+                      </div>
+                      <div className="breakdown-row">
+                        <span>Créneau:</span>
+                        <strong>{pricingInfo.timeSlot?.label} ({pricingInfo.deliveryTimeRange})</strong>
+                      </div>
+                    </>
+                  )}
+                  <div className="breakdown-row total">
+                    <span>💰 Total:</span>
+                    <strong>{pricingInfo.totalPrice} FCFA</strong>
+                  </div>
+                </div>
               </div>
+            )}
 
-              {showDriverSelection && (
-                <div className="drivers-list-selection">
-                  <h4>📋 LIVREURS DISPONIBLES</h4>
-                  {drivers.filter(d => d.status === 'available' || d.status === 'active').map(driver => (
-                    <div 
-                      key={driver.id} 
-                      className={`driver-option ${selectedDriver?.id === driver.id ? 'selected' : ''}`}
-                      onClick={() => selectDriver(driver)}
-                    >
-                      <div className="driver-option-header">
-                        <strong>👤 {driver.firstName} {driver.lastName}</strong>
-                        <span className={`status-badge status-${driver.status}`}>
-                          {translateStatus(driver.status)}
-                        </span>
-                      </div>
-                      <div className="driver-option-details">
-                        <p>📝 CNIB: {driver.cnib}</p>
-                        <p>📞 Téléphone: {driver.phone}</p>
-                        <p>✉️ Email: {driver.email}</p>
-                        <p>🚗 Véhicule: {driver.vehicleType}</p>
-                        <p>📋 Plaque: {driver.vehiclePlate}</p>
-                        <p>📦 Colis en cours: {driver.assignedPackages || 0}</p>
-                        <p>✅ Livrés aujourd'hui: {driver.completedToday || 0}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {suggestedDriver && (
-                <div className="suggested-driver">
-                  <h4>🎯 LIVREUR SUGGÉRÉ (LE PLUS PROCHE)</h4>
-                  <div className="driver-details">
-                    <div className="driver-info-row">
-                      <span className="driver-label">👤 Nom & Prénom:</span>
-                      <span className="driver-value">{suggestedDriver.firstName} {suggestedDriver.lastName}</span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">📝 CNIB:</span>
-                      <span className="driver-value">{suggestedDriver.cnib}</span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">📞 Téléphone:</span>
-                      <span className="driver-value">{suggestedDriver.phone}</span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">✉️ Email:</span>
-                      <span className="driver-value">{suggestedDriver.email}</span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">🚗 Type véhicule:</span>
-                      <span className="driver-value">{suggestedDriver.vehicleType}</span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">📋 Plaque:</span>
-                      <span className="driver-value">{suggestedDriver.vehiclePlate}</span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">📏 Distance:</span>
-                      <span className="driver-value">{suggestedDriver.distance?.toFixed(2) || 'N/A'} km</span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">🔴 Statut:</span>
-                      <span className={`status-badge status-${suggestedDriver.status}`}>
-                        {translateStatus(suggestedDriver.status)}
-                      </span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">📦 Colis en cours:</span>
-                      <span className="driver-value">{suggestedDriver.assignedPackages || 0}</span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">✅ Livrés aujourd'hui:</span>
-                      <span className="driver-value">{suggestedDriver.completedToday || 0}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedDriver && !suggestedDriver && (
-                <div className="selected-driver">
-                  <h4>✅ LIVREUR SÉLECTIONNÉ</h4>
-                  <div className="driver-details">
-                    <div className="driver-info-row">
-                      <span className="driver-label">👤 Nom & Prénom:</span>
-                      <span className="driver-value">{selectedDriver.firstName} {selectedDriver.lastName}</span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">📝 CNIB:</span>
-                      <span className="driver-value">{selectedDriver.cnib}</span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">📞 Téléphone:</span>
-                      <span className="driver-value">{selectedDriver.phone}</span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">✉️ Email:</span>
-                      <span className="driver-value">{selectedDriver.email}</span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">🚗 Type véhicule:</span>
-                      <span className="driver-value">{selectedDriver.vehicleType}</span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">📋 Plaque:</span>
-                      <span className="driver-value">{selectedDriver.vehiclePlate}</span>
-                    </div>
-                    <div className="driver-info-row">
-                      <span className="driver-label">🔴 Statut:</span>
-                      <span className={`status-badge status-${selectedDriver.status}`}>
-                        {translateStatus(selectedDriver.status)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
+            <div className="form-actions">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => resetForm()}
+              >
+                ❌ Annuler
+              </button>
+              <button
+                type="submit"
+                className="btn-success"
+                disabled={!deliveryOption || !pricingInfo}
+              >
+                {deliveryOption && pricingInfo
+                  ? '✅ Confirmer la Livraison'
+                  : '⚠️ Complétez le formulaire'}
+              </button>
             </div>
-
-            <button type="submit" className="btn-success" disabled={!selectedDriver}>
-              {selectedDriver ? '✅ Créer la livraison' : '⚠️ Choisir d\'abord un livreur'}
-            </button>
           </form>
         </div>
       )}

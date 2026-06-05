@@ -1,6 +1,6 @@
 /**
- * Client Portal Page - SIMPLIFIED
- * Customers can request delivery (admin assigns driver)
+ * Client Portal Page - WITH EXPRESS & SCHEDULED DELIVERY OPTIONS
+ * Customers can choose between express and scheduled delivery
  */
 
 import React, { useState, useEffect } from 'react';
@@ -9,13 +9,20 @@ import api from '../services/api';
 import '../styles/ClientPortal.css';
 
 const ClientPortal = () => {
-  const [activeTab, setActiveTab] = useState('create-request');
+  const [activeTab, setActiveTab] = useState('delivery-type');
+  const [deliveryType, setDeliveryType] = useState(null); // 'express' ou 'scheduled'
+  const [drivers, setDrivers] = useState([]);
+  const [filteredDrivers, setFilteredDrivers] = useState([]);
+  const [userLocation, setUserLocation] = useState(null);
+  const [selectedDriver, setSelectedDriver] = useState(null);
   const [loading, setLoading] = useState(false);
   const [geoLoading, setGeoLoading] = useState(false);
   const [deliveryRequest, setDeliveryRequest] = useState({
     senderName: '',
     senderPhone: '',
     senderAddress: '',
+    senderLat: null,
+    senderLng: null,
     receiverName: '',
     receiverPhone: '',
     receiverAddress: '',
@@ -23,7 +30,11 @@ const ClientPortal = () => {
     receiverLng: null,
     weight: '',
     description: '',
-    packagePrice: ''
+    packagePrice: '',
+    deliveryType: 'scheduled', // Par défaut programmée
+    scheduledDate: '',
+    scheduledTime: '',
+    estimatedDeliveryPrice: 0
   });
   const [requests, setRequests] = useState([]);
   const [message, setMessage] = useState('');
@@ -46,6 +57,59 @@ const ClientPortal = () => {
       setRequests(response.data.data || []);
     } catch (error) {
       console.error('Failed to load requests:', error);
+    }
+  };
+
+  const loadDrivers = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/drivers');
+      const driversList = response.data.data || [];
+      setDrivers(driversList);
+      filterDriversByDistance(userLocation, driversList);
+    } catch (error) {
+      console.error('Failed to load drivers:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Calculate distance between two coordinates (Haversine formula)
+  const calculateDistance = (lat1, lng1, lat2, lng2) => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return Math.round((R * c) * 10) / 10;
+  };
+
+  // Calculate delivery price based on distance
+  const calculateDeliveryPrice = (distance) => {
+    const basePrice = 1000; // Prix de base
+    const pricePerKm = 200;
+    return Math.ceil(basePrice + (distance * pricePerKm));
+  };
+
+  // Filter drivers by distance
+  const filterDriversByDistance = (location, driversList = drivers) => {
+    if (location && location.latitude && location.longitude) {
+      const nearby = driversList.map(driver => {
+        const distance = calculateDistance(
+          location.latitude,
+          location.longitude,
+          driver.currentLat || 12.3714,
+          driver.currentLng || -1.5197
+        );
+        const price = calculateDeliveryPrice(distance);
+        return { ...driver, distance, estimatedPrice: price };
+      }).filter(driver => driver.distance <= 5) // Seulement livreurs à moins de 5 km
+        .sort((a, b) => a.distance - b.distance);
+      
+      setFilteredDrivers(nearby);
     }
   };
 
@@ -72,13 +136,18 @@ const ClientPortal = () => {
     );
   };
 
-  // Get sender location
-  const handleGetSenderLocation = () => {
+  // Get sender location (for express delivery)
+  const handleGetExpressLocation = () => {
     requestGeolocation((location) => {
+      setUserLocation(location);
       setDeliveryRequest(prev => ({
         ...prev,
-        senderAddress: `${location.latitude}, ${location.longitude}`
+        senderLat: location.latitude,
+        senderLng: location.longitude,
+        senderAddress: `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`
       }));
+      // Load nearby drivers
+      loadDrivers();
     });
   };
 
@@ -87,9 +156,9 @@ const ClientPortal = () => {
     requestGeolocation((location) => {
       setDeliveryRequest(prev => ({
         ...prev,
-        receiverAddress: `${location.latitude}, ${location.longitude}`,
         receiverLat: location.latitude,
-        receiverLng: location.longitude
+        receiverLng: location.longitude,
+        receiverAddress: `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`
       }));
     });
   };
@@ -102,6 +171,14 @@ const ClientPortal = () => {
     }));
   };
 
+  const handleSelectDriver = (driver) => {
+    setSelectedDriver(driver);
+    setDeliveryRequest(prev => ({
+      ...prev,
+      estimatedDeliveryPrice: driver.estimatedPrice
+    }));
+  };
+
   const handleRequestDelivery = async () => {
     if (!deliveryRequest.senderName || !deliveryRequest.senderPhone) {
       setMessage('❌ Votre nom et téléphone sont obligatoires');
@@ -111,24 +188,40 @@ const ClientPortal = () => {
       setMessage('❌ Le nom et le téléphone du destinataire sont obligatoires');
       return;
     }
+    if (deliveryType === 'express' && !selectedDriver) {
+      setMessage('❌ Veuillez sélectionner un livreur');
+      return;
+    }
 
     try {
       setLoading(true);
       const newRequest = {
         ...deliveryRequest,
-        status: 'pending_approval',
+        deliveryType: deliveryType,
+        ...(deliveryType === 'express' && {
+          driverId: selectedDriver.id,
+          driverName: selectedDriver.name,
+          driverPhone: selectedDriver.phone,
+          deliveryPrice: selectedDriver.estimatedPrice
+        }),
+        status: deliveryType === 'express' ? 'approved' : 'pending_approval',
         createdAt: new Date().toISOString()
       };
 
       const response = await api.post('/delivery-requests', newRequest);
       setRequests([...requests, response.data.data]);
-      setMessage('✅ Demande créée ! Un admin vous contactera pour l\'approbation');
+      const messageText = deliveryType === 'express' 
+        ? '✅ Demande express créée ! Le livreur est en route'
+        : '✅ Demande programmée créée ! Un admin examinera votre demande';
+      setMessage(messageText);
       
       // Reset form
       setDeliveryRequest({
         senderName: '',
         senderPhone: '',
         senderAddress: '',
+        senderLat: null,
+        senderLng: null,
         receiverName: '',
         receiverPhone: '',
         receiverAddress: '',
@@ -136,9 +229,17 @@ const ClientPortal = () => {
         receiverLng: null,
         weight: '',
         description: '',
-        packagePrice: ''
+        packagePrice: '',
+        deliveryType: 'scheduled',
+        scheduledDate: '',
+        scheduledTime: '',
+        estimatedDeliveryPrice: 0
       });
+      setDeliveryType(null);
+      setSelectedDriver(null);
+      setUserLocation(null);
       setTimeout(() => setMessage(''), 3000);
+      setTimeout(() => setActiveTab('my-requests'), 1000);
     } catch (error) {
       setMessage('❌ Erreur lors de la création de la demande');
       console.error('Error:', error);
@@ -202,12 +303,199 @@ const ClientPortal = () => {
         {/* Create Request Tab */}
         {activeTab === 'create-request' && (
           <div className="create-request-section">
-            <div className="form-header">
-              <h2>📝 Créer une demande de livraison</h2>
-              <p>Remplissez le formulaire ci-dessous. Un admin examinera votre demande et l'assignera à un livreur.</p>
-            </div>
-            
-            <form className="delivery-form">
+            {/* Delivery Type Selection Screen */}
+            {!deliveryType && (
+              <div className="delivery-type-selection">
+                <div className="form-header">
+                  <h2>🚚 Choisir le type de livraison</h2>
+                  <p>Sélectionnez le type de livraison qui vous convient</p>
+                </div>
+
+                <div className="delivery-type-grid">
+                  {/* Express Delivery */}
+                  <div 
+                    className="delivery-type-card express"
+                    onClick={() => setDeliveryType('express')}
+                  >
+                    <div className="type-icon">⚡</div>
+                    <h3>Livraison Express</h3>
+                    <p className="type-description">Livraison immédiate avec un livreur de votre région</p>
+                    <ul className="type-features">
+                      <li>✓ Livreur sélectionné immédiatement</li>
+                      <li>✓ Distance et prix calculés en temps réel</li>
+                      <li>✓ Livraison rapide</li>
+                    </ul>
+                  </div>
+
+                  {/* Scheduled Delivery */}
+                  <div 
+                    className="delivery-type-card scheduled"
+                    onClick={() => setDeliveryType('scheduled')}
+                  >
+                    <div className="type-icon">📅</div>
+                    <h3>Livraison Programmée</h3>
+                    <p className="type-description">Programmez votre livraison pour plus tard</p>
+                    <ul className="type-features">
+                      <li>✓ Choisir date et heure</li>
+                      <li>✓ Admin assigne le livreur</li>
+                      <li>✓ Flexible et planifié</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Express Delivery Flow */}
+            {deliveryType === 'express' && !selectedDriver && (
+              <div className="express-delivery-flow">
+                <div className="form-header">
+                  <button 
+                    type="button"
+                    className="btn-back"
+                    onClick={() => {
+                      setDeliveryType(null);
+                      setUserLocation(null);
+                      setFilteredDrivers([]);
+                    }}
+                  >
+                    ← Retour
+                  </button>
+                  <h2>⚡ Livraison Express</h2>
+                </div>
+
+                {!userLocation ? (
+                  <div className="location-request-section">
+                    <div className="location-prompt">
+                      <h3>📍 Localisation requise</h3>
+                      <p>Pour trouver les livreurs près de vous, nous avons besoin de votre position géographique</p>
+                      <button
+                        type="button"
+                        className="btn-get-location"
+                        onClick={handleGetExpressLocation}
+                        disabled={geoLoading}
+                      >
+                        {geoLoading ? '⏳ Localisation en cours...' : '📍 Activer la géolocalisation'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Nearby Drivers List */}
+                    {loading ? (
+                      <div className="drivers-loading">
+                        <p>⏳ Chargement des livreurs à proximité...</p>
+                      </div>
+                    ) : filteredDrivers.length > 0 ? (
+                      <div className="nearby-drivers-section">
+                        <h3>👨‍🚚 Livreurs disponibles à proximité</h3>
+                        <p className="drivers-count">{filteredDrivers.length} livreur(s) trouvé(s) à moins de 5 km</p>
+                        
+                        <div className="drivers-grid">
+                          {filteredDrivers.map(driver => (
+                            <div 
+                              key={driver.id} 
+                              className="driver-card express-card"
+                              onClick={() => handleSelectDriver(driver)}
+                            >
+                              <div className="driver-header">
+                                <h3>👨‍🚚 {driver.name}</h3>
+                                <div className="distance-badge">{driver.distance.toFixed(1)} km</div>
+                              </div>
+                              
+                              <div className="driver-info">
+                                <p><strong>Téléphone:</strong> {driver.phone}</p>
+                                <p><strong>Type:</strong> {driver.vehicleType}</p>
+                                <p><strong>Évaluation:</strong> ⭐ {driver.rating || 4.5}</p>
+                                <p className="price-info">
+                                  <strong>Tarif estimé:</strong> <span className="price">{driver.estimatedPrice} FCFA</span>
+                                </p>
+                              </div>
+                              
+                              <button className="btn-select-driver">
+                                Sélectionner ce livreur
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="no-drivers">
+                        <p>❌ Aucun livreur disponible à proximité</p>
+                        <p>Veuillez réessayer ou choisir une livraison programmée</p>
+                        <button 
+                          type="button"
+                          className="btn-back"
+                          onClick={() => {
+                            setDeliveryType(null);
+                            setUserLocation(null);
+                            setFilteredDrivers([]);
+                          }}
+                        >
+                          ← Retour au choix de livraison
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Scheduled Delivery Form */}
+            {deliveryType === 'scheduled' && (
+              <div className="scheduled-delivery-flow">
+                <div className="form-header">
+                  <button 
+                    type="button"
+                    className="btn-back"
+                    onClick={() => {
+                      setDeliveryType(null);
+                      setSelectedDriver(null);
+                      setUserLocation(null);
+                      setFilteredDrivers([]);
+                    }}
+                  >
+                    ← Retour
+                  </button>
+                  <h2>📅 Livraison Programmée</h2>
+                  <p>Programmez votre livraison. Un admin assignera le livreur approprié.</p>
+                </div>
+
+                <form className="delivery-form">
+                  <fieldset>
+                    <legend>⏰ Date et heure de livraison</legend>
+                    
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Date souhaitée <span className="required">*</span></label>
+                        <input
+                          type="date"
+                          name="scheduledDate"
+                          value={deliveryRequest.scheduledDate}
+                          onChange={handleDeliveryChange}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Heure souhaitée <span className="required">*</span></label>
+                        <input
+                          type="time"
+                          name="scheduledTime"
+                          value={deliveryRequest.scheduledTime}
+                          onChange={handleDeliveryChange}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </fieldset>
+                </form>
+              </div>
+            )}
+
+            {/* Form Section - Show after driver selection (express) or with scheduled setup */}
+            {deliveryType && ((deliveryType === 'express' && selectedDriver) || deliveryType === 'scheduled') && (
+              <>
+                <form className="delivery-form">
               <fieldset>
                 <legend>📤 Vos informations</legend>
                 
@@ -247,7 +535,7 @@ const ClientPortal = () => {
                   <button 
                     type="button"
                     className="btn-get-location-small"
-                    onClick={handleGetSenderLocation}
+                    onClick={handleGetReceiverLocation}
                     disabled={geoLoading}
                   >
                     {geoLoading ? '⏳' : '📍'} Localisation
@@ -350,7 +638,9 @@ const ClientPortal = () => {
               >
                 {loading ? '⏳ Envoi...' : '📤 Envoyer la demande'}
               </button>
-            </form>
+                </form>
+              </>
+            )}
           </div>
         )}
 
