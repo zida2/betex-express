@@ -10,6 +10,10 @@ import * as mockData from './mockData';
 const DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true';
 const API_URL = process.env.REACT_APP_API_URL || '/api/v1';
 
+console.log('[API] DEMO_MODE:', DEMO_MODE);
+console.log('[API] API_URL:', API_URL);
+console.log('[API] REACT_APP_DEMO_MODE env:', process.env.REACT_APP_DEMO_MODE);
+
 // Create axios instance
 const api = axios.create({
   baseURL: API_URL,
@@ -44,6 +48,11 @@ api.interceptors.request.use(
     config.signal = controller.signal;
     requestMap.set(config.requestId, controller);
 
+    // Mark for demo mode handling
+    if (DEMO_MODE) {
+      config.demoMode = true;
+    }
+
     return config;
   },
   (error) => {
@@ -63,10 +72,11 @@ api.interceptors.response.use(
   (error) => {
     const method = error.config?.method?.toUpperCase();
     const url = error.config?.url || '';
+    const isDemoMode = error.config?.demoMode === true;
 
-    // In DEMO_MODE, handle failed requests by returning mock data
-    if (DEMO_MODE && error.response?.status >= 400) {
-      console.warn(`Demo mode: Intercepting ${method} ${url}, returning mock data`);
+    // In DEMO_MODE, handle ALL failed requests by returning mock data
+    if (isDemoMode) {
+      console.log(`Demo mode: Intercepting ${method} ${url}, returning mock data`);
       
       // Handle login
       if (method === 'POST' && url.includes('/auth/login')) {
@@ -103,11 +113,6 @@ api.interceptors.response.use(
         return mockData.mockGetDrivers();
       }
       
-      // Handle stats
-      if (method === 'GET' && (url.includes('/statistics') || url.includes('/stats'))) {
-        return mockData.mockGetStats();
-      }
-      
       // Handle history
       if (method === 'GET' && url.includes('/history')) {
         return mockData.mockGetHistory();
@@ -121,6 +126,11 @@ api.interceptors.response.use(
       // Handle routes
       if (method === 'GET' && url.includes('/routes')) {
         return mockData.mockGetRoutes();
+      }
+      
+      // Handle stats
+      if (method === 'GET' && (url.includes('/statistics') || url.includes('/stats'))) {
+        return mockData.mockGetStats();
       }
       
       // Default mock response
