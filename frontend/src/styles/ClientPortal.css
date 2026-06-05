@@ -18,9 +18,10 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 1001;
   width: 100%;
   box-sizing: border-box;
+  min-height: 80px;
 }
 
 .client-header h1 {
@@ -55,10 +56,10 @@
   background: #1a1a2e;
   padding: 1rem 2rem;
   position: fixed;
-  top: 70px;
+  top: 80px;
   left: 0;
   right: 0;
-  z-index: 999;
+  z-index: 1000;
   border-bottom: 3px solid #2a5298;
   width: 100%;
   box-sizing: border-box;
@@ -90,7 +91,7 @@
 /* Message Banner */
 .message-banner {
   position: fixed;
-  top: 130px;
+  top: 150px;
   left: 2rem;
   right: 2rem;
   padding: 1.2rem 1.5rem;
@@ -128,7 +129,7 @@
 
 /* Main Content */
 .client-main {
-  margin-top: 160px;
+  margin-top: 180px;
   padding: 2rem;
   max-width: 1400px;
   margin-left: auto;
@@ -620,7 +621,7 @@ legend {
   }
 
   .client-main {
-    margin-top: 160px;
+    margin-top: 180px;
     padding: 1.5rem;
   }
 }
@@ -647,6 +648,7 @@ legend {
 
   .client-main {
     margin-top: 160px;
+    padding: 1.5rem;
   }
 
   .drivers-grid {
