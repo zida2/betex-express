@@ -23,6 +23,7 @@ import HistoryPage from './pages/HistoryPage';
 import ClientPortal from './pages/ClientPortal';
 import DeliveryRequestsPage from './pages/DeliveryRequestsPage';
 import DeliveryLocationCapture from './pages/DeliveryLocationCapture';
+import PricingSettingsPage from './pages/PricingSettingsPage';
 import './App.css';
 
 // Root redirect Component
@@ -190,6 +191,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['admin', 'dispatcher']}>
             <DeliveryRequestsPage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/admin/pricing" 
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <PricingSettingsPage />
           </ProtectedRoute>
         } 
       />
