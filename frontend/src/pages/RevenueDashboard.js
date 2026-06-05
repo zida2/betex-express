@@ -191,7 +191,7 @@ const RevenueDashboard = () => {
                       </td>
                       <td className="center">{driverDeliveries.length}</td>
                       <td className="amount revenue-cell">{revenue.toLocaleString('fr-FR')} FCFA</td>
-                      <td className="amount expense-cell">{DAILY_EXPENSES_PER_DRIVER.toLocaleString('fr-FR')} FCFA</td>
+                      <td className="amount expense-cell">{DAILY_FUEL_PER_DRIVER.toLocaleString('fr-FR')} FCFA</td>
                       <td className={`amount profit-cell ${profit >= 0 ? 'positive' : 'negative'}`}>
                         {profit.toLocaleString('fr-FR')} FCFA
                       </td>
@@ -215,13 +215,12 @@ const RevenueDashboard = () => {
         <div className="formula-box">
           <p><strong>Pour chaque livreur par jour:</strong></p>
           <code>
-            Bénéfice = Total Livraisons - (Salaire/jour + Bonus)<br/>
-            Bénéfice = Total Livraisons - (2000 + 2000)<br/>
-            Bénéfice = Total Livraisons - 4000 FCFA
+            Bénéfice = Total Livraisons - Essence<br/>
+            Bénéfice = Total Livraisons - 2000 FCFA
           </code>
           <p><strong>Total journalier:</strong></p>
           <code>
-            Bénéfice Total = Σ(Encaissement) - (Nombre Livreurs × 4000)
+            Bénéfice Total = Σ(Encaissement) - (Nombre Livreurs × 2000)
           </code>
         </div>
       </div>
