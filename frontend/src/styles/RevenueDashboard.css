@@ -1,8 +1,8 @@
-/* Revenue Dashboard Styles */
+/* Revenue Dashboard Styles - Professional Design */
 
 .revenue-dashboard {
   min-height: 100vh;
-  background: #f5f7fa;
+  background: linear-gradient(135deg, #f8f9fa 0%, #eef2f7 100%);
   display: flex;
   flex-direction: column;
 }
@@ -12,16 +12,17 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 2rem 2.5rem;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .btn-back {
   padding: 0.8rem 1.5rem;
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   color: white;
   font-weight: 600;
@@ -31,22 +32,24 @@
 }
 
 .btn-back:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
 }
 
 .page-header h1 {
   margin: 0;
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 800;
   color: white;
   flex: 1;
+  letter-spacing: -0.5px;
 }
 
 .btn-logout {
   padding: 0.8rem 1.5rem;
   background: #ef4444;
-  border: none;
+  border: 1px solid #dc2626;
   border-radius: 8px;
   color: white;
   font-weight: 600;
@@ -57,25 +60,27 @@
 
 .btn-logout:hover {
   background: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
   transform: translateY(-2px);
 }
 
 /* Date Selector */
 .date-selector {
   background: white;
-  padding: 1.5rem 2rem;
-  margin: 1.5rem 2rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  margin: 2rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 2rem;
   border: 1px solid #e5e7eb;
 }
 
 .date-selector label {
-  font-weight: 600;
-  color: #374151;
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 0.95rem;
 }
 
 .date-input {
@@ -103,52 +108,53 @@
 /* Summary Cards */
 .summary-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
   padding: 0 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .summary-card {
   background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 2rem;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: all 0.3s ease;
 }
 
 .summary-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
 }
 
 .summary-card.revenue {
-  border-color: #3b82f6;
-  background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+  border-color: #dbeafe;
+  background: linear-gradient(135deg, #f0f9ff 0%, #f8fcfe 100%);
 }
 
 .summary-card.expenses {
-  border-color: #f59e0b;
-  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border-color: #fed7aa;
+  background: linear-gradient(135deg, #fffbeb 0%, #fefdfa 100%);
 }
 
 .summary-card.profit {
-  border-color: #ef4444;
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border-color: #fecaca;
+  background: linear-gradient(135deg, #fee2e2 0%, #fefcfc 100%);
 }
 
 .summary-card.profit.positive {
-  border-color: #10b981;
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: #bbf7d0;
+  background: linear-gradient(135deg, #f0fdf4 0%, #f8fdfc 100%);
 }
 
 .card-icon {
-  font-size: 2.5rem;
+  font-size: 3rem;
   display: block;
+  min-width: 3rem;
 }
 
 .card-content {
@@ -156,40 +162,44 @@
 }
 
 .card-content h3 {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.8rem 0;
   color: #1f2937;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.3px;
 }
 
 .card-value {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.5rem;
-  font-weight: 800;
+  margin: 0 0 0.8rem 0;
+  font-size: 1.8rem;
+  font-weight: 900;
   color: #1f2937;
+  letter-spacing: -0.5px;
 }
 
 .card-label {
   display: block;
   color: #6b7280;
   font-size: 0.8rem;
+  font-weight: 500;
 }
 
 /* Expense Breakdown */
 .expense-breakdown {
   background: white;
-  padding: 2rem;
-  margin: 0 2rem 2rem 2rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 2.5rem;
+  margin: 0 2rem 3rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   border: 1px solid #e5e7eb;
 }
 
 .expense-breakdown h2 {
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 2rem 0;
   color: #1f2937;
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.3px;
 }
 
 .breakdown-grid {
@@ -239,18 +249,19 @@
 /* Drivers Performance */
 .drivers-performance {
   background: white;
-  padding: 2rem;
-  margin: 0 2rem 2rem 2rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 2.5rem;
+  margin: 0 2rem 3rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   border: 1px solid #e5e7eb;
 }
 
 .drivers-performance h2 {
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 2rem 0;
   color: #1f2937;
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.3px;
 }
 
 .drivers-table-wrapper {
@@ -353,17 +364,18 @@
 /* Formula Explanation */
 .formula-explanation {
   background: linear-gradient(135deg, #f0f9ff 0%, #eff6ff 100%);
-  border: 2px solid #93c5fd;
-  border-radius: 12px;
-  padding: 2rem;
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+  padding: 2.5rem;
   margin: 0 2rem 2rem 2rem;
 }
 
 .formula-explanation h3 {
-  margin: 0 0 1rem 0;
+  margin: 0 0 1.5rem 0;
   color: #1e40af;
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: -0.3px;
 }
 
 .formula-box {
