@@ -2,15 +2,19 @@
   min-height: 100vh;
   background: var(--bg-primary);
   padding-bottom: 80px;
+  padding-top: 80px;
 }
 
 .page-header {
   background: var(--gradient-primary);
   padding: 20px;
   box-shadow: var(--shadow-md);
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
+  min-height: 80px;
 }
 
 .page-header h1 {

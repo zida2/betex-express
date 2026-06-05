@@ -2,11 +2,14 @@
   min-height: 100vh;
   background: var(--bg-primary);
   padding-bottom: 80px;
+  padding-top: 70px;
 }
 
 .page-header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
   display: flex;
   align-items: center;
@@ -14,6 +17,7 @@
   padding: 16px;
   background: var(--gradient-primary);
   box-shadow: var(--shadow-md);
+  min-height: 70px;
 }
 
 .btn-back {
