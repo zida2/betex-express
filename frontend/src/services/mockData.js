@@ -1067,8 +1067,9 @@ export const mockGetDeliveryRequests = async (params = {}) => {
       }
       
       // Filtrer par nom du destinataire (pour le portail client)
-      // En mode démo, le client voit ses propres demandes
-      if (params.receiverPhone) {
+      // Si receiverPhone ou receiverName est fourni, on filtre pour le client
+      // Sinon, on retourne TOUTES les demandes pour l'admin
+      if (params.receiverPhone || params.receiverName) {
         filteredRequests = filteredRequests.filter(req =>
           req.receiverPhone === params.receiverPhone || 
           req.receiverName === params.receiverName

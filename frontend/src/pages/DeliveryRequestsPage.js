@@ -12,7 +12,7 @@ const DeliveryRequestsPage = () => {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [driversLoading, setDriversLoading] = useState(true);
-  const [filter, setFilter] = useState('pending_approval');
+  const [filter, setFilter] = useState('all');
   const [message, setMessage] = useState('');
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [editData, setEditData] = useState({
@@ -30,6 +30,8 @@ const DeliveryRequestsPage = () => {
     try {
       setLoading(true);
       const response = await api.get('/delivery-requests');
+      console.log('💾 Delivery Requests Response:', response);
+      console.log('💾 Requests Data:', response.data.data);
       setRequests(response.data.data || []);
     } catch (error) {
       console.error('Failed to load requests:', error);
