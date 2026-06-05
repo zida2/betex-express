@@ -20,6 +20,7 @@ import OptimizationPage from './pages/OptimizationPage';
 import MapTrackingPage from './pages/MapTrackingPage';
 import DriverFolderPage from './pages/DriverFolderPage';
 import HistoryPage from './pages/HistoryPage';
+import ClientPortal from './pages/ClientPortal';
 import './App.css';
 
 // Root redirect Component
@@ -178,6 +179,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['driver']}>
             <DriverMapPage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/client" 
+        element={
+          <ProtectedRoute allowedRoles={['client']}>
+            <ClientPortal />
           </ProtectedRoute>
         } 
       />

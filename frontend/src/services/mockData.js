@@ -21,6 +21,14 @@ export const DEMO_USERS = {
     name: 'Jean Kouassi',
     role: 'driver',
     token: 'demo_driver_token_987654321'
+  },
+  client: {
+    id: 3,
+    email: 'client@betex.com',
+    password: 'client123',
+    name: 'Client BETEX',
+    role: 'client',
+    token: 'demo_client_token_456789012'
   }
 };
 

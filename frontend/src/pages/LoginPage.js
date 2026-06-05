@@ -29,6 +29,8 @@ const LoginPage = () => {
         navigate('/admin/dashboard');
       } else if (user.role === 'driver') {
         navigate('/driver/dashboard');
+      } else if (user.role === 'client') {
+        navigate('/client');
       } else {
         navigate('/');
       }
@@ -48,6 +50,8 @@ const LoginPage = () => {
         navigate('/admin/dashboard');
       } else if (user.role === 'driver') {
         navigate('/driver/dashboard');
+      } else if (user.role === 'client') {
+        navigate('/client');
       } else {
         navigate('/');
       }
@@ -105,6 +109,15 @@ const LoginPage = () => {
               >
                 <span className="btn-icon">🚗</span>
                 <span className="btn-text">Livreur</span>
+              </button>
+              <button
+                type="button"
+                className="btn-quick-client"
+                onClick={() => handleQuickLogin('client@betex.com', 'client123')}
+                disabled={loading}
+              >
+                <span className="btn-icon">👤</span>
+                <span className="btn-text">Client</span>
               </button>
             </div>
           </div>

@@ -565,3 +565,118 @@
     font-size: 13px;
   }
 }
+
+
+/* Demo Quick Login Section */
+.demo-quick-login {
+  margin-bottom: 28px;
+  padding: 20px;
+  background: rgba(102, 126, 234, 0.1);
+  border: 2px solid #667eea;
+  border-radius: 12px;
+}
+
+.demo-label {
+  text-align: center;
+  color: #667eea;
+  font-weight: bold;
+  margin: 0 0 16px 0;
+  font-size: 14px;
+}
+
+.quick-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+.btn-quick-admin,
+.btn-quick-driver,
+.btn-quick-client {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 2px solid #667eea;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.btn-quick-admin:hover,
+.btn-quick-driver:hover,
+.btn-quick-client:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  border-color: white;
+}
+
+.btn-quick-admin:disabled,
+.btn-quick-driver:disabled,
+.btn-quick-client:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-icon {
+  font-size: 20px;
+}
+
+.btn-text {
+  font-size: 12px;
+}
+
+.form-divider {
+  text-align: center;
+  margin: 20px 0;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  position: relative;
+}
+
+.form-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.form-divider span {
+  position: relative;
+  background: rgba(20, 25, 45, 0.95);
+  padding: 0 12px;
+}
+
+/* Input wrapper */
+.form-group input {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(30, 35, 55, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  background: rgba(30, 35, 55, 1);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
