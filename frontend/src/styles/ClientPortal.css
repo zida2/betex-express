@@ -1411,3 +1411,95 @@ legend {
     font-size: 0.8rem;
   }
 }
+
+
+/* ============ PAYMENT STATUS RADIO BUTTONS ============ */
+.payment-status-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: #f9fafb;
+}
+
+.radio-option:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+.radio-option input[type="radio"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: #3b82f6;
+}
+
+.radio-option input[type="radio"]:checked + .radio-label {
+  color: #1e40af;
+  font-weight: 700;
+}
+
+.radio-option input[type="radio"]:checked {
+  accent-color: #10b981;
+}
+
+.radio-option:has(input[type="radio"]:checked) {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+}
+
+.radio-label {
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .payment-status-options {
+    grid-template-columns: 1fr;
+  }
+
+  .radio-option {
+    padding: 0.9rem;
+  }
+
+  .radio-label {
+    font-size: 0.9rem;
+  }
+}
+
+
+/* ============ PAYMENT STATUS IN REQUEST CARDS ============ */
+.payment-status {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-top: 0.4rem;
+}
+
+.payment-status.paid {
+  background: #d1fae5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.payment-status.unpaid {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}

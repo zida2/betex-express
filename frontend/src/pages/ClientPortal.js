@@ -31,6 +31,7 @@ const ClientPortal = () => {
     weight: '',
     description: '',
     packagePrice: '',
+    isPaid: '', // 'yes' ou 'no'
     deliveryType: 'scheduled', // Par défaut programmée
     scheduledDate: '',
     scheduledTime: '',
@@ -200,6 +201,10 @@ const ClientPortal = () => {
       setMessage('❌ La valeur du colis doit être spécifiée et supérieure à 0');
       return;
     }
+    if (!deliveryRequest.isPaid) {
+      setMessage('❌ Veuillez spécifier si le colis est payé ou non');
+      return;
+    }
     if (deliveryType === 'express' && !selectedDriver) {
       setMessage('❌ Veuillez sélectionner un livreur');
       return;
@@ -242,6 +247,7 @@ const ClientPortal = () => {
         weight: '',
         description: '',
         packagePrice: '',
+        isPaid: '',
         deliveryType: 'scheduled',
         scheduledDate: '',
         scheduledTime: '',
@@ -673,6 +679,34 @@ const ClientPortal = () => {
                     />
                   </div>
                 </div>
+
+                <div className="form-group">
+                  <label>Statut du paiement <span className="required">*</span></label>
+                  <div className="payment-status-options">
+                    <label className="radio-option">
+                      <input
+                        type="radio"
+                        name="isPaid"
+                        value="yes"
+                        checked={deliveryRequest.isPaid === 'yes'}
+                        onChange={handleDeliveryChange}
+                        required
+                      />
+                      <span className="radio-label">💳 Déjà Payé</span>
+                    </label>
+                    <label className="radio-option">
+                      <input
+                        type="radio"
+                        name="isPaid"
+                        value="no"
+                        checked={deliveryRequest.isPaid === 'no'}
+                        onChange={handleDeliveryChange}
+                        required
+                      />
+                      <span className="radio-label">⏳ À Payer à la Livraison</span>
+                    </label>
+                  </div>
+                </div>
               </fieldset>
 
               <button
@@ -740,6 +774,11 @@ const ClientPortal = () => {
                             <strong>📦 Colis:</strong>
                             <p>{request.description || 'Non spécifié'}</p>
                             {request.weight && <p className="weight">{request.weight} kg</p>}
+                            {request.isPaid && (
+                              <p className={`payment-status ${request.isPaid === 'yes' ? 'paid' : 'unpaid'}`}>
+                                {request.isPaid === 'yes' ? '✅ Payé' : '⏳ À Payer'}
+                              </p>
+                            )}
                           </div>
                           <div className="info-column">
                             <strong>👨‍🚚 Livreur:</strong>
