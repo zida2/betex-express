@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import '../styles/RevenueDashboard.css';
 
-const RevenueDatabase = () => {
+const RevenueDashboard = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [drivers, setDrivers] = useState([]);
   const [deliveries, setDeliveries] = useState([]);
@@ -229,4 +229,4 @@ const RevenueDatabase = () => {
   );
 };
 
-export default RevenueDatabase;
+export default RevenueDashboard;
