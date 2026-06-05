@@ -61,20 +61,53 @@ api.interceptors.response.use(
     return response;
   },
   async (error) => {
+    const method = error.config?.method?.toUpperCase();
+    const url = error.config?.url || '';
+
     // In DEMO_MODE, handle failed requests by returning mock data
-    if (DEMO_MODE && error.response?.status === 405) {
-      const method = error.config?.method?.toUpperCase();
-      const url = error.config?.url;
+    if (DEMO_MODE && error.response?.status >= 400) {
+      console.warn(`Demo mode: Intercepting ${method} ${url}, returning mock data`);
       
-      console.warn(`Demo mode: Intercepting failed ${method} ${url}, returning mock data`);
-      
-      // Handle login in demo mode
+      // Handle login
       if (method === 'POST' && url.includes('/auth/login')) {
-        const { email, password } = error.config?.data ? JSON.parse(error.config.data) : {};
-        return mockData.mockLogin(email, password);
+        try {
+          const data = typeof error.config?.data === 'string' 
+            ? JSON.parse(error.config.data) 
+            : error.config?.data || {};
+          return await mockData.mockLogin(data.email, data.password);
+        } catch (e) {
+          console.error('Mock login error:', e);
+        }
       }
       
-      // Handle other demo requests
+      // Handle dashboard overview
+      if (method === 'GET' && url.includes('/dashboard/overview')) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({ data: { data: mockData.DEMO_STATS } });
+          }, 300);
+        });
+      }
+      
+      // Handle packages
+      if (method === 'GET' && url.includes('/packages')) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({ data: { data: mockData.DEMO_PACKAGES } });
+          }, 300);
+        });
+      }
+      
+      // Handle drivers
+      if (method === 'GET' && url.includes('/drivers')) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({ data: { data: mockData.DEMO_DRIVERS || [] } });
+          }, 300);
+        });
+      }
+      
+      // Default mock response
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve({ data: { data: [] } });
