@@ -1,6 +1,6 @@
 /**
  * Delivery Requests Management Page
- * Admin can view and approve delivery requests from clients
+ * Admin can view, edit, and send delivery requests to drivers
  */
 
 import React, { useState, useEffect } from 'react';
@@ -9,12 +9,20 @@ import '../styles/DeliveryRequestsPage.css';
 
 const DeliveryRequestsPage = () => {
   const [requests, setRequests] = useState([]);
+  const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState('pending_approval');
   const [message, setMessage] = useState('');
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [editData, setEditData] = useState({
+    deliveryPrice: '',
+    driverId: '',
+    adminNotes: ''
+  });
 
   useEffect(() => {
     loadRequests();
+    loadDrivers();
   }, []);
 
   const loadRequests = async () => {
@@ -29,30 +37,73 @@ const DeliveryRequestsPage = () => {
     }
   };
 
+  const loadDrivers = async () => {
+    try {
+      const response = await api.get('/drivers');
+      setDrivers(response.data.data || []);
+    } catch (error) {
+      console.error('Failed to load drivers:', error);
+    }
+  };
+
   const filteredRequests = requests.filter(req => {
     if (filter === 'all') return true;
     return req.status === filter;
   });
 
-  // Generate WhatsApp link with auto-geolocation
-  const generateWhatsAppLink = (request) => {
-    const message = `Bonjour ${request.receiverName},\n\nVotre livraison BETEX EXPRESS est en cours!\n\n📍 Cliquez ici pour partager votre localisation:\n${window.location.origin}/delivery-location/${request.id}\n\nLivreur: ${request.driverName || 'À assigner'}\nTéléphone: ${request.driverPhone || 'Non assigné'}\n\nMerci!`;
-    
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${request.receiverPhone.replace(/\D/g, '')}?text=${encodedMessage}`;
-    
-    return whatsappUrl;
+  const handleSelectRequest = (request) => {
+    setSelectedRequest(request);
+    setEditData({
+      deliveryPrice: request.deliveryPrice || '',
+      driverId: request.driverId || '',
+      adminNotes: request.adminNotes || ''
+    });
   };
 
-  const handleApprove = async (requestId) => {
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleApprove = async () => {
+    if (!editData.deliveryPrice) {
+      setMessage('❌ Veuillez entrer le prix de livraison');
+      return;
+    }
+    if (!editData.driverId) {
+      setMessage('❌ Veuillez sélectionner un livreur');
+      return;
+    }
+
     try {
-      // In demo mode, just update locally
+      const selectedDriver = drivers.find(d => d.id == editData.driverId);
+      
+      // Generate WhatsApp link for destinatary geolocation capture
+      const locationCaptureLink = `${window.location.origin}/delivery-location/${selectedRequest.id}`;
+      const whatsappMessage = `Bonjour ${selectedRequest.receiverName}, cliquez sur ce lien pour confirmer votre localisation: ${locationCaptureLink}`;
+      const whatsappLink = `https://wa.me/${selectedRequest.receiverPhone.replace(/\s+/g, '')}?text=${encodeURIComponent(whatsappMessage)}`;
+      
+      const updatedRequest = {
+        ...selectedRequest,
+        ...editData,
+        driverId: parseInt(editData.driverId),
+        driverName: selectedDriver?.name,
+        driverPhone: selectedDriver?.phone,
+        status: 'approved',
+        approvedAt: new Date().toISOString(),
+        whatsappLink: whatsappLink,
+        locationLink: locationCaptureLink
+      };
+
       setRequests(requests.map(req => 
-        req.id === requestId 
-          ? { ...req, status: 'approved' }
-          : req
+        req.id === selectedRequest.id ? updatedRequest : req
       ));
-      setMessage('✅ Demande approuvée!');
+
+      setMessage('✅ Demande approuvée et envoyée au livreur!');
+      setSelectedRequest(null);
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
       setMessage('❌ Erreur lors de l\'approbation');
@@ -60,17 +111,18 @@ const DeliveryRequestsPage = () => {
     }
   };
 
-  const handleReject = async (requestId, reason) => {
+  const handleReject = async () => {
     const rejectReason = prompt('Raison du rejet:');
     if (!rejectReason) return;
 
     try {
       setRequests(requests.map(req => 
-        req.id === requestId 
+        req.id === selectedRequest.id 
           ? { ...req, status: 'rejected', rejectReason }
           : req
       ));
       setMessage('❌ Demande rejetée');
+      setSelectedRequest(null);
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
       setMessage('❌ Erreur lors du rejet');
@@ -82,7 +134,7 @@ const DeliveryRequestsPage = () => {
     <div className="delivery-requests-page">
       <header className="requests-header">
         <h1>📋 Gestion des Demandes de Livraison Client</h1>
-        <p>Approuvez ou rejetez les demandes, générez les liens WhatsApp</p>
+        <p>Approuvez, complétez les informations et envoyez au livreur</p>
       </header>
 
       {message && (
@@ -119,116 +171,194 @@ const DeliveryRequestsPage = () => {
       </div>
 
       <main className="requests-content">
-        {loading ? (
-          <div className="loading">Chargement...</div>
-        ) : filteredRequests.length === 0 ? (
-          <div className="no-data">
-            Aucune demande pour ce filtre
+        <div className="requests-layout">
+          {/* List View */}
+          <div className="requests-list-panel">
+            {loading ? (
+              <div className="loading">Chargement...</div>
+            ) : filteredRequests.length === 0 ? (
+              <div className="no-data">Aucune demande pour ce filtre</div>
+            ) : (
+              <div className="requests-list">
+                {filteredRequests.map(request => (
+                  <div
+                    key={request.id}
+                    className={`request-item-preview ${selectedRequest?.id === request.id ? 'active' : ''} status-${request.status}`}
+                    onClick={() => handleSelectRequest(request)}
+                  >
+                    <div className="preview-header">
+                      <h4>#{request.id} - {request.receiverName}</h4>
+                      <span className={`status-badge status-${request.status}`}>
+                        {request.status === 'pending_approval' && '⏳'}
+                        {request.status === 'approved' && '✅'}
+                        {request.status === 'rejected' && '❌'}
+                      </span>
+                    </div>
+                    <p className="preview-text">☎️ {request.receiverPhone}</p>
+                    <p className="preview-text">📍 {request.receiverAddress || 'Non spécifié'}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="requests-list">
-            {filteredRequests.map(request => (
-              <div key={request.id} className={`request-item status-${request.status}`}>
-                <div className="request-top">
-                  <div className="request-id">
-                    <strong>#{request.id}</strong>
-                    <span className={`status-label status-${request.status}`}>
-                      {request.status === 'pending_approval' && '⏳ En attente'}
-                      {request.status === 'approved' && '✅ Approuvée'}
-                      {request.status === 'rejected' && '❌ Rejetée'}
-                    </span>
-                  </div>
-                  <div className="request-date">
-                    {new Date(request.createdAt).toLocaleDateString('fr-FR', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </div>
+
+          {/* Detail View */}
+          <div className="request-detail-panel">
+            {selectedRequest ? (
+              <div className="detail-form">
+                <div className="detail-header">
+                  <h2>Demande #{selectedRequest.id}</h2>
+                  <button className="btn-close" onClick={() => setSelectedRequest(null)}>✕</button>
                 </div>
 
-                <div className="request-main">
+                <div className="detail-sections">
                   {/* Sender Info */}
-                  <div className="info-section">
-                    <h4>📤 Expéditeur</h4>
-                    <p><strong>{request.senderName}</strong></p>
-                    <p>☎️ {request.senderPhone}</p>
-                    {request.senderAddress && <p>📍 {request.senderAddress}</p>}
-                  </div>
+                  <section className="info-section">
+                    <h3>📤 Expéditeur</h3>
+                    <div className="info-group">
+                      <div className="info-field">
+                        <label>Nom</label>
+                        <p>{selectedRequest.senderName}</p>
+                      </div>
+                      <div className="info-field">
+                        <label>Téléphone</label>
+                        <p>{selectedRequest.senderPhone}</p>
+                      </div>
+                      <div className="info-field">
+                        <label>Adresse</label>
+                        <p>{selectedRequest.senderAddress || 'Non spécifié'}</p>
+                      </div>
+                    </div>
+                  </section>
 
                   {/* Receiver Info */}
-                  <div className="info-section">
-                    <h4>📥 Destinataire</h4>
-                    <p><strong>{request.receiverName}</strong></p>
-                    <p>☎️ {request.receiverPhone}</p>
-                    {request.receiverAddress && <p>📍 {request.receiverAddress}</p>}
-                  </div>
+                  <section className="info-section">
+                    <h3>📥 Destinataire</h3>
+                    <div className="info-group">
+                      <div className="info-field">
+                        <label>Nom</label>
+                        <p>{selectedRequest.receiverName}</p>
+                      </div>
+                      <div className="info-field">
+                        <label>Téléphone</label>
+                        <p>{selectedRequest.receiverPhone}</p>
+                      </div>
+                      <div className="info-field">
+                        <label>Adresse</label>
+                        <p>{selectedRequest.receiverAddress || 'Non spécifié'}</p>
+                      </div>
+                    </div>
+                  </section>
 
                   {/* Package Info */}
-                  <div className="info-section">
-                    <h4>📦 Colis</h4>
-                    {request.description && <p>{request.description}</p>}
-                    {request.weight && <p>Poids: {request.weight} kg</p>}
-                    {request.packagePrice && <p>💰 Colis: {request.packagePrice} FCFA</p>}
-                    {request.deliveryPrice && <p>💰 Livraison: {request.deliveryPrice} FCFA</p>}
-                  </div>
-
-                  {/* Driver Assignment */}
-                  <div className="info-section">
-                    <h4>👨‍🚚 Livreur</h4>
-                    {request.driverName ? (
-                      <>
-                        <p><strong>{request.driverName}</strong></p>
-                        <p>☎️ {request.driverPhone}</p>
-                      </>
-                    ) : (
-                      <p className="no-driver">À assigner</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="request-actions">
-                  {request.status === 'pending_approval' && (
-                    <>
-                      <button
-                        className="btn-approve"
-                        onClick={() => handleApprove(request.id)}
-                      >
-                        ✅ Approuver
-                      </button>
-                      <button
-                        className="btn-reject"
-                        onClick={() => handleReject(request.id)}
-                      >
-                        ❌ Rejeter
-                      </button>
-                    </>
-                  )}
-
-                  {request.status === 'approved' && (
-                    <a
-                      href={generateWhatsAppLink(request)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-whatsapp"
-                    >
-                      💬 Envoyer lien WhatsApp
-                    </a>
-                  )}
-
-                  {request.rejectReason && (
-                    <div className="reject-reason">
-                      Raison: {request.rejectReason}
+                  <section className="info-section">
+                    <h3>📦 Colis</h3>
+                    <div className="info-group">
+                      {selectedRequest.description && (
+                        <div className="info-field">
+                          <label>Description</label>
+                          <p>{selectedRequest.description}</p>
+                        </div>
+                      )}
+                      {selectedRequest.weight && (
+                        <div className="info-field">
+                          <label>Poids</label>
+                          <p>{selectedRequest.weight} kg</p>
+                        </div>
+                      )}
+                      {selectedRequest.packagePrice && (
+                        <div className="info-field">
+                          <label>Prix du colis</label>
+                          <p>{selectedRequest.packagePrice} FCFA</p>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </section>
+
+                  {/* Admin Completion Form */}
+                  <section className="edit-section">
+                    <h3>✏️ À Compléter par l'Admin</h3>
+
+                    <div className="form-group">
+                      <label>💰 Prix de la livraison (FCFA) <span className="required">*</span></label>
+                      <input
+                        type="number"
+                        name="deliveryPrice"
+                        value={editData.deliveryPrice}
+                        onChange={handleEditChange}
+                        placeholder="5000"
+                        min="0"
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>👨‍🚚 Assigner un livreur <span className="required">*</span></label>
+                      <select
+                        name="driverId"
+                        value={editData.driverId}
+                        onChange={handleEditChange}
+                      >
+                        <option value="">-- Sélectionner un livreur --</option>
+                        {drivers.map(driver => (
+                          <option key={driver.id} value={driver.id}>
+                            {driver.name} - {driver.phone} ({driver.status})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label>📝 Notes de l'admin</label>
+                      <textarea
+                        name="adminNotes"
+                        value={editData.adminNotes}
+                        onChange={handleEditChange}
+                        placeholder="Notes pour le livreur..."
+                        rows="3"
+                      />
+                    </div>
+
+                    <div className="form-actions">
+                      {selectedRequest.status === 'pending_approval' && (
+                        <>
+                          <button className="btn-approve" onClick={handleApprove}>
+                            ✅ Approuver et Envoyer au Livreur
+                          </button>
+                          <button className="btn-reject" onClick={handleReject}>
+                            ❌ Rejeter
+                          </button>
+                        </>
+                      )}
+
+                      {selectedRequest.status === 'rejected' && (
+                        <div className="reject-info">
+                          ❌ Raison: {selectedRequest.rejectReason}
+                        </div>
+                      )}
+
+                      {selectedRequest.status === 'approved' && (
+                        <div className="approved-info">
+                          <div>✅ Approuvée et envoyée à: <strong>{selectedRequest.driverName}</strong></div>
+                          <button 
+                            className="btn-whatsapp"
+                            onClick={() => window.open(selectedRequest.whatsappLink, '_blank')}
+                            style={{ marginTop: '1rem' }}
+                          >
+                            💬 Envoyer lien de localisation par WhatsApp
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </section>
                 </div>
               </div>
-            ))}
+            ) : (
+              <div className="no-selection">
+                Cliquez sur une demande pour voir les détails
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </main>
     </div>
   );

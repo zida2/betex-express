@@ -22,6 +22,7 @@ import DriverFolderPage from './pages/DriverFolderPage';
 import HistoryPage from './pages/HistoryPage';
 import ClientPortal from './pages/ClientPortal';
 import DeliveryRequestsPage from './pages/DeliveryRequestsPage';
+import DeliveryLocationCapture from './pages/DeliveryLocationCapture';
 import './App.css';
 
 // Root redirect Component
@@ -200,6 +201,11 @@ function AppRoutes() {
             <ClientPortal />
           </ProtectedRoute>
         } 
+      />
+
+      <Route 
+        path="/delivery-location/:requestId" 
+        element={<DeliveryLocationCapture />}
       />
       
       <Route 

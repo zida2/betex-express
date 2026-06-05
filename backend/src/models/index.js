@@ -15,6 +15,7 @@ const AuditLog = require('./AuditLog');
 const Product = require('./Product');
 const Stock = require('./Stock');
 const StockMovement = require('./StockMovement');
+const DeliveryRequest = require('./DeliveryRequest');
 
 // Define associations
 const defineAssociations = () => {
@@ -71,6 +72,10 @@ const defineAssociations = () => {
   // Stock Movement associations
   User.hasMany(StockMovement, { foreignKey: 'userId' });
   StockMovement.belongsTo(User, { foreignKey: 'userId' });
+
+  // Delivery Request associations
+  Driver.hasMany(DeliveryRequest, { foreignKey: 'driverId', as: 'deliveryRequests' });
+  DeliveryRequest.belongsTo(Driver, { foreignKey: 'driverId', as: 'driver' });
 };
 
 // Call associations
@@ -88,5 +93,6 @@ module.exports = {
   AuditLog,
   Product,
   Stock,
-  StockMovement
+  StockMovement,
+  DeliveryRequest
 };

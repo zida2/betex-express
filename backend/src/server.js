@@ -26,6 +26,7 @@ const dashboardRoutes = require('./routes/dashboard.routes');
 const stockRoutes = require('./routes/stock.routes');
 const optimizationRoutes = require('./routes/optimization.routes');
 const driverStatsRoutes = require('./routes/driverStats.routes');
+const deliveryRequestsRoutes = require('./routes/deliveryRequests.routes');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler.middleware');
@@ -90,6 +91,7 @@ app.use('/api/v1/gps', gpsRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/stock', stockRoutes);
 app.use('/api/v1/optimization', optimizationRoutes);
+app.use('/api/v1/delivery-requests', deliveryRequestsRoutes);
 
 // 404 handler
 app.use((req, res) => {
