@@ -60,7 +60,7 @@ api.interceptors.response.use(
     }
     return response;
   },
-  async (error) => {
+  (error) => {
     const method = error.config?.method?.toUpperCase();
     const url = error.config?.url || '';
 
@@ -74,44 +74,58 @@ api.interceptors.response.use(
           const data = typeof error.config?.data === 'string' 
             ? JSON.parse(error.config.data) 
             : error.config?.data || {};
-          return await mockData.mockLogin(data.email, data.password);
+          return mockData.mockLogin(data.email, data.password);
         } catch (e) {
           console.error('Mock login error:', e);
+          return Promise.resolve({
+            data: {
+              data: {
+                user: mockData.DEMO_USERS.admin,
+                token: mockData.DEMO_USERS.admin.token
+              }
+            }
+          });
         }
       }
       
       // Handle dashboard overview
       if (method === 'GET' && url.includes('/dashboard/overview')) {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve({ data: { data: mockData.DEMO_STATS } });
-          }, 300);
+        return Promise.resolve({
+          data: { data: mockData.DEMO_STATS }
         });
       }
       
       // Handle packages
       if (method === 'GET' && url.includes('/packages')) {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve({ data: { data: mockData.DEMO_PACKAGES } });
-          }, 300);
+        return Promise.resolve({
+          data: { data: mockData.DEMO_PACKAGES }
         });
       }
       
       // Handle drivers
       if (method === 'GET' && url.includes('/drivers')) {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve({ data: { data: mockData.DEMO_DRIVERS || [] } });
-          }, 300);
+        return Promise.resolve({
+          data: { data: mockData.DEMO_DRIVERS || [] }
+        });
+      }
+      
+      // Handle stats
+      if (method === 'GET' && (url.includes('/statistics') || url.includes('/stats'))) {
+        return Promise.resolve({
+          data: { data: mockData.DEMO_STATS }
+        });
+      }
+      
+      // Handle history
+      if (method === 'GET' && url.includes('/history')) {
+        return Promise.resolve({
+          data: { data: mockData.DEMO_PACKAGES }
         });
       }
       
       // Default mock response
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({ data: { data: [] } });
-        }, 300);
+      return Promise.resolve({
+        data: { data: [] }
       });
     }
 
