@@ -73,82 +73,72 @@ const AdminDashboard = () => {
         <button 
           className={activeTab === 'overview' ? 'active' : ''}
           onClick={() => setActiveTab('overview')}
-          data-label="Vue d'ensemble"
           title="Vue d'ensemble"
         >
-          📊<span className="nav-text"> Accueil</span>
+          📊<span className="nav-text">Accueil</span>
         </button>
         <button 
           className={activeTab === 'packages' ? 'active' : ''}
           onClick={() => navigate('/admin/packages')}
-          data-label="Gestion des colis"
-          title="Colis"
+          title="Gestion des colis"
         >
-          📦<span className="nav-text"> Colis</span>
+          📦<span className="nav-text">Colis</span>
         </button>
         <button 
           className={activeTab === 'drivers' ? 'active' : ''}
           onClick={() => navigate('/admin/drivers')}
-          data-label="Gestion des livreurs"
-          title="Livreurs"
+          title="Gestion des livreurs"
         >
-          👨‍🚚<span className="nav-text"> Livreurs</span>
+          👨‍🚚<span className="nav-text">Livreurs</span>
         </button>
         <button 
           className={activeTab === 'drivers-folder' ? 'active' : ''}
           onClick={() => navigate('/admin/drivers-folder')}
-          data-label="Dossiers des livreurs"
-          title="Dossiers"
+          title="Dossiers des livreurs"
         >
-          📁<span className="nav-text"> Dossiers</span>
+          📁<span className="nav-text">Dossiers</span>
         </button>
         <button 
           className={activeTab === 'map' ? 'active' : ''}
           onClick={() => navigate('/admin/map')}
-          data-label="Suivi GPS temps réel"
-          title="Carte GPS"
+          title="Suivi GPS temps réel"
         >
-          🗺️<span className="nav-text"> Carte</span>
+          🗺️<span className="nav-text">Carte</span>
         </button>
         <button 
           className={activeTab === 'history' ? 'active' : ''}
           onClick={() => navigate('/admin/history')}
-          data-label="Historique des livraisons"
-          title="Historique"
+          title="Historique des livraisons"
         >
-          📜<span className="nav-text"> Historique</span>
+          📜<span className="nav-text">Historique</span>
         </button>
         <button 
           className={activeTab === 'routes' ? 'active' : ''}
           onClick={() => navigate('/admin/routes')}
-          data-label="Gestion des tournées"
-          title="Tournées"
+          title="Gestion des tournées"
         >
-          🚛<span className="nav-text"> Tournées</span>
+          🚛<span className="nav-text">Tournées</span>
         </button>
         <button 
           className={activeTab === 'stock' ? 'active' : ''}
           onClick={() => navigate('/admin/stock')}
-          data-label="Gestion des stocks"
-          title="Stocks"
+          title="Gestion des stocks"
         >
-          📊<span className="nav-text"> Stocks</span>
+          📊<span className="nav-text">Stocks</span>
         </button>
         <button 
           className={activeTab === 'optimization' ? 'active' : ''}
           onClick={() => navigate('/admin/optimization')}
-          data-label="Optimisation des livraisons"
-          title="Optimisation"
+          title="Optimisation des livraisons"
         >
-          ⚡<span className="nav-text"> Optim</span>
+          ⚡<span className="nav-text">Optim</span>
         </button>
         <button 
           className={activeTab === 'delivery-requests' ? 'active' : ''}
           onClick={() => navigate('/admin/delivery-requests')}
-          data-label="Demandes de livraison clients"
-          title="Demandes clients"
+          title="Demandes de livraison clients"
         >
-          📋<span className="nav-text"> Demandes</span>
+          📋<span className="nav-text">Demandes</span>
         </button>
       </nav>
 
