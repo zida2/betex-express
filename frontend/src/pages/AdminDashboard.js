@@ -146,11 +146,11 @@ const AdminDashboard = () => {
 
       <main className="dashboard-main">
         <div className="stats-section">
-          <div className="stats-header" onClick={() => setIsStatsCollapsed(!isStatsCollapsed)}>
-            <h2>Statistiques</h2>
-            <button className="collapse-btn">
-              <span className={`collapse-arrow ${isStatsCollapsed ? 'collapsed' : ''}`}>▼</span>
-            </button>
+          <div className="section-header" onClick={() => setIsStatsCollapsed(!isStatsCollapsed)}>
+            <h2 className="section-title">
+              <span className={`section-arrow ${isStatsCollapsed ? 'collapsed' : ''}`}>▶</span>
+              Statistiques
+            </h2>
           </div>
           
           {!isStatsCollapsed && (
@@ -223,11 +223,11 @@ const AdminDashboard = () => {
         </div>
 
         <div className="quick-actions">
-          <div className="actions-header" onClick={() => setIsActionsCollapsed(!isActionsCollapsed)}>
-            <h2>Actions rapides</h2>
-            <button className="collapse-btn">
-              <span className={`collapse-arrow ${isActionsCollapsed ? 'collapsed' : ''}`}>▼</span>
-            </button>
+          <div className="section-header" onClick={() => setIsActionsCollapsed(!isActionsCollapsed)}>
+            <h2 className="section-title">
+              <span className={`section-arrow ${isActionsCollapsed ? 'collapsed' : ''}`}>▶</span>
+              Actions rapides
+            </h2>
           </div>
           
           {!isActionsCollapsed && (
