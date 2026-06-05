@@ -253,8 +253,80 @@ const DriverFolderPage = () => {
                 </button>
               </div>
 
+              {/* Drivers Cards Section - Show drivers who have made deliveries */}
+              <div className="drivers-cards-section">
+                <h3 className="section-title">👥 Livreurs ayant effectué des livraisons</h3>
+                {historyLoading ? (
+                  <div className="loading-mini">Chargement des livreurs...</div>
+                ) : driverHistory.length === 0 ? (
+                  <div className="empty-state">
+                    <div className="empty-icon">👤</div>
+                    <h3>Aucun livreur</h3>
+                    <p>Aucun livreur n'a effectué de livraison pour ce client</p>
+                  </div>
+                ) : (
+                  <div className="drivers-cards-grid">
+                    {Array.from(new Set(driverHistory.map(d => d.assignedDriver?.id))).map(driverId => {
+                      const driverDeliveries = driverHistory.filter(d => d.assignedDriver?.id === driverId);
+                      const driver = driverDeliveries[0]?.assignedDriver;
+                      
+                      if (!driver) return null;
+                      
+                      const successful = driverDeliveries.filter(d => d.status === 'delivered').length;
+                      const failed = driverDeliveries.filter(d => d.status === 'delivery_failed').length;
+                      const successRate = ((successful / driverDeliveries.length) * 100).toFixed(0);
+                      
+                      return (
+                        <div key={driver.id} className="driver-delivery-card">
+                          <div className="card-header">
+                            <div className="card-avatar">{driver.name?.charAt(0) || 'D'}</div>
+                            <div className="card-title-section">
+                              <h4 className="card-title">{driver.name}</h4>
+                              <p className="card-subtitle">Livreur</p>
+                            </div>
+                          </div>
+                          
+                          <div className="card-body">
+                            <div className="info-item">
+                              <span className="info-icon">📞</span>
+                              <span className="info-text">{driver.phone}</span>
+                            </div>
+                            
+                            <div className="stats-grid">
+                              <div className="mini-stat">
+                                <span className="mini-stat-label">Livraisons</span>
+                                <span className="mini-stat-value">{driverDeliveries.length}</span>
+                              </div>
+                              <div className="mini-stat success">
+                                <span className="mini-stat-label">Réussies</span>
+                                <span className="mini-stat-value">{successful}</span>
+                              </div>
+                              <div className="mini-stat danger">
+                                <span className="mini-stat-label">Échecs</span>
+                                <span className="mini-stat-value">{failed}</span>
+                              </div>
+                              <div className="mini-stat info">
+                                <span className="mini-stat-label">Taux</span>
+                                <span className="mini-stat-value">{successRate}%</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="card-footer">
+                            <button className="btn-view-deliveries" onClick={() => console.log('View deliveries for', driver.id)}>
+                              Voir les livraisons ({driverDeliveries.length})
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               {/* History List */}
               <div className="history-container">
+                <h3 className="section-title">📦 Historique des livraisons</h3>
                 {historyLoading ? (
                   <div className="loading-mini">Chargement de l'historique...</div>
                 ) : filteredHistory.length === 0 ? (
