@@ -6,13 +6,23 @@
 import axios from 'axios';
 import * as mockData from './mockData';
 
-// Demo mode
-const DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true';
+// Demo mode - Try env first, then fallback to URL detection
+let DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true';
 const API_URL = process.env.REACT_APP_API_URL || '/api/v1';
 
-console.log('[API] DEMO_MODE:', DEMO_MODE);
-console.log('[API] API_URL:', API_URL);
-console.log('[API] REACT_APP_DEMO_MODE env:', process.env.REACT_APP_DEMO_MODE);
+// Auto-enable demo mode if running on Vercel or if backend URL not responding
+const isVercel = process.env.VERCEL === '1' || window.location.hostname.includes('vercel.app');
+if (isVercel && !DEMO_MODE) {
+  DEMO_MODE = true;
+}
+
+console.log('[API] Environment:', {
+  DEMO_MODE,
+  API_URL,
+  REACT_APP_DEMO_MODE: process.env.REACT_APP_DEMO_MODE,
+  isVercel,
+  hostname: window.location.hostname
+});
 
 // Create axios instance
 const api = axios.create({
