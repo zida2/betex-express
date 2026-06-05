@@ -315,10 +315,11 @@ export const mockLogin = async (email, password) => {
       if (user) {
         const { password, ...userWithoutPassword } = user;
         resolve({
-          success: true,
           data: {
-            user: userWithoutPassword,
-            token: user.token
+            data: {
+              user: userWithoutPassword,
+              token: user.token
+            }
           }
         });
       } else {
@@ -339,8 +340,9 @@ export const mockGetStats = async () => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        success: true,
-        data: DEMO_STATS
+        data: {
+          data: DEMO_STATS
+        }
       });
     }, 300);
   });
@@ -369,9 +371,10 @@ export const mockGetPackages = async (params = {}) => {
       }
       
       resolve({
-        success: true,
-        data: filteredPackages,
-        total: filteredPackages.length
+        data: {
+          data: filteredPackages,
+          total: filteredPackages.length
+        }
       });
     }, 400);
   });
@@ -392,9 +395,10 @@ export const mockCreatePackage = async (packageData) => {
       DEMO_PACKAGES.unshift(newPackage);
       
       resolve({
-        success: true,
-        data: newPackage,
-        message: 'Colis créé avec succès (MODE DÉMO)'
+        data: {
+          data: newPackage,
+          message: 'Colis créé avec succès (MODE DÉMO)'
+        }
       });
     }, 600);
   });
@@ -405,9 +409,8 @@ export const mockGetDrivers = async () => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        success: true,
         data: {
-          drivers: DEMO_DRIVERS,
+          data: DEMO_DRIVERS,
           total: DEMO_DRIVERS.length
         }
       });
@@ -421,11 +424,12 @@ export const mockSuggestDriver = async (location) => {
     setTimeout(() => {
       // Suggère Jean Kouassi par défaut
       resolve({
-        success: true,
         data: {
-          driver: DEMO_DRIVERS[0],
-          distance: 2.5,
-          estimatedTime: 15
+          data: {
+            driver: DEMO_DRIVERS[0],
+            distance: 2.5,
+            estimatedTime: 15
+          }
         }
       });
     }, 800);
@@ -437,9 +441,8 @@ export const mockGetZones = async () => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        success: true,
         data: {
-          zones: DEMO_ZONES,
+          data: DEMO_ZONES,
           total: DEMO_ZONES.length
         }
       });
@@ -452,13 +455,14 @@ export const mockGetDriverStats = async () => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        success: true,
         data: {
-          successfulDeliveries: 48,
-          totalDeliveries: 52,
-          rating: 4.8,
-          completedToday: 5,
-          onTimeRate: 95
+          data: {
+            successfulDeliveries: 48,
+            totalDeliveries: 52,
+            rating: 4.8,
+            completedToday: 5,
+            onTimeRate: 95
+          }
         }
       });
     }, 300);
@@ -721,9 +725,10 @@ export const mockGetHistory = async (params = {}) => {
       }
       
       resolve({
-        success: true,
-        data: filteredPackages,
-        total: filteredPackages.length
+        data: {
+          data: filteredPackages,
+          total: filteredPackages.length
+        }
       });
     }, 400);
   });
@@ -743,8 +748,9 @@ export const mockGetWorkload = async () => {
       }));
       
       resolve({
-        success: true,
-        data: workload
+        data: {
+          data: workload
+        }
       });
     }, 400);
   });
@@ -757,13 +763,14 @@ export const mockAssignPackages = async (data) => {
       const { packageIds } = data;
       
       resolve({
-        success: true,
-        data: packageIds.map(id => ({
-          packageId: id,
-          assignedDriver: DEMO_DRIVERS[0],
-          message: 'Colis assigné avec succès (MODE DÉMO)'
-        })),
-        message: `${packageIds.length} colis assignés avec succès (MODE DÉMO)`
+        data: {
+          data: packageIds.map(id => ({
+            packageId: id,
+            assignedDriver: DEMO_DRIVERS[0],
+            message: 'Colis assigné avec succès (MODE DÉMO)'
+          })),
+          message: `${packageIds.length} colis assignés avec succès (MODE DÉMO)`
+        }
       });
     }, 800);
   });
@@ -774,19 +781,20 @@ export const mockGetRoutes = async () => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        success: true,
         data: {
-          routes: [
-            {
-              id: 1,
-              Driver: DEMO_DRIVERS[0],
-              phase: 'Collecte matin',
-              status: 'in_progress',
-              totalPackages: 5,
-              completedPackages: 2,
-              estimatedDuration: 45
-            }
-          ]
+          data: {
+            routes: [
+              {
+                id: 1,
+                Driver: DEMO_DRIVERS[0],
+                phase: 'Collecte matin',
+                status: 'in_progress',
+                totalPackages: 5,
+                completedPackages: 2,
+                estimatedDuration: 45
+              }
+            ]
+          }
         }
       });
     }, 400);
@@ -798,14 +806,15 @@ export const mockCreateRoute = async (data) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        success: true,
         data: {
-          id: Date.now(),
-          ...data,
-          status: 'pending',
-          createdAt: new Date().toISOString()
-        },
-        message: 'Tournée créée avec succès (MODE DÉMO)'
+          data: {
+            id: Date.now(),
+            ...data,
+            status: 'pending',
+            createdAt: new Date().toISOString()
+          },
+          message: 'Tournée créée avec succès (MODE DÉMO)'
+        }
       });
     }, 600);
   });

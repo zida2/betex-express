@@ -90,42 +90,45 @@ api.interceptors.response.use(
       
       // Handle dashboard overview
       if (method === 'GET' && url.includes('/dashboard/overview')) {
-        return Promise.resolve({
-          data: { data: mockData.DEMO_STATS }
-        });
+        return mockData.mockGetStats();
       }
       
       // Handle packages
-      if (method === 'GET' && url.includes('/packages')) {
-        return Promise.resolve({
-          data: { data: mockData.DEMO_PACKAGES }
-        });
+      if (method === 'GET' && url.includes('/packages') && !url.includes('/packages/')) {
+        return mockData.mockGetPackages();
       }
       
       // Handle drivers
-      if (method === 'GET' && url.includes('/drivers')) {
-        return Promise.resolve({
-          data: { data: mockData.DEMO_DRIVERS || [] }
-        });
+      if (method === 'GET' && url.includes('/drivers') && !url.includes('/drivers/')) {
+        return mockData.mockGetDrivers();
       }
       
       // Handle stats
       if (method === 'GET' && (url.includes('/statistics') || url.includes('/stats'))) {
-        return Promise.resolve({
-          data: { data: mockData.DEMO_STATS }
-        });
+        return mockData.mockGetStats();
       }
       
       // Handle history
       if (method === 'GET' && url.includes('/history')) {
-        return Promise.resolve({
-          data: { data: mockData.DEMO_PACKAGES }
-        });
+        return mockData.mockGetHistory();
+      }
+      
+      // Handle zones
+      if (method === 'GET' && url.includes('/zones')) {
+        return mockData.mockGetZones();
+      }
+      
+      // Handle routes
+      if (method === 'GET' && url.includes('/routes')) {
+        return mockData.mockGetRoutes();
       }
       
       // Default mock response
       return Promise.resolve({
-        data: { data: [] }
+        data: {
+          data: [],
+          success: true
+        }
       });
     }
 
@@ -172,61 +175,55 @@ const createRequest = (config) => {
   return retryRequest(config);
 };
 
-// Demo mode wrapper
-const wrapDemoMode = (demoKey, realRequest) => {
-  return async (...args) => {
-    if (DEMO_MODE) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const demoData = mockData[demoKey];
-          if (demoData) {
-            resolve({ data: demoData });
-          } else {
-            resolve({ data: { data: [] } });
-          }
-        }, 300);
-      });
-    }
-    return realRequest(...args);
-  };
-};
-
 // API methods
 export const apiMethods = {
   // Auth
-  login: wrapDemoMode('loginUser', (email, password) =>
-    createRequest({
+  login: (email, password) => {
+    if (DEMO_MODE) {
+      return mockData.mockLogin(email, password);
+    }
+    return createRequest({
       method: 'POST',
       url: '/auth/login',
       data: { email, password }
-    })
-  ),
+    });
+  },
 
-  me: wrapDemoMode('currentUser', () =>
-    createRequest({ method: 'GET', url: '/auth/me' })
-  ),
+  me: () => {
+    if (DEMO_MODE) {
+      return Promise.resolve({ data: mockData.DEMO_USERS.admin });
+    }
+    return createRequest({ method: 'GET', url: '/auth/me' });
+  },
 
   logout: () =>
     createRequest({ method: 'POST', url: '/auth/logout' }),
 
   // Packages
-  getPackages: wrapDemoMode('packagesList', (params) =>
-    createRequest({
+  getPackages: (params) => {
+    if (DEMO_MODE) {
+      return mockData.mockGetPackages(params);
+    }
+    return createRequest({
       method: 'GET',
       url: '/packages',
       params
-    })
-  ),
+    });
+  },
 
   getPackage: (id) =>
     createRequest({ method: 'GET', url: `/packages/${id}` }),
 
-  createPackage: (data) =>
-    createRequest({
+  createPackage: (data) => {
+    if (DEMO_MODE) {
+      return mockData.mockCreatePackage(data);
+    }
+    return createRequest({
       method: 'POST',
       url: '/packages',
       data
-    }),
+    });
+  },
 
   updatePackage: (id, data) =>
     createRequest({
@@ -236,25 +233,31 @@ export const apiMethods = {
     }),
 
   // Drivers
-  getDrivers: wrapDemoMode('driversList', (params) =>
-    createRequest({
+  getDrivers: (params) => {
+    if (DEMO_MODE) {
+      return mockData.mockGetDrivers();
+    }
+    return createRequest({
       method: 'GET',
       url: '/drivers',
       params
-    })
-  ),
+    });
+  },
 
   getDriver: (id) =>
     createRequest({ method: 'GET', url: `/drivers/${id}` }),
 
   // Routes
-  getRoutes: wrapDemoMode('routesList', (params) =>
-    createRequest({
+  getRoutes: (params) => {
+    if (DEMO_MODE) {
+      return mockData.mockGetRoutes();
+    }
+    return createRequest({
       method: 'GET',
       url: '/routes',
       params
-    })
-  ),
+    });
+  },
 
   // GPS
   updateGPS: (driverId, data) =>
