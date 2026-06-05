@@ -1,30 +1,17 @@
 /**
- * API Service
- * Axios instance for API calls with retry logic and error handling
+ * API Service - DEMO MODE FORCED
+ * Returns mock data directly without calling backend
  */
 
 import axios from 'axios';
 import * as mockData from './mockData';
 
-// Demo mode - Try env first, then fallback to URL detection
-let DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true';
+const DEMO_MODE = true;
 const API_URL = process.env.REACT_APP_API_URL || '/api/v1';
 
-// Auto-enable demo mode if running on Vercel or if backend URL not responding
-const isVercel = process.env.VERCEL === '1' || window.location.hostname.includes('vercel.app');
-if (isVercel && !DEMO_MODE) {
-  DEMO_MODE = true;
-}
+console.log('[API] ✅ DEMO MODE FORCED - All requests return mock data');
 
-console.log('[API] Environment:', {
-  DEMO_MODE,
-  API_URL,
-  REACT_APP_DEMO_MODE: process.env.REACT_APP_DEMO_MODE,
-  isVercel,
-  hostname: window.location.hostname
-});
-
-// Create axios instance
+// Create axios instance (not really used in demo mode)
 const api = axios.create({
   baseURL: API_URL,
   timeout: 10000,
@@ -33,272 +20,133 @@ const api = axios.create({
   }
 });
 
-// Request counter for deduplication
-const requestMap = new Map();
+// Main request handler - Returns mock data immediately
+const handleDemoRequest = async (method, url, data = null, params = null) => {
+  console.log(`[DEMO] ${method} ${url}`);
 
-// Request interceptor
-api.interceptors.request.use(
-  (config) => {
-    // Add token
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 300));
 
-    // Add request ID for deduplication
-    config.requestId = `${config.method}:${config.url}`;
-    
-    // Abort previous identical request
-    if (requestMap.has(config.requestId)) {
-      const previousController = requestMap.get(config.requestId);
-      previousController.abort();
-    }
-
-    const controller = new AbortController();
-    config.signal = controller.signal;
-    requestMap.set(config.requestId, controller);
-
-    // Mark for demo mode handling
-    if (DEMO_MODE) {
-      config.demoMode = true;
-    }
-
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Response interceptor
-api.interceptors.response.use(
-  (response) => {
-    // Clean up request map
-    if (response.config.requestId) {
-      requestMap.delete(response.config.requestId);
-    }
-    return response;
-  },
-  (error) => {
-    const method = error.config?.method?.toUpperCase();
-    const url = error.config?.url || '';
-    const isDemoMode = error.config?.demoMode === true;
-
-    // In DEMO_MODE, handle ALL failed requests by returning mock data
-    if (isDemoMode) {
-      console.log(`Demo mode: Intercepting ${method} ${url}, returning mock data`);
-      
-      // Handle login
-      if (method === 'POST' && url.includes('/auth/login')) {
-        try {
-          const data = typeof error.config?.data === 'string' 
-            ? JSON.parse(error.config.data) 
-            : error.config?.data || {};
-          return mockData.mockLogin(data.email, data.password);
-        } catch (e) {
-          console.error('Mock login error:', e);
-          return Promise.resolve({
-            data: {
-              data: {
-                user: mockData.DEMO_USERS.admin,
-                token: mockData.DEMO_USERS.admin.token
-              }
-            }
-          });
-        }
-      }
-      
-      // Handle dashboard overview
-      if (method === 'GET' && url.includes('/dashboard/overview')) {
-        return mockData.mockGetStats();
-      }
-      
-      // Handle packages
-      if (method === 'GET' && url.includes('/packages') && !url.includes('/packages/')) {
-        return mockData.mockGetPackages();
-      }
-      
-      // Handle drivers
-      if (method === 'GET' && url.includes('/drivers') && !url.includes('/drivers/')) {
-        return mockData.mockGetDrivers();
-      }
-      
-      // Handle history
-      if (method === 'GET' && url.includes('/history')) {
-        return mockData.mockGetHistory();
-      }
-      
-      // Handle zones
-      if (method === 'GET' && url.includes('/zones')) {
-        return mockData.mockGetZones();
-      }
-      
-      // Handle routes
-      if (method === 'GET' && url.includes('/routes')) {
-        return mockData.mockGetRoutes();
-      }
-      
-      // Handle stats
-      if (method === 'GET' && (url.includes('/statistics') || url.includes('/stats'))) {
-        return mockData.mockGetStats();
-      }
-      
-      // Default mock response
+  // Route to correct mock function
+  if (method === 'POST' && url.includes('/auth/login')) {
+    try {
+      return await mockData.mockLogin(data.email, data.password);
+    } catch (e) {
+      // Return default admin user on error
       return Promise.resolve({
         data: {
-          data: [],
-          success: true
+          data: {
+            user: mockData.DEMO_USERS.admin,
+            token: mockData.DEMO_USERS.admin.token
+          }
         }
       });
     }
-
-    // Handle unauthorized
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-      return Promise.reject(error);
-    }
-
-    // Clean up request map
-    if (error.config?.requestId) {
-      requestMap.delete(error.config.requestId);
-    }
-
-    return Promise.reject(error);
   }
-);
 
-// Retry logic
-const retryRequest = async (config, attempt = 1, maxRetries = 3) => {
-  try {
-    return await api.request(config);
-  } catch (error) {
-    // Don't retry on 4xx errors (except 429)
-    if (error.response?.status >= 400 && error.response?.status < 500 && error.response?.status !== 429) {
-      return Promise.reject(error);
-    }
-
-    // Retry with exponential backoff
-    if (attempt < maxRetries && (error.code === 'ECONNABORTED' || error.response?.status === 429)) {
-      const delay = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
-      await new Promise(resolve => setTimeout(resolve, delay));
-      return retryRequest(config, attempt + 1, maxRetries);
-    }
-
-    return Promise.reject(error);
+  if (method === 'GET' && url.includes('/dashboard/overview')) {
+    return await mockData.mockGetStats();
   }
+
+  if (method === 'GET' && url.includes('/packages') && !url.includes('/packages/')) {
+    return await mockData.mockGetPackages(params);
+  }
+
+  if (method === 'GET' && url.includes('/drivers') && !url.includes('/drivers/')) {
+    return await mockData.mockGetDrivers();
+  }
+
+  if (method === 'GET' && url.includes('/history')) {
+    return await mockData.mockGetHistory(params);
+  }
+
+  if (method === 'GET' && url.includes('/zones')) {
+    return await mockData.mockGetZones();
+  }
+
+  if (method === 'GET' && url.includes('/routes')) {
+    return await mockData.mockGetRoutes();
+  }
+
+  if (method === 'GET' && url.includes('/driver-stats') || url.includes('/driverStats')) {
+    return await mockData.mockGetDriverStats();
+  }
+
+  // Default empty response
+  return Promise.resolve({
+    data: {
+      data: [],
+      success: true
+    }
+  });
 };
 
-// Create request with auto-retry
-const createRequest = (config) => {
-  return retryRequest(config);
-};
+// Override axios methods for demo mode
+if (DEMO_MODE) {
+  api.get = (url, config = {}) => {
+    return handleDemoRequest('GET', url, null, config.params);
+  };
 
-// API methods
+  api.post = (url, data, config = {}) => {
+    return handleDemoRequest('POST', url, data, config.params);
+  };
+
+  api.put = (url, data, config = {}) => {
+    return handleDemoRequest('PUT', url, data, config.params);
+  };
+
+  api.delete = (url, config = {}) => {
+    return handleDemoRequest('DELETE', url, null, config.params);
+  };
+
+  api.request = (config) => {
+    return handleDemoRequest(config.method, config.url, config.data, config.params);
+  };
+}
+
+// API Methods
 export const apiMethods = {
-  // Auth
-  login: (email, password) => {
-    if (DEMO_MODE) {
-      return mockData.mockLogin(email, password);
-    }
-    return createRequest({
-      method: 'POST',
-      url: '/auth/login',
-      data: { email, password }
-    });
-  },
+  login: (email, password) => 
+    api.post('/auth/login', { email, password }),
 
-  me: () => {
-    if (DEMO_MODE) {
-      return Promise.resolve({ data: mockData.DEMO_USERS.admin });
-    }
-    return createRequest({ method: 'GET', url: '/auth/me' });
-  },
+  me: () => 
+    api.get('/auth/me'),
 
-  logout: () =>
-    createRequest({ method: 'POST', url: '/auth/logout' }),
+  logout: () => 
+    api.post('/auth/logout'),
 
-  // Packages
-  getPackages: (params) => {
-    if (DEMO_MODE) {
-      return mockData.mockGetPackages(params);
-    }
-    return createRequest({
-      method: 'GET',
-      url: '/packages',
-      params
-    });
-  },
+  getPackages: (params) => 
+    api.get('/packages', { params }),
 
-  getPackage: (id) =>
-    createRequest({ method: 'GET', url: `/packages/${id}` }),
+  getPackage: (id) => 
+    api.get(`/packages/${id}`),
 
-  createPackage: (data) => {
-    if (DEMO_MODE) {
-      return mockData.mockCreatePackage(data);
-    }
-    return createRequest({
-      method: 'POST',
-      url: '/packages',
-      data
-    });
-  },
+  createPackage: (data) => 
+    api.post('/packages', data),
 
-  updatePackage: (id, data) =>
-    createRequest({
-      method: 'PUT',
-      url: `/packages/${id}`,
-      data
-    }),
+  updatePackage: (id, data) => 
+    api.put(`/packages/${id}`, data),
 
-  // Drivers
-  getDrivers: (params) => {
-    if (DEMO_MODE) {
-      return mockData.mockGetDrivers();
-    }
-    return createRequest({
-      method: 'GET',
-      url: '/drivers',
-      params
-    });
-  },
+  getDrivers: (params) => 
+    api.get('/drivers', { params }),
 
-  getDriver: (id) =>
-    createRequest({ method: 'GET', url: `/drivers/${id}` }),
+  getDriver: (id) => 
+    api.get(`/drivers/${id}`),
 
-  // Routes
-  getRoutes: (params) => {
-    if (DEMO_MODE) {
-      return mockData.mockGetRoutes();
-    }
-    return createRequest({
-      method: 'GET',
-      url: '/routes',
-      params
-    });
-  },
+  getRoutes: (params) => 
+    api.get('/routes', { params }),
 
-  // GPS
-  updateGPS: (driverId, data) =>
-    createRequest({
-      method: 'POST',
-      url: `/gps/update`,
-      data: { driverId, ...data }
-    }),
+  updateGPS: (driverId, data) => 
+    api.post('/gps/update', { driverId, ...data }),
 
-  getGPSHistory: (driverId, params) =>
-    createRequest({
-      method: 'GET',
-      url: `/gps/${driverId}/history`,
-      params
-    })
+  getGPSHistory: (driverId, params) => 
+    api.get(`/gps/${driverId}/history`, { params })
 };
 
 // Direct exports for backward compatibility
-export const get = (url, config) => createRequest({ method: 'GET', url, ...config });
-export const post = (url, data, config) => createRequest({ method: 'POST', url, data, ...config });
-export const put = (url, data, config) => createRequest({ method: 'PUT', url, data, ...config });
-export const del = (url, config) => createRequest({ method: 'DELETE', url, ...config });
+export const get = (url, config) => api.get(url, config);
+export const post = (url, data, config) => api.post(url, data, config);
+export const put = (url, data, config) => api.put(url, data, config);
+export const del = (url, config) => api.delete(url, config);
 
 export default api;
