@@ -21,6 +21,7 @@ import MapTrackingPage from './pages/MapTrackingPage';
 import DriverFolderPage from './pages/DriverFolderPage';
 import HistoryPage from './pages/HistoryPage';
 import ClientPortal from './pages/ClientPortal';
+import DeliveryRequestsPage from './pages/DeliveryRequestsPage';
 import './App.css';
 
 // Root redirect Component
@@ -179,6 +180,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['driver']}>
             <DriverMapPage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/admin/delivery-requests" 
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'dispatcher']}>
+            <DeliveryRequestsPage />
           </ProtectedRoute>
         } 
       />

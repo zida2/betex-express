@@ -142,6 +142,14 @@ const AdminDashboard = () => {
         >
           ⚡<span className="nav-text"> Optim</span>
         </button>
+        <button 
+          className={activeTab === 'delivery-requests' ? 'active' : ''}
+          onClick={() => navigate('/admin/delivery-requests')}
+          data-label="Demandes de livraison clients"
+          title="Demandes clients"
+        >
+          📋<span className="nav-text"> Demandes</span>
+        </button>
       </nav>
 
       <main className="dashboard-main">
