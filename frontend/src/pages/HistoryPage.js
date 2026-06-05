@@ -246,6 +246,54 @@ const HistoryPage = () => {
                         <div className="info-value">{pkg.assignedDriver.name}</div>
                       </div>
                     )}
+                    {/* Montants et tarifs */}
+                    <div className="pricing-section">
+                      {pkg.packagePrice && (
+                        <div className="info-row price-row">
+                          <div className="info-label">📦 Prix du colis</div>
+                          <div className="info-value price">{parseFloat(pkg.packagePrice).toLocaleString('fr-FR')} FCFA</div>
+                        </div>
+                      )}
+                      {pkg.deliveryPrice && (
+                        <div className="info-row price-row">
+                          <div className="info-label">🚚 Prix de livraison</div>
+                          <div className="info-value price">{parseFloat(pkg.deliveryPrice).toLocaleString('fr-FR')} FCFA</div>
+                        </div>
+                      )}
+                      {pkg.packagePrice && pkg.deliveryPrice && (
+                        <div className="info-row price-row total">
+                          <div className="info-label"><strong>Total</strong></div>
+                          <div className="info-value price"><strong>{(parseFloat(pkg.packagePrice) + parseFloat(pkg.deliveryPrice)).toLocaleString('fr-FR')} FCFA</strong></div>
+                        </div>
+                      )}
+                    </div>
+
+                    {pkg.isPaid !== undefined && (
+                      <div className="info-row payment-status">
+                        <div className="info-label">💳 Paiement</div>
+                        <span className={`payment-badge ${pkg.isPaid ? 'paid' : 'unpaid'}`}>
+                          {pkg.isPaid ? '✓ Payé' : '❌ Non payé'}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Motif d'échec */}
+                    {pkg.status === 'delivery_failed' && (
+                      <div className="failure-section">
+                        {pkg.failureReason && (
+                          <div className="info-row failure-reason">
+                            <div className="info-label">⚠️ Motif d'échec</div>
+                            <div className="info-value failure-text">{pkg.failureReason}</div>
+                          </div>
+                        )}
+                        {pkg.failureNotes && (
+                          <div className="info-row failure-notes">
+                            <div className="info-label">📋 Détails supplémentaires</div>
+                            <div className="info-value notes-text">{pkg.failureNotes}</div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   
                   <div className="card-footer">

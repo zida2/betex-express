@@ -76,6 +76,11 @@ const Driver = sequelize.define('Driver', {
     allowNull: true,
     comment: 'Horodatage de la dernière mise à jour de position'
   },
+  lastActivityAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Dernière activité du livreur'
+  },
   createdAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW

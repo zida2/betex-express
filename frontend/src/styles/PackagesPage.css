@@ -340,3 +340,61 @@
   font-size: 14px;
   margin: 4px 0;
 }
+
+/* Driver Information Display */
+.driver-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.driver-label {
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 13px;
+  min-width: 140px;
+}
+
+.driver-value {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: right;
+  flex: 1;
+  word-break: break-word;
+}
+
+.driver-option-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--bg-tertiary);
+}
+
+.driver-option-details p {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin: 0;
+}
+
+.suggested-driver .driver-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.selected-driver .driver-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}

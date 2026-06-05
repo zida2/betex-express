@@ -1,250 +1,288 @@
 /**
  * Optimization Service
- * Intelligent route and driver assignment
+ * Intelligent driver assignment and route optimization
  */
 
-const { Driver, Zone, Package, GPSPosition } = require('../models');
-const { AppError } = require('../middleware/errorHandler.middleware');
-const { Op } = require('sequelize');
+const { Driver, Package, Zone } = require('../models');
+const { Op, sequelize } = require('sequelize');
+const DistanceUtils = require('../utils/distance.utils');
 
-/**
- * Calculate distance between two coordinates (Haversine formula)
- */
-const calculateDistance = (lat1, lon1, lat2, lon2) => {
-  const R = 6371; // Earth's radius in km
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = 
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
-
-/**
- * Find nearest driver to a zone
- */
-const findNearestDriver = async (zoneId, excludeDriverIds = []) => {
-  // Get zone coordinates
-  const zone = await Zone.findByPk(zoneId);
-  if (!zone) {
-    throw new AppError('Zone not found', 404, 'ZONE_NOT_FOUND');
-  }
-
-  // Get online drivers
-  const drivers = await Driver.findAll({
-    where: {
-      status: { [Op.in]: ['online', 'in_delivery'] },
-      id: { [Op.notIn]: excludeDriverIds }
-    },
-    attributes: ['id', 'name', 'lastLatitude', 'lastLongitude', 'status', 'totalDeliveries', 'successfulDeliveries']
-  });
-
-  if (drivers.length === 0) {
-    throw new AppError('No available drivers', 400, 'NO_AVAILABLE_DRIVERS');
-  }
-
-  // Calculate distance for each driver
-  const driversWithDistance = drivers.map(driver => {
-    const distance = calculateDistance(
-      zone.centerLatitude,
-      zone.centerLongitude,
-      driver.lastLatitude || 0,
-      driver.lastLongitude || 0
-    );
-
-    // Calculate success rate
-    const successRate = driver.totalDeliveries > 0 
-      ? (driver.successfulDeliveries / driver.totalDeliveries) 
-      : 0;
-
-    return {
-      ...driver.toJSON(),
-      distance,
-      successRate,
-      score: (1 / (distance + 1)) * (successRate + 1) // Scoring algorithm
-    };
-  });
-
-  // Sort by score (highest first)
-  driversWithDistance.sort((a, b) => b.score - a.score);
-
-  return driversWithDistance[0];
-};
-
-/**
- * Find best drivers for multiple packages
- */
-const optimizePackageAssignment = async (packageIds, zoneId) => {
-  const packages = await Package.findAll({
-    where: { id: packageIds },
-    include: [{ model: Zone, attributes: ['name', 'centerLatitude', 'centerLongitude'] }]
-  });
-
-  if (packages.length === 0) {
-    throw new AppError('No packages found', 404, 'PACKAGES_NOT_FOUND');
-  }
-
-  const assignments = [];
-  const assignedDriverIds = [];
-
-  for (const pkg of packages) {
+class OptimizationService {
+  /**
+   * Suggest best driver for a package
+   */
+  static async suggestDriver(packageId, packageLocation = {}) {
     try {
-      const nearestDriver = await findNearestDriver(pkg.zoneId, assignedDriverIds);
-      
-      assignments.push({
-        packageId: pkg.id,
-        driverId: nearestDriver.id,
-        driverName: nearestDriver.name,
-        distance: nearestDriver.distance,
-        successRate: nearestDriver.successRate,
-        score: nearestDriver.score
+      const pkg = await Package.findByPk(packageId);
+      if (!pkg) {
+        throw new Error('Package not found');
+      }
+
+      // Get all available drivers
+      const availableDrivers = await Driver.findAll({
+        where: {
+          status: { [Op.in]: ['online', 'in_delivery', 'available'] }
+        },
+        attributes: ['id', 'name', 'status', 'lastLatitude', 'lastLongitude', 'rating', 'email']
       });
 
-      assignedDriverIds.push(nearestDriver.id);
+      if (availableDrivers.length === 0) {
+        throw new Error('No available drivers');
+      }
+
+      // Score drivers based on multiple factors
+      const scoredDrivers = await Promise.all(
+        availableDrivers.map(async (driver) => {
+          // Calculate distance from driver to package pickup location
+          const distance = DistanceUtils.calculateDistance(
+            driver.lastLatitude || 12.3714,
+            driver.lastLongitude || -1.5197,
+            pkg.pickupLatitude || 12.3650,
+            pkg.pickupLongitude || -1.5250
+          );
+
+          // Get driver workload (active packages)
+          const activePackages = await Package.count({
+            where: {
+              driverId: driver.id,
+              status: { [Op.in]: ['pending', 'collected', 'in_delivery'] }
+            }
+          });
+
+          // Get driver success rate
+          const deliveredCount = await Package.count({
+            where: {
+              driverId: driver.id,
+              status: 'delivered'
+            }
+          });
+
+          const failedCount = await Package.count({
+            where: {
+              driverId: driver.id,
+              status: 'delivery_failed'
+            }
+          });
+
+          const totalDeliveries = deliveredCount + failedCount;
+          const successRate = totalDeliveries > 0
+            ? (deliveredCount / totalDeliveries) * 100
+            : 100;
+
+          // Calculate score (lower distance, lower workload, higher success rate)
+          // Weight: 50% distance, 30% workload, 20% success rate
+          const distanceScore = Math.max(0, 100 - (distance * 10)); // Max 100, decreases with distance
+          const workloadScore = Math.max(0, 100 - (activePackages * 5)); // Max 100, decreases with workload
+          const successScore = successRate; // 0-100
+
+          const totalScore = (distanceScore * 0.5) + (workloadScore * 0.3) + (successScore * 0.2);
+
+          return {
+            id: driver.id,
+            name: driver.name,
+            status: driver.status,
+            distance: parseFloat(distance.toFixed(2)),
+            activePackages,
+            successRate: parseFloat(successRate.toFixed(1)),
+            rating: driver.rating,
+            score: parseFloat(totalScore.toFixed(2))
+          };
+        })
+      );
+
+      // Sort by score (highest first)
+      scoredDrivers.sort((a, b) => b.score - a.score);
+
+      // Return top 3 suggestions
+      return scoredDrivers.slice(0, 3);
     } catch (error) {
-      // If no driver available for this package, continue
-      console.warn(`Could not assign driver for package ${pkg.id}:`, error.message);
+      console.error('Error suggesting driver:', error);
+      throw error;
     }
   }
 
-  return assignments;
-};
+  /**
+   * Assign package to driver
+   */
+  static async assignPackage(packageId, driverId) {
+    try {
+      const pkg = await Package.findByPk(packageId);
+      const driver = await Driver.findByPk(driverId);
 
-/**
- * Get driver workload
- */
-const getDriverWorkload = async (driverId) => {
-  const driver = await Driver.findByPk(driverId);
-  if (!driver) {
-    throw new AppError('Driver not found', 404, 'DRIVER_NOT_FOUND');
-  }
+      if (!pkg || !driver) {
+        throw new Error('Package or driver not found');
+      }
 
-  // Get assigned packages
-  const assignedPackages = await Package.findAll({
-    where: {
-      driverId,
-      status: { [Op.in]: ['collected', 'in_delivery'] }
+      await pkg.update({
+        driverId: driverId,
+        status: 'pending'
+      });
+
+      return {
+        packageId,
+        driverId,
+        trackingNumber: pkg.id,
+        driverName: driver.name,
+        message: 'Package assigned successfully'
+      };
+    } catch (error) {
+      console.error('Error assigning package:', error);
+      throw error;
     }
-  });
-
-  // Calculate total weight
-  const totalWeight = assignedPackages.reduce((sum, pkg) => sum + (pkg.weight || 0), 0);
-
-  return {
-    driverId,
-    driverName: driver.name,
-    assignedPackages: assignedPackages.length,
-    totalWeight,
-    status: driver.status,
-    successRate: driver.totalDeliveries > 0 
-      ? (driver.successfulDeliveries / driver.totalDeliveries) 
-      : 0
-  };
-};
-
-/**
- * Get all drivers workload
- */
-const getAllDriversWorkload = async () => {
-  const drivers = await Driver.findAll({
-    attributes: ['id', 'name', 'status', 'totalDeliveries', 'successfulDeliveries']
-  });
-
-  const workloads = await Promise.all(
-    drivers.map(driver => getDriverWorkload(driver.id))
-  );
-
-  return workloads.sort((a, b) => a.assignedPackages - b.assignedPackages);
-};
-
-/**
- * Suggest best driver for a package
- */
-const suggestBestDriver = async (packageId) => {
-  const pkg = await Package.findByPk(packageId, {
-    include: [{ model: Zone }]
-  });
-
-  if (!pkg) {
-    throw new AppError('Package not found', 404, 'PACKAGE_NOT_FOUND');
   }
 
-  const nearestDriver = await findNearestDriver(pkg.zoneId);
+  /**
+   * Assign multiple packages to drivers (batch optimization)
+   */
+  static async optimizePackageAssignment(packageIds, zoneId = null) {
+    try {
+      const packages = await Package.findAll({
+        where: {
+          id: { [Op.in]: packageIds },
+          driverId: null
+        }
+      });
 
-  return {
-    packageId,
-    suggestedDriver: {
-      id: nearestDriver.id,
-      name: nearestDriver.name,
-      distance: nearestDriver.distance.toFixed(2),
-      successRate: (nearestDriver.successRate * 100).toFixed(1),
-      status: nearestDriver.status
+      if (packages.length === 0) {
+        throw new Error('No unassigned packages found');
+      }
+
+      const assignedPackages = [];
+
+      for (const pkg of packages) {
+        // Get best driver suggestion
+        const suggestions = await this.suggestDriver(pkg.id);
+        if (suggestions.length > 0) {
+          const bestDriver = suggestions[0];
+          await this.assignPackage(pkg.id, bestDriver.id);
+          assignedPackages.push({
+            packageId: pkg.id,
+            driverId: bestDriver.id,
+            trackingNumber: pkg.id
+          });
+        }
+      }
+
+      return {
+        assignedCount: assignedPackages.length,
+        assignments: assignedPackages,
+        message: `${assignedPackages.length} packages optimized and assigned`
+      };
+    } catch (error) {
+      console.error('Error optimizing package assignment:', error);
+      throw error;
     }
-  };
-};
-
-/**
- * Suggest driver based on coordinates (for new package creation)
- */
-const suggestDriverByLocation = async (latitude, longitude) => {
-  // Get online drivers
-  const drivers = await Driver.findAll({
-    where: {
-      status: { [Op.in]: ['online', 'in_delivery'] }
-    },
-    attributes: ['id', 'name', 'phone', 'lastLatitude', 'lastLongitude', 'status', 'totalDeliveries', 'successfulDeliveries']
-  });
-
-  if (drivers.length === 0) {
-    throw new AppError('No available drivers', 400, 'NO_AVAILABLE_DRIVERS');
   }
 
-  // Calculate distance for each driver
-  const driversWithDistance = drivers.map(driver => {
-    const distance = calculateDistance(
-      latitude,
-      longitude,
-      driver.lastLatitude || 0,
-      driver.lastLongitude || 0
-    );
+  /**
+   * Calculate optimal route for driver
+   */
+  static async calculateOptimalRoute(driverId) {
+    try {
+      const activePackages = await Package.findAll({
+        where: {
+          driverId: driverId,
+          status: { [Op.in]: ['collected', 'in_delivery'] }
+        },
+        order: [['createdAt', 'ASC']]
+      });
 
-    // Calculate success rate
-    const successRate = driver.totalDeliveries > 0 
-      ? (driver.successfulDeliveries / driver.totalDeliveries) 
-      : 0;
+      if (activePackages.length === 0) {
+        return {
+          route: [],
+          distance: 0,
+          estimatedTime: 0
+        };
+      }
 
-    return {
-      ...driver.toJSON(),
-      distance,
-      successRate,
-      score: (1 / (distance + 1)) * (successRate + 1) // Scoring algorithm
-    };
-  });
+      // Simple sorting by distance (can be improved with TSP algorithm)
+      const driver = await Driver.findByPk(driverId);
+      let currentLat = driver.lastLatitude || 12.3714;
+      let currentLng = driver.lastLongitude || -1.5197;
+      let totalDistance = 0;
+      const route = [];
 
-  // Sort by score (highest first)
-  driversWithDistance.sort((a, b) => b.score - a.score);
+      for (const pkg of activePackages) {
+        const distance = DistanceUtils.calculateDistance(
+          currentLat,
+          currentLng,
+          pkg.deliveryLatitude,
+          pkg.deliveryLongitude
+        );
 
-  const bestDriver = driversWithDistance[0];
+        totalDistance += distance;
+        route.push({
+          packageId: pkg.id,
+          trackingNumber: pkg.id,
+          destination: pkg.address,
+          distance: parseFloat(distance.toFixed(2))
+        });
 
-  return {
-    id: bestDriver.id,
-    name: bestDriver.name,
-    phone: bestDriver.phone,
-    distance: bestDriver.distance,
-    successRate: (bestDriver.successRate * 100).toFixed(1),
-    status: bestDriver.status,
-    totalDeliveries: bestDriver.totalDeliveries
-  };
-};
+        currentLat = pkg.deliveryLatitude;
+        currentLng = pkg.deliveryLongitude;
+      }
 
-module.exports = {
-  calculateDistance,
-  findNearestDriver,
-  optimizePackageAssignment,
-  getDriverWorkload,
-  getAllDriversWorkload,
-  suggestBestDriver,
-  suggestDriverByLocation
-};
+      // Estimate time (average 15 min per delivery + 5 min per km travel)
+      const estimatedTime = Math.round((activePackages.length * 15) + (totalDistance * 5));
+
+      return {
+        route,
+        distance: parseFloat(totalDistance.toFixed(2)),
+        estimatedTime,
+        packageCount: activePackages.length
+      };
+    } catch (error) {
+      console.error('Error calculating optimal route:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get optimization metrics
+   */
+  static async getOptimizationMetrics() {
+    try {
+      const totalPackages = await Package.count();
+      const unassignedPackages = await Package.count({
+        where: { driverId: null }
+      });
+
+      const assignedPackages = totalPackages - unassignedPackages;
+      const activeDeliveries = await Package.count({
+        where: {
+          status: { [Op.in]: ['collected', 'in_delivery'] }
+        }
+      });
+
+      const completedDeliveries = await Package.count({
+        where: { status: 'delivered' }
+      });
+
+      const failedDeliveries = await Package.count({
+        where: { status: 'delivery_failed' }
+      });
+
+      const successRate = (completedDeliveries + failedDeliveries) > 0
+        ? (completedDeliveries / (completedDeliveries + failedDeliveries)) * 100
+        : 0;
+
+      return {
+        totalPackages,
+        assignedPackages,
+        unassignedPackages,
+        activeDeliveries,
+        completedDeliveries,
+        failedDeliveries,
+        successRate: parseFloat(successRate.toFixed(1)),
+        assignmentRate: totalPackages > 0 
+          ? ((assignedPackages / totalPackages) * 100).toFixed(1)
+          : 0
+      };
+    } catch (error) {
+      console.error('Error getting optimization metrics:', error);
+      throw error;
+    }
+  }
+}
+
+module.exports = OptimizationService;

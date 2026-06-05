@@ -323,14 +323,20 @@ const PackagesPage = () => {
                       onClick={() => selectDriver(driver)}
                     >
                       <div className="driver-option-header">
-                        <strong>{driver.name}</strong>
+                        <strong>👤 {driver.firstName} {driver.lastName}</strong>
                         <span className={`status-badge status-${driver.status}`}>
                           {translateStatus(driver.status)}
                         </span>
                       </div>
-                      <p>📞 {driver.phone}</p>
-                      <p>📦 {driver.assignedPackages || 0} colis en cours</p>
-                      <p>✅ {driver.completedToday || 0} livrés aujourd'hui</p>
+                      <div className="driver-option-details">
+                        <p>📝 CNIB: {driver.cnib}</p>
+                        <p>📞 Téléphone: {driver.phone}</p>
+                        <p>✉️ Email: {driver.email}</p>
+                        <p>🚗 Véhicule: {driver.vehicleType}</p>
+                        <p>📋 Plaque: {driver.vehiclePlate}</p>
+                        <p>📦 Colis en cours: {driver.assignedPackages || 0}</p>
+                        <p>✅ Livrés aujourd'hui: {driver.completedToday || 0}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -340,14 +346,48 @@ const PackagesPage = () => {
                 <div className="suggested-driver">
                   <h4>🎯 LIVREUR SUGGÉRÉ (LE PLUS PROCHE)</h4>
                   <div className="driver-details">
-                    <p><strong>Nom:</strong> {suggestedDriver.name}</p>
-                    <p><strong>Téléphone:</strong> {suggestedDriver.phone}</p>
-                    <p><strong>Distance:</strong> {suggestedDriver.distance?.toFixed(2) || 'N/A'} km</p>
-                    <p><strong>Statut:</strong> <span className={`status-badge status-${suggestedDriver.status}`}>
-                      {translateStatus(suggestedDriver.status)}
-                    </span></p>
-                    <p><strong>Colis en cours:</strong> {suggestedDriver.assignedPackages || 0}</p>
-                    <p><strong>Livrés aujourd'hui:</strong> {suggestedDriver.completedToday || 0}</p>
+                    <div className="driver-info-row">
+                      <span className="driver-label">👤 Nom & Prénom:</span>
+                      <span className="driver-value">{suggestedDriver.firstName} {suggestedDriver.lastName}</span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">📝 CNIB:</span>
+                      <span className="driver-value">{suggestedDriver.cnib}</span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">📞 Téléphone:</span>
+                      <span className="driver-value">{suggestedDriver.phone}</span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">✉️ Email:</span>
+                      <span className="driver-value">{suggestedDriver.email}</span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">🚗 Type véhicule:</span>
+                      <span className="driver-value">{suggestedDriver.vehicleType}</span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">📋 Plaque:</span>
+                      <span className="driver-value">{suggestedDriver.vehiclePlate}</span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">📏 Distance:</span>
+                      <span className="driver-value">{suggestedDriver.distance?.toFixed(2) || 'N/A'} km</span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">🔴 Statut:</span>
+                      <span className={`status-badge status-${suggestedDriver.status}`}>
+                        {translateStatus(suggestedDriver.status)}
+                      </span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">📦 Colis en cours:</span>
+                      <span className="driver-value">{suggestedDriver.assignedPackages || 0}</span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">✅ Livrés aujourd'hui:</span>
+                      <span className="driver-value">{suggestedDriver.completedToday || 0}</span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -356,11 +396,36 @@ const PackagesPage = () => {
                 <div className="selected-driver">
                   <h4>✅ LIVREUR SÉLECTIONNÉ</h4>
                   <div className="driver-details">
-                    <p><strong>Nom:</strong> {selectedDriver.name}</p>
-                    <p><strong>Téléphone:</strong> {selectedDriver.phone}</p>
-                    <p><strong>Statut:</strong> <span className={`status-badge status-${selectedDriver.status}`}>
-                      {translateStatus(selectedDriver.status)}
-                    </span></p>
+                    <div className="driver-info-row">
+                      <span className="driver-label">👤 Nom & Prénom:</span>
+                      <span className="driver-value">{selectedDriver.firstName} {selectedDriver.lastName}</span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">📝 CNIB:</span>
+                      <span className="driver-value">{selectedDriver.cnib}</span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">📞 Téléphone:</span>
+                      <span className="driver-value">{selectedDriver.phone}</span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">✉️ Email:</span>
+                      <span className="driver-value">{selectedDriver.email}</span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">🚗 Type véhicule:</span>
+                      <span className="driver-value">{selectedDriver.vehicleType}</span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">📋 Plaque:</span>
+                      <span className="driver-value">{selectedDriver.vehiclePlate}</span>
+                    </div>
+                    <div className="driver-info-row">
+                      <span className="driver-label">🔴 Statut:</span>
+                      <span className={`status-badge status-${selectedDriver.status}`}>
+                        {translateStatus(selectedDriver.status)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               )}

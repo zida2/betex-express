@@ -14,9 +14,11 @@ const DriversPage = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     phone: '',
     email: '',
+    cnib: '',
     vehicleType: '',
     vehiclePlate: ''
   });
@@ -52,11 +54,22 @@ const DriversPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/drivers', formData);
+      await api.post('/drivers', {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        name: `${formData.firstName} ${formData.lastName}`,
+        phone: formData.phone,
+        email: formData.email,
+        cnib: formData.cnib,
+        vehicleType: formData.vehicleType,
+        vehiclePlate: formData.vehiclePlate
+      });
       setFormData({
-        name: '',
+        firstName: '',
+        lastName: '',
         phone: '',
         email: '',
+        cnib: '',
         vehicleType: '',
         vehiclePlate: ''
       });
@@ -98,65 +111,106 @@ const DriversPage = () => {
       {showForm && (
         <div className="form-container">
           <form onSubmit={handleSubmit} className="driver-form">
+            <h3>INFORMATIONS PERSONNELLES</h3>
+            
             <div className="form-row">
               <div className="form-group">
-                <label>Nom</label>
+                <label>Prénom *</label>
                 <input
                   type="text"
-                  name="name"
-                  value={formData.name}
+                  name="firstName"
+                  value={formData.firstName}
                   onChange={handleInputChange}
                   required
+                  placeholder="Jean"
                 />
               </div>
               <div className="form-group">
-                <label>Téléphone</label>
+                <label>Nom *</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Kouassi"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Numéro CNIB *</label>
+                <input
+                  type="text"
+                  name="cnib"
+                  value={formData.cnib}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="BF 12345 67890 12345"
+                />
+              </div>
+              <div className="form-group">
+                <label>Téléphone *</label>
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
                   required
+                  placeholder="+226 70 00 00 01"
                 />
               </div>
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label>Email</label>
+                <label>Email *</label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                />
-              </div>
-              <div className="form-group">
-                <label>Type de véhicule</label>
-                <input
-                  type="text"
-                  name="vehicleType"
-                  value={formData.vehicleType}
-                  onChange={handleInputChange}
-                  placeholder="Moto, Voiture, etc."
+                  required
+                  placeholder="livreur@betex.com"
                 />
               </div>
             </div>
 
+            <h3>INFORMATIONS VÉHICULE</h3>
+
             <div className="form-row">
               <div className="form-group">
-                <label>Plaque d'immatriculation</label>
+                <label>Type de véhicule *</label>
+                <select
+                  name="vehicleType"
+                  value={formData.vehicleType}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">-- Sélectionner --</option>
+                  <option value="Moto">Moto</option>
+                  <option value="Voiture">Voiture</option>
+                  <option value="Vélo">Vélo</option>
+                  <option value="Taxi">Taxi</option>
+                  <option value="Camion">Camion</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Plaque d'immatriculation *</label>
                 <input
                   type="text"
                   name="vehiclePlate"
                   value={formData.vehiclePlate}
                   onChange={handleInputChange}
+                  required
+                  placeholder="BF-1234-AB"
                 />
               </div>
             </div>
 
             <button type="submit" className="btn-primary">
-              Créer le livreur
+              ✅ Créer le livreur
             </button>
           </form>
         </div>
@@ -186,18 +240,36 @@ const DriversPage = () => {
 
               <div className="driver-body">
                 <div className="info-row">
+                  <span className="info-icon">👤</span>
+                  <span className="info-label">Prénom:</span>
+                  <span className="info-value">{driver.firstName}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-icon">👤</span>
+                  <span className="info-label">Nom:</span>
+                  <span className="info-value">{driver.lastName}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-icon">📝</span>
+                  <span className="info-label">CNIB:</span>
+                  <span className="info-value">{driver.cnib}</span>
+                </div>
+                <div className="info-row">
                   <span className="info-icon">📞</span>
+                  <span className="info-label">Tél:</span>
                   <span className="info-value">{driver.phone}</span>
                 </div>
                 {driver.email && (
                   <div className="info-row">
                     <span className="info-icon">📧</span>
+                    <span className="info-label">Email:</span>
                     <span className="info-value">{driver.email}</span>
                   </div>
                 )}
                 {driver.vehicleType && (
                   <div className="info-row">
                     <span className="info-icon">🚗</span>
+                    <span className="info-label">Véhicule:</span>
                     <span className="info-value">{driver.vehicleType} {driver.vehiclePlate && `(${driver.vehiclePlate})`}</span>
                   </div>
                 )}

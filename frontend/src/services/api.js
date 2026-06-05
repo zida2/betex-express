@@ -1,17 +1,16 @@
 /**
  * API Service
- * Axios instance for API calls with Demo Mode support
+ * Axios instance for API calls with retry logic and error handling
  */
 
 import axios from 'axios';
 import * as mockData from './mockData';
 
-// Demo mode activé si REACT_APP_DEMO_MODE=true
+// Demo mode
 const DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true';
-
-// Use relative path so Nginx proxy handles it
 const API_URL = process.env.REACT_APP_API_URL || '/api/v1';
 
+// Create axios instance
 const api = axios.create({
   baseURL: API_URL,
   timeout: 10000,
@@ -20,13 +19,31 @@ const api = axios.create({
   }
 });
 
+// Request counter for deduplication
+const requestMap = new Map();
+
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
+    // Add token
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Add request ID for deduplication
+    config.requestId = `${config.method}:${config.url}`;
+    
+    // Abort previous identical request
+    if (requestMap.has(config.requestId)) {
+      const previousController = requestMap.get(config.requestId);
+      previousController.abort();
+    }
+
+    const controller = new AbortController();
+    config.signal = controller.signal;
+    requestMap.set(config.requestId, controller);
+
     return config;
   },
   (error) => {
@@ -36,139 +53,161 @@ api.interceptors.request.use(
 
 // Response interceptor
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+  (response) => {
+    // Clean up request map
+    if (response.config.requestId) {
+      requestMap.delete(response.config.requestId);
     }
+    return response;
+  },
+  (error) => {
+    // Handle unauthorized
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+      return Promise.reject(error);
+    }
+
+    // Clean up request map
+    if (error.config?.requestId) {
+      requestMap.delete(error.config.requestId);
+    }
+
     return Promise.reject(error);
   }
 );
 
-// Gestion des requêtes en mode démo
-const handleDemoRequest = async (method, url, data, params = {}) => {
-  console.log(`🎭 MODE DÉMO: ${method} ${url}`, params);
-  
-  // Routes de login
-  if (url.includes('/auth/login')) {
-    return { data: await mockData.mockLogin(data.email, data.password) };
+// Retry logic
+const retryRequest = async (config, attempt = 1, maxRetries = 3) => {
+  try {
+    return await api.request(config);
+  } catch (error) {
+    // Don't retry on 4xx errors (except 429)
+    if (error.response?.status >= 400 && error.response?.status < 500 && error.response?.status !== 429) {
+      return Promise.reject(error);
+    }
+
+    // Retry with exponential backoff
+    if (attempt < maxRetries && (error.code === 'ECONNABORTED' || error.response?.status === 429)) {
+      const delay = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return retryRequest(config, attempt + 1, maxRetries);
+    }
+
+    return Promise.reject(error);
   }
-  
-  // Dashboard stats et overview
-  if (url.includes('/dashboard/stats') || url.includes('/dashboard/overview')) {
-    return { data: await mockData.mockGetStats() };
-  }
-  
+};
+
+// Create request with auto-retry
+const createRequest = (config) => {
+  return retryRequest(config);
+};
+
+// Demo mode wrapper
+const wrapDemoMode = (demoKey, realRequest) => {
+  return async (...args) => {
+    if (DEMO_MODE) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const demoData = mockData[demoKey];
+          if (demoData) {
+            resolve({ data: demoData });
+          } else {
+            resolve({ data: { data: [] } });
+          }
+        }, 300);
+      });
+    }
+    return realRequest(...args);
+  };
+};
+
+// API methods
+export const apiMethods = {
+  // Auth
+  login: wrapDemoMode('loginUser', (email, password) =>
+    createRequest({
+      method: 'POST',
+      url: '/auth/login',
+      data: { email, password }
+    })
+  ),
+
+  me: wrapDemoMode('currentUser', () =>
+    createRequest({ method: 'GET', url: '/auth/me' })
+  ),
+
+  logout: () =>
+    createRequest({ method: 'POST', url: '/auth/logout' }),
+
   // Packages
-  if (url.includes('/packages') && method === 'GET') {
-    return { data: await mockData.mockGetPackages(params) };
-  }
-  if (url.includes('/packages') && method === 'POST') {
-    return { data: await mockData.mockCreatePackage(data) };
-  }
-  if (url.includes('/packages') && method === 'PATCH') {
-    return { data: { success: true, message: 'Statut mis à jour (mode démo)' } };
-  }
-  
+  getPackages: wrapDemoMode('packagesList', (params) =>
+    createRequest({
+      method: 'GET',
+      url: '/packages',
+      params
+    })
+  ),
+
+  getPackage: (id) =>
+    createRequest({ method: 'GET', url: `/packages/${id}` }),
+
+  createPackage: (data) =>
+    createRequest({
+      method: 'POST',
+      url: '/packages',
+      data
+    }),
+
+  updatePackage: (id, data) =>
+    createRequest({
+      method: 'PUT',
+      url: `/packages/${id}`,
+      data
+    }),
+
   // Drivers
-  if (url.includes('/drivers') && method === 'GET') {
-    return { data: await mockData.mockGetDrivers() };
-  }
-  if (url.includes('/drivers') && url.includes('/statistics')) {
-    return { data: await mockData.mockGetDriverStats() };
-  }
-  if (url.includes('/drivers') && method === 'PATCH') {
-    return { data: { success: true, message: 'Statut livreur mis à jour (mode démo)' } };
-  }
-  
-  // Suggest driver
-  if (url.includes('/optimization/suggest-driver')) {
-    return { data: await mockData.mockSuggestDriver(data) };
-  }
-  
-  // Workload
-  if (url.includes('/optimization/workload') && method === 'GET') {
-    return { data: await mockData.mockGetWorkload() };
-  }
-  
-  // Assign packages
-  if (url.includes('/optimization/assign-packages') && method === 'POST') {
-    return { data: await mockData.mockAssignPackages(data) };
-  }
-  
+  getDrivers: wrapDemoMode('driversList', (params) =>
+    createRequest({
+      method: 'GET',
+      url: '/drivers',
+      params
+    })
+  ),
+
+  getDriver: (id) =>
+    createRequest({ method: 'GET', url: `/drivers/${id}` }),
+
   // Routes
-  if (url.includes('/routes') && method === 'GET') {
-    return { data: await mockData.mockGetRoutes() };
-  }
-  if (url.includes('/routes') && method === 'POST') {
-    return { data: await mockData.mockCreateRoute(data) };
-  }
-  
-  // Zones
-  if (url.includes('/zones')) {
-    return { data: await mockData.mockGetZones() };
-  }
+  getRoutes: wrapDemoMode('routesList', (params) =>
+    createRequest({
+      method: 'GET',
+      url: '/routes',
+      params
+    })
+  ),
 
-  // History endpoint
-  if (url.includes('/history') && method === 'GET') {
-    return { data: { success: true, data: [], message: 'Historique des livraisons (mode démo)' } };
-  }
+  // GPS
+  updateGPS: (driverId, data) =>
+    createRequest({
+      method: 'POST',
+      url: `/gps/update`,
+      data: { driverId, ...data }
+    }),
 
-  // Chat endpoints
-  if (url.includes('/chat/conversations') && method === 'GET') {
-    return { data: { success: true, data: [], message: 'Conversations (mode démo)' } };
-  }
-  if (url.includes('/chat/messages') && method === 'GET') {
-    return { data: { success: true, data: [], message: 'Messages (mode démo)' } };
-  }
-  if (url.includes('/chat/send') && method === 'POST') {
-    return { data: { success: true, message: 'Message envoyé (mode démo)' } };
-  }
-  
-  // Default response
-  return { data: { success: true, message: 'Mode démo actif' } };
+  getGPSHistory: (driverId, params) =>
+    createRequest({
+      method: 'GET',
+      url: `/gps/${driverId}/history`,
+      params
+    })
 };
 
-// Wrapper pour activer le mode démo
-const apiWithDemo = {
-  // Exposer les propriétés de base d'axios
-  defaults: api.defaults,
-  interceptors: api.interceptors,
-  
-  get: async (url, config) => {
-    if (DEMO_MODE) {
-      // Extraire les params de config si présents
-      const params = config?.params || {};
-      return handleDemoRequest('GET', url, null, params);
-    }
-    return api.get(url, config);
-  },
-  post: async (url, data, config) => {
-    if (DEMO_MODE) {
-      return handleDemoRequest('POST', url, data);
-    }
-    return api.post(url, data, config);
-  },
-  put: async (url, data, config) => {
-    if (DEMO_MODE) {
-      return handleDemoRequest('PUT', url, data);
-    }
-    return api.put(url, data, config);
-  },
-  delete: async (url, config) => {
-    if (DEMO_MODE) {
-      return handleDemoRequest('DELETE', url);
-    }
-    return api.delete(url, config);
-  },
-  patch: async (url, data, config) => {
-    if (DEMO_MODE) {
-      return handleDemoRequest('PATCH', url, data);
-    }
-    return api.patch(url, data, config);
-  }
-};
+// Direct exports for backward compatibility
+export const get = (url, config) => createRequest({ method: 'GET', url, ...config });
+export const post = (url, data, config) => createRequest({ method: 'POST', url, data, ...config });
+export const put = (url, data, config) => createRequest({ method: 'PUT', url, data, ...config });
+export const del = (url, config) => createRequest({ method: 'DELETE', url, ...config });
 
-export default apiWithDemo;
+export default api;

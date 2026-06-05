@@ -181,6 +181,60 @@ const DriverHistoryPage = () => {
                       <span className="info-value">{delivery.description}</span>
                     </div>
                   )}
+                  {/* Montants et tarifs */}
+                  <div className="pricing-section">
+                    {delivery.packagePrice && (
+                      <div className="info-row price-row">
+                        <span className="info-label">📦 Prix du colis</span>
+                        <span className="info-value price">
+                          {parseFloat(delivery.packagePrice).toLocaleString('fr-FR')} FCFA
+                        </span>
+                      </div>
+                    )}
+                    {delivery.deliveryPrice && (
+                      <div className="info-row price-row">
+                        <span className="info-label">🚚 Prix de livraison</span>
+                        <span className="info-value price">
+                          {parseFloat(delivery.deliveryPrice).toLocaleString('fr-FR')} FCFA
+                        </span>
+                      </div>
+                    )}
+                    {delivery.packagePrice && delivery.deliveryPrice && (
+                      <div className="info-row price-row total">
+                        <span className="info-label"><strong>Total</strong></span>
+                        <span className="info-value price">
+                          <strong>{(parseFloat(delivery.packagePrice) + parseFloat(delivery.deliveryPrice)).toLocaleString('fr-FR')} FCFA</strong>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {delivery.isPaid !== undefined && (
+                    <div className="info-row payment-status">
+                      <span className="info-label">💳 Paiement</span>
+                      <span className={`payment-badge ${delivery.isPaid ? 'paid' : 'unpaid'}`}>
+                        {delivery.isPaid ? '✓ Payé' : '❌ Non payé'}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Motif d'échec */}
+                  {delivery.status === 'delivery_failed' && (
+                    <div className="failure-section">
+                      {delivery.failureReason && (
+                        <div className="info-row failure-reason">
+                          <span className="info-label">⚠️ Motif d'échec</span>
+                          <span className="info-value failure-text">{delivery.failureReason}</span>
+                        </div>
+                      )}
+                      {delivery.failureNotes && (
+                        <div className="info-row failure-notes">
+                          <span className="info-label">📋 Détails supplémentaires</span>
+                          <span className="info-value notes-text">{delivery.failureNotes}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

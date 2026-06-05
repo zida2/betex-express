@@ -95,6 +95,14 @@ const AdminDashboard = () => {
           👨‍🚚<span className="nav-text"> Livreurs</span>
         </button>
         <button 
+          className={activeTab === 'drivers-folder' ? 'active' : ''}
+          onClick={() => navigate('/admin/drivers-folder')}
+          data-label="Dossiers des livreurs"
+          title="Dossiers"
+        >
+          📁<span className="nav-text"> Dossiers</span>
+        </button>
+        <button 
           className={activeTab === 'map' ? 'active' : ''}
           onClick={() => navigate('/admin/map')}
           data-label="Suivi GPS temps réel"

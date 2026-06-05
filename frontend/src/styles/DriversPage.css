@@ -60,6 +60,16 @@
   gap: 16px;
 }
 
+.driver-form h3 {
+  color: var(--accent-primary);
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr;
@@ -225,11 +235,19 @@
   flex-shrink: 0;
 }
 
+.info-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  min-width: 80px;
+}
+
 .info-value {
   font-size: 14px;
   color: var(--text-primary);
   font-weight: 500;
   word-break: break-word;
+  flex: 1;
 }
 
 /* Driver Stats */

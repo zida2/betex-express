@@ -1,0 +1,149 @@
+.skeleton-container {
+  width: 100%;
+}
+
+/* Base skeleton styles */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Card skeleton */
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.skeleton-header {
+  height: 120px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.skeleton-content {
+  flex: 1;
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.skeleton-line.short {
+  width: 70%;
+}
+
+.skeleton-footer {
+  height: 40px;
+  border-radius: 4px;
+  margin-top: 12px;
+}
+
+/* List skeleton */
+.skeleton-list {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+}
+
+.skeleton-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-info {
+  flex: 1;
+}
+
+/* Table skeleton */
+.skeleton-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.skeleton-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.skeleton-cell {
+  flex: 1;
+  height: 24px;
+  border-radius: 4px;
+}
+
+/* Form skeleton */
+.skeleton-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.skeleton-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-label {
+  height: 16px;
+  width: 100px;
+  border-radius: 4px;
+}
+
+.skeleton-input {
+  height: 40px;
+  border-radius: 4px;
+}
+
+.skeleton-button {
+  height: 40px;
+  border-radius: 4px;
+  align-self: flex-end;
+  width: 120px;
+  margin-top: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .skeleton-card {
+    padding: 12px;
+  }
+
+  .skeleton-list {
+    flex-wrap: wrap;
+  }
+
+  .skeleton-row {
+    flex-wrap: wrap;
+  }
+
+  .skeleton-cell {
+    min-width: 80px;
+  }
+}

@@ -18,7 +18,7 @@ import RoutesPage from './pages/RoutesPage';
 import StockPage from './pages/StockPage';
 import OptimizationPage from './pages/OptimizationPage';
 import MapTrackingPage from './pages/MapTrackingPage';
-import HistoryPage from './pages/HistoryPage';
+import DriverFolderPage from './pages/DriverFolderPage';
 import './App.css';
 
 // Root redirect Component
@@ -132,6 +132,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['admin', 'dispatcher']}>
             <HistoryPage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/admin/drivers-folder" 
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'dispatcher']}>
+            <DriverFolderPage />
           </ProtectedRoute>
         } 
       />

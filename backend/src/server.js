@@ -25,6 +25,7 @@ const gpsRoutes = require('./routes/gps.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const stockRoutes = require('./routes/stock.routes');
 const optimizationRoutes = require('./routes/optimization.routes');
+const driverStatsRoutes = require('./routes/driverStats.routes');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler.middleware');
@@ -82,6 +83,7 @@ app.get('/ready', async (req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/packages', packageRoutes);
 app.use('/api/v1/drivers', driverRoutes);
+app.use('/api/v1/driver-stats', driverStatsRoutes);
 app.use('/api/v1/routes', routeRoutes);
 app.use('/api/v1/zones', zoneRoutes);
 app.use('/api/v1/gps', gpsRoutes);

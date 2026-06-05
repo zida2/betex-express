@@ -211,6 +211,22 @@ const DriverDashboard = () => {
                     </div>
                   </div>
 
+                  {/* Tarifs et pricing */}
+                  <div className="pricing-section">
+                    <h4 className="section-title">💰 TARIFICATION</h4>
+                    <div className="pricing-details">
+                      {pkg.packagePrice && (
+                        <p><strong>📦 Prix du colis:</strong> {parseFloat(pkg.packagePrice).toLocaleString('fr-FR')} FCFA</p>
+                      )}
+                      {pkg.deliveryPrice && (
+                        <p><strong>🚚 Prix de livraison:</strong> {parseFloat(pkg.deliveryPrice).toLocaleString('fr-FR')} FCFA</p>
+                      )}
+                      {pkg.packagePrice && pkg.deliveryPrice && (
+                        <p className="total-price"><strong>💵 Total:</strong> {(parseFloat(pkg.packagePrice) + parseFloat(pkg.deliveryPrice)).toLocaleString('fr-FR')} FCFA</p>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="package-actions">
                     {pkg.status === 'collected' && (
                       <>
