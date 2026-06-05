@@ -1,12 +1,11 @@
 /**
- * Client Portal Page
+ * Client Portal Page - IMPROVED
  * Customers can see available drivers and request delivery
  */
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import LocationPicker from '../components/LocationPicker';
 import '../styles/ClientPortal.css';
 
 const ClientPortal = () => {
@@ -16,6 +15,7 @@ const ClientPortal = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [geoLoading, setGeoLoading] = useState(false);
   const [deliveryRequest, setDeliveryRequest] = useState({
     senderName: '',
     senderPhone: '',
@@ -65,7 +65,7 @@ const ClientPortal = () => {
 
   // Calculate distance between two coordinates (Haversine formula)
   const calculateDistance = (lat1, lng1, lat2, lng2) => {
-    const R = 6371; // Earth's radius in km
+    const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLng = (lng2 - lng1) * Math.PI / 180;
     const a = 
@@ -73,10 +73,56 @@ const ClientPortal = () => {
       Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
       Math.sin(dLng/2) * Math.sin(dLng/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return Math.round((R * c) * 10) / 10; // Round to 1 decimal place
+    return Math.round((R * c) * 10) / 10;
   };
 
-  // Filter drivers by distance when user location changes
+  // Request geolocation from user
+  const requestGeolocation = (callback) => {
+    if (!navigator.geolocation) {
+      setMessage('❌ Géolocalisation non supportée par votre navigateur');
+      return;
+    }
+
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const location = { latitude, longitude };
+        callback(location);
+        setGeoLoading(false);
+      },
+      (error) => {
+        setMessage('❌ Veuillez activer la géolocalisation pour continuer');
+        console.error('Geolocation error:', error);
+        setGeoLoading(false);
+      }
+    );
+  };
+
+  // Get sender location
+  const handleGetSenderLocation = () => {
+    requestGeolocation((location) => {
+      setUserLocation(location);
+      setDeliveryRequest(prev => ({
+        ...prev,
+        senderAddress: `${location.latitude}, ${location.longitude}`
+      }));
+    });
+  };
+
+  // Get receiver location
+  const handleGetReceiverLocation = () => {
+    requestGeolocation((location) => {
+      setDeliveryRequest(prev => ({
+        ...prev,
+        receiverAddress: `${location.latitude}, ${location.longitude}`,
+        receiverLat: location.latitude,
+        receiverLng: location.longitude
+      }));
+    });
+  };
+
+  // Filter drivers by distance
   useEffect(() => {
     if (userLocation && userLocation.latitude && userLocation.longitude) {
       const nearby = drivers.map(driver => ({
@@ -93,10 +139,6 @@ const ClientPortal = () => {
     }
   }, [userLocation]);
 
-  const handleLocationSelect = (location) => {
-    setUserLocation(location);
-  };
-
   const handleDeliveryChange = (e) => {
     const { name, value } = e.target;
     setDeliveryRequest(prev => ({
@@ -105,18 +147,22 @@ const ClientPortal = () => {
     }));
   };
 
-  const handleReceiverLocation = (location) => {
-    setDeliveryRequest(prev => ({
-      ...prev,
-      receiverAddress: location.address,
-      receiverLat: location.latitude,
-      receiverLng: location.longitude
-    }));
+  const handleSelectDriver = (driver) => {
+    setSelectedDriver(selectedDriver?.id === driver.id ? null : driver);
+    // Auto-scroll to form if selected
+    if (selectedDriver?.id !== driver.id) {
+      setTimeout(() => {
+        const formSection = document.querySelector('.delivery-form-section');
+        if (formSection) {
+          formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
   };
 
   const handleRequestDelivery = async (driverId) => {
-    if (!deliveryRequest.receiverName || !deliveryRequest.receiverPhone || !deliveryRequest.receiverAddress) {
-      setMessage('❌ Veuillez remplir tous les champs de destination');
+    if (!deliveryRequest.receiverName || !deliveryRequest.receiverPhone) {
+      setMessage('❌ Le nom et le téléphone du destinataire sont obligatoires');
       return;
     }
 
@@ -131,7 +177,9 @@ const ClientPortal = () => {
 
       const response = await api.post('/delivery-requests', newRequest);
       setRequests([...requests, response.data.data]);
-      setMessage('✅ Demande de livraison envoyée à l\'admin pour approbation');
+      setMessage('✅ Demande envoyée à l\'admin pour approbation');
+      
+      // Reset form
       setDeliveryRequest({
         senderName: '',
         senderPhone: '',
@@ -176,10 +224,7 @@ const ClientPortal = () => {
   return (
     <div className="client-portal">
       <header className="client-header">
-        <div className="header-content">
-          <h1>🛵 BETEX EXPRESS - Portail Client</h1>
-          <p>Trouvez un livreur et demandez une livraison</p>
-        </div>
+        <h1>🛵 BETEX EXPRESS</h1>
         <button className="btn-logout" onClick={() => {
           localStorage.removeItem('token');
           localStorage.removeItem('user');
@@ -205,7 +250,7 @@ const ClientPortal = () => {
       </div>
 
       {message && (
-        <div className="message-banner">
+        <div className={`message-banner ${message.includes('❌') ? 'error' : 'success'}`}>
           {message}
         </div>
       )}
@@ -214,120 +259,147 @@ const ClientPortal = () => {
         {/* Find Drivers Tab */}
         {activeTab === 'find-drivers' && (
           <div className="find-drivers-section">
-            <div className="location-section">
-              <h2>📍 Votre localisation</h2>
-              <LocationPicker
-                label="Cliquez pour voir les livreurs près de vous"
-                onLocationSelect={handleLocationSelect}
-              />
-              {userLocation && (
-                <div className="location-info">
-                  <p>✓ Position: {userLocation.latitude?.toFixed(4)}, {userLocation.longitude?.toFixed(4)}</p>
-                </div>
-              )}
-            </div>
-
-            <div className="drivers-list">
-              <h2>👨‍🚚 Livreurs disponibles {userLocation && `(${filteredDrivers.length})`}</h2>
-              
-              {loading ? (
-                <div className="loading">Chargement...</div>
-              ) : filteredDrivers.length === 0 ? (
-                <div className="no-data">Aucun livreur disponible</div>
-              ) : (
-                <div className="drivers-grid">
-                  {filteredDrivers.map(driver => (
-                    <div key={driver.id} className={`driver-card ${selectedDriver?.id === driver.id ? 'selected' : ''}`}>
-                      <div className="driver-header">
-                        <h3>{driver.name}</h3>
-                        {driver.distance && (
-                          <span className="distance">📍 {driver.distance} km</span>
-                        )}
+            {!selectedDriver ? (
+              <>
+                {/* Location & Drivers Section */}
+                <div className="location-drivers-wrapper">
+                  <div className="location-section">
+                    <h2>📍 Votre localisation</h2>
+                    <button 
+                      className="btn-get-location"
+                      onClick={handleGetSenderLocation}
+                      disabled={geoLoading}
+                    >
+                      {geoLoading ? '⏳ Localisation...' : '📍 Activer ma localisation'}
+                    </button>
+                    {userLocation && (
+                      <div className="location-success">
+                        ✓ Position activée
                       </div>
+                    )}
+                  </div>
 
-                      <div className="driver-info">
-                        <p><strong>Téléphone:</strong> {driver.phone}</p>
-                        <p><strong>Véhicule:</strong> {driver.vehicleType}</p>
-                        <p><strong>Immatriculation:</strong> {driver.vehiclePlate}</p>
-                        <p><strong>Statut:</strong> 
-                          {driver.status === 'available' && ' 🟢 Disponible'}
-                          {driver.status === 'active' && ' 🟡 En cours'}
-                          {driver.status === 'offline' && ' ⚫ Hors ligne'}
-                        </p>
-                        <p><strong>Évaluation:</strong> ⭐ {driver.rating || 4.5}/5</p>
+                  <div className="drivers-list">
+                    <h2>👨‍🚚 Livreurs disponibles {userLocation && `(${filteredDrivers.length})`}</h2>
+                    
+                    {loading ? (
+                      <div className="loading">Chargement...</div>
+                    ) : filteredDrivers.length === 0 ? (
+                      <div className="no-data">Aucun livreur disponible</div>
+                    ) : (
+                      <div className="drivers-grid">
+                        {filteredDrivers.map(driver => (
+                          <div key={driver.id} className="driver-card">
+                            <div className="driver-header">
+                              <h3>{driver.name}</h3>
+                              {driver.distance && (
+                                <span className="distance-badge">📍 {driver.distance} km</span>
+                              )}
+                            </div>
+
+                            <div className="driver-info">
+                              <p><strong>Téléphone:</strong> {driver.phone}</p>
+                              <p><strong>Véhicule:</strong> {driver.vehicleType}</p>
+                              <p><strong>Plaque:</strong> {driver.vehiclePlate}</p>
+                              <p><strong>Statut:</strong> 
+                                {driver.status === 'available' && ' 🟢 Disponible'}
+                                {driver.status === 'active' && ' 🟡 En cours'}
+                                {driver.status === 'offline' && ' ⚫ Hors ligne'}
+                              </p>
+                              <p><strong>Évaluation:</strong> ⭐ {driver.rating || 4.5}/5</p>
+                            </div>
+
+                            <button
+                              className="btn-select-driver"
+                              onClick={() => handleSelectDriver(driver)}
+                            >
+                              ✓ Sélectionner
+                            </button>
+                          </div>
+                        ))}
                       </div>
-
-                      <button
-                        className="btn-select-driver"
-                        onClick={() => setSelectedDriver(selectedDriver?.id === driver.id ? null : driver)}
-                      >
-                        {selectedDriver?.id === driver.id ? '✓ Sélectionné' : 'Sélectionner'}
-                      </button>
-                    </div>
-                  ))}
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
-
-            {selectedDriver && (
-              <div className="delivery-form-section">
-                <h2>📦 Demander une livraison avec {selectedDriver.name}</h2>
+              </>
+            ) : (
+              /* Delivery Form - Visible when driver selected */
+              <div className="delivery-form-section active">
+                <div className="form-header">
+                  <button 
+                    className="btn-back"
+                    onClick={() => handleSelectDriver(selectedDriver)}
+                  >
+                    ← Retour
+                  </button>
+                  <h2>📦 Demande de livraison avec {selectedDriver.name}</h2>
+                </div>
                 
                 <form className="delivery-form">
                   <fieldset>
-                    <legend>📍 Informations d'expédition</legend>
+                    <legend>📤 Vos informations</legend>
                     
                     <div className="form-group">
-                      <label>Votre nom</label>
+                      <label>Votre nom <span className="required">*</span></label>
                       <input
                         type="text"
                         name="senderName"
                         value={deliveryRequest.senderName}
                         onChange={handleDeliveryChange}
                         placeholder="Votre nom complet"
+                        required
                       />
                     </div>
 
                     <div className="form-group">
-                      <label>Votre téléphone</label>
+                      <label>Votre téléphone <span className="required">*</span></label>
                       <input
                         type="tel"
                         name="senderPhone"
                         value={deliveryRequest.senderPhone}
                         onChange={handleDeliveryChange}
                         placeholder="+226 70 00 00 00"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label>Votre adresse</label>
-                      <input
-                        type="text"
-                        name="senderAddress"
-                        value={deliveryRequest.senderAddress}
-                        onChange={handleDeliveryChange}
-                        placeholder="Adresse de l'expéditeur"
-                      />
-                    </div>
-                  </fieldset>
-
-                  <fieldset>
-                    <legend>🎁 Destination</legend>
-                    
-                    <div className="form-group">
-                      <label>Nom du destinataire</label>
-                      <input
-                        type="text"
-                        name="receiverName"
-                        value={deliveryRequest.receiverName}
-                        onChange={handleDeliveryChange}
-                        placeholder="Nom complet du destinataire"
                         required
                       />
                     </div>
 
                     <div className="form-group">
-                      <label>Téléphone du destinataire</label>
+                      <label>Votre adresse (optionnel)</label>
+                      <input
+                        type="text"
+                        name="senderAddress"
+                        value={deliveryRequest.senderAddress}
+                        onChange={handleDeliveryChange}
+                        placeholder="Ou cliquez sur le bouton ci-dessous"
+                      />
+                      <button 
+                        type="button"
+                        className="btn-get-location-small"
+                        onClick={handleGetSenderLocation}
+                        disabled={geoLoading}
+                      >
+                        {geoLoading ? '⏳' : '📍'} Localisation
+                      </button>
+                    </div>
+                  </fieldset>
+
+                  <fieldset>
+                    <legend>📥 Destinataire</legend>
+                    
+                    <div className="form-group">
+                      <label>Nom du destinataire <span className="required">*</span></label>
+                      <input
+                        type="text"
+                        name="receiverName"
+                        value={deliveryRequest.receiverName}
+                        onChange={handleDeliveryChange}
+                        placeholder="Nom complet"
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Téléphone du destinataire <span className="required">*</span></label>
                       <input
                         type="tel"
                         name="receiverPhone"
@@ -339,33 +411,36 @@ const ClientPortal = () => {
                     </div>
 
                     <div className="form-group">
-                      <label>Adresse de destination (Localisation GPS)</label>
-                      <LocationPicker
-                        label="Cliquez pour obtenir la position du destinataire"
-                        onLocationSelect={handleReceiverLocation}
-                      />
+                      <label>Adresse de livraison (optionnel)</label>
                       <input
                         type="text"
                         name="receiverAddress"
                         value={deliveryRequest.receiverAddress}
                         onChange={handleDeliveryChange}
-                        placeholder="Adresse du destinataire"
-                        required
+                        placeholder="Ou cliquez sur le bouton ci-dessous"
                       />
+                      <button 
+                        type="button"
+                        className="btn-get-location-small"
+                        onClick={handleGetReceiverLocation}
+                        disabled={geoLoading}
+                      >
+                        {geoLoading ? '⏳' : '📍'} Localisation
+                      </button>
                     </div>
                   </fieldset>
 
                   <fieldset>
-                    <legend>📋 Détails du colis</legend>
+                    <legend>📦 Colis (optionnel)</legend>
                     
                     <div className="form-group">
-                      <label>Description du colis</label>
+                      <label>Description</label>
                       <textarea
                         name="description"
                         value={deliveryRequest.description}
                         onChange={handleDeliveryChange}
-                        placeholder="Ex: Vêtements, électronique, nourriture, etc."
-                        rows="3"
+                        placeholder="Ex: Vêtements, électronique, nourriture..."
+                        rows="2"
                       />
                     </div>
 
@@ -383,7 +458,7 @@ const ClientPortal = () => {
                       </div>
 
                       <div className="form-group">
-                        <label>Prix du colis (FCFA)</label>
+                        <label>Prix colis (FCFA)</label>
                         <input
                           type="number"
                           name="packagePrice"
@@ -394,7 +469,7 @@ const ClientPortal = () => {
                       </div>
 
                       <div className="form-group">
-                        <label>Prix de livraison (FCFA)</label>
+                        <label>Prix livraison (FCFA)</label>
                         <input
                           type="number"
                           name="deliveryPrice"
@@ -446,12 +521,12 @@ const ClientPortal = () => {
                         <div>
                           <strong>📤 Départ:</strong>
                           <p>{request.senderAddress}</p>
-                          <p>Tel: {request.senderPhone}</p>
+                          <p>{request.senderPhone}</p>
                         </div>
                         <div>
                           <strong>📥 Destination:</strong>
                           <p>{request.receiverAddress}</p>
-                          <p>Tel: {request.receiverPhone}</p>
+                          <p>{request.receiverPhone}</p>
                         </div>
                       </div>
 
@@ -462,33 +537,26 @@ const ClientPortal = () => {
                         </div>
                         <div>
                           <strong>📦 Colis:</strong>
-                          <p>{request.description}</p>
-                          <p>Poids: {request.weight} kg</p>
-                        </div>
-                        <div>
-                          <strong>💰 Tarif:</strong>
-                          <p>Colis: {request.packagePrice} FCFA</p>
-                          <p>Livraison: {request.deliveryPrice} FCFA</p>
+                          <p>{request.description || 'Non spécifié'}</p>
                         </div>
                       </div>
                     </div>
 
                     {request.status === 'pending_approval' && (
-                      <div className="request-info">
-                        ⏳ Votre demande est en cours d'examen par l'administrateur
+                      <div className="request-info pending">
+                        ⏳ En attente d'approbation...
                       </div>
                     )}
 
                     {request.status === 'rejected' && (
-                      <div className="request-info error">
-                        ❌ Votre demande a été rejetée
-                        {request.rejectReason && ` : ${request.rejectReason}`}
+                      <div className="request-info rejected">
+                        ❌ Demande rejetée {request.rejectReason && `: ${request.rejectReason}`}
                       </div>
                     )}
 
                     {request.status === 'approved' && (
-                      <div className="request-info success">
-                        ✅ Demande approuvée! Le livreur va vous contacter
+                      <div className="request-info approved">
+                        ✅ Le livreur va vous contacter!
                       </div>
                     )}
                   </div>
