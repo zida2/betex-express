@@ -19,6 +19,7 @@ import StockPage from './pages/StockPage';
 import OptimizationPage from './pages/OptimizationPage';
 import MapTrackingPage from './pages/MapTrackingPage';
 import DriverFolderPage from './pages/DriverFolderPage';
+import HistoryPage from './pages/HistoryPage';
 import './App.css';
 
 // Root redirect Component
