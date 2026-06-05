@@ -188,6 +188,18 @@ const ClientPortal = () => {
       setMessage('❌ Le nom et le téléphone du destinataire sont obligatoires');
       return;
     }
+    if (!deliveryRequest.description || !deliveryRequest.description.trim()) {
+      setMessage('❌ La description du colis est obligatoire');
+      return;
+    }
+    if (!deliveryRequest.weight || parseFloat(deliveryRequest.weight) <= 0) {
+      setMessage('❌ Le poids du colis doit être spécifié et supérieur à 0');
+      return;
+    }
+    if (!deliveryRequest.packagePrice || parseFloat(deliveryRequest.packagePrice) <= 0) {
+      setMessage('❌ La valeur du colis doit être spécifiée et supérieure à 0');
+      return;
+    }
     if (deliveryType === 'express' && !selectedDriver) {
       setMessage('❌ Veuillez sélectionner un livreur');
       return;
@@ -620,24 +632,24 @@ const ClientPortal = () => {
                 </div>
               </fieldset>
 
-              <fieldset className="fieldset-optional">
-                <legend>📦 Détails du Colis (optionnel)</legend>
-                <p className="optional-info">✨ Remplissez ces informations pour une meilleure prise en charge</p>
+              <fieldset>
+                <legend>📦 Détails du Colis</legend>
                 
                 <div className="form-group">
-                  <label>Description du contenu</label>
+                  <label>Description du contenu <span className="required">*</span></label>
                   <textarea
                     name="description"
                     value={deliveryRequest.description}
                     onChange={handleDeliveryChange}
                     placeholder="Ex: Vêtements, électronique, nourriture, documents..."
                     rows="3"
+                    required
                   />
                 </div>
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Poids (kg)</label>
+                    <label>Poids (kg) <span className="required">*</span></label>
                     <input
                       type="number"
                       name="weight"
@@ -645,17 +657,19 @@ const ClientPortal = () => {
                       onChange={handleDeliveryChange}
                       placeholder="Ex: 0.5, 2.3..."
                       step="0.1"
+                      required
                     />
                   </div>
 
                   <div className="form-group">
-                    <label>Valeur du colis (FCFA)</label>
+                    <label>Valeur du colis (FCFA) <span className="required">*</span></label>
                     <input
                       type="number"
                       name="packagePrice"
                       value={deliveryRequest.packagePrice}
                       onChange={handleDeliveryChange}
                       placeholder="Ex: 50000"
+                      required
                     />
                   </div>
                 </div>
