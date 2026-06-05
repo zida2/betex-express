@@ -416,13 +416,14 @@ export const mockCreatePackage = async (packageData) => {
 export const mockGetDrivers = async () => {
   return new Promise((resolve) => {
     setTimeout(() => {
+      console.log('👨‍🚚 mockGetDrivers returning:', DEMO_DRIVERS);
       resolve({
         data: {
           data: DEMO_DRIVERS,
           total: DEMO_DRIVERS.length
         }
       });
-    }, 300);
+    }, 0); // Pas de délai
   });
 };
 
@@ -1076,13 +1077,16 @@ export const mockGetDeliveryRequests = async (params = {}) => {
         );
       }
       
+      console.log('📦 mockGetDeliveryRequests called with params:', params);
+      console.log('📦 Returning filtered requests:', filteredRequests);
+      
       resolve({
         data: {
           data: filteredRequests,
           total: filteredRequests.length
         }
       });
-    }, 400);
+    }, 0); // Pas de délai - données immédiatement
   });
 };
 
