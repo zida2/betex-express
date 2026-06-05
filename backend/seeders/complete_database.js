@@ -4,7 +4,7 @@
  */
 
 const bcrypt = require('bcryptjs');
-const { User, Driver, Zone, Package, GPSPosition, DeliveryHistory, AuditLog } = require('../src/models');
+const { User, Driver, Zone, Package, GPSPosition, DeliveryHistory, AuditLog, DeliveryRequest } = require('../src/models');
 
 const completeSeeder = async () => {
   try {
@@ -451,8 +451,95 @@ const completeSeeder = async () => {
     await DeliveryHistory.bulkCreate(deliveryHistory);
     console.log(`   ✅ ${deliveryHistory.length} entrées d'historique créées`);
 
-    // 7. LOGS D'AUDIT
-    console.log('\n📝 7. Création des logs d\'audit...');
+    // 7. DEMANDES DE LIVRAISON CLIENT
+    console.log('\n📋 7. Création des demandes de livraison client...');
+    
+    // Client qui a fait 3 demandes
+    const clientName = 'Sophie Yao';
+    const clientPhone = '+225 07 88 99 11 22';
+    
+    const deliveryRequests = [
+      {
+        // Demande 1: En attente d'approbation
+        senderName: 'Boutique Mode Sophie',
+        senderPhone: '+225 21 11 22 33 44',
+        senderAddress: 'Cocody, Rue du Commerce 123',
+        senderLat: 5.3599,
+        senderLng: -3.9847,
+        receiverName: clientName,
+        receiverPhone: clientPhone,
+        receiverAddress: 'Plateau, Immeuble Central 5B',
+        receiverLat: 5.3205,
+        receiverLng: -4.0137,
+        description: 'Robes et accessoires (3 articles)',
+        weight: 2.5,
+        packagePrice: 35000,
+        status: 'pending_approval',
+        createdAt: new Date(now.getTime() - (5 * 60 * 60 * 1000)) // 5 heures ago
+      },
+      {
+        // Demande 2: Approuvée et envoyée au livreur
+        senderName: 'Pharmacie Centrale',
+        senderPhone: '+225 21 33 44 55 66',
+        senderAddress: 'Adjamé, Liberté 456',
+        senderLat: 5.3569,
+        senderLng: -4.0262,
+        receiverName: clientName,
+        receiverPhone: clientPhone,
+        receiverAddress: 'Plateau, Immeuble Central 5B',
+        receiverLat: 5.3205,
+        receiverLng: -4.0137,
+        description: 'Médicaments + Vitamines (ordonnance)',
+        weight: 0.5,
+        packagePrice: 8500,
+        deliveryPrice: 2500,
+        adminNotes: 'Livraison urgent - Client malade',
+        status: 'approved',
+        driverId: createdDrivers[0].id, // Jean Kouassi
+        driverName: createdDrivers[0].name,
+        driverPhone: createdDrivers[0].phone,
+        approvedAt: new Date(now.getTime() - (3 * 60 * 60 * 1000)), // 3 heures ago
+        createdAt: new Date(now.getTime() - (4 * 60 * 60 * 1000)) // 4 heures ago
+      },
+      {
+        // Demande 3: Livrée avec succès
+        senderName: 'Restaurant Chez Tantine',
+        senderPhone: '+225 21 55 66 77 88',
+        senderAddress: 'Marcory, Zone 4 - 789',
+        senderLat: 5.2892,
+        senderLng: -3.9778,
+        receiverName: clientName,
+        receiverPhone: clientPhone,
+        receiverAddress: 'Plateau, Immeuble Central 5B',
+        receiverLat: 5.3205,
+        receiverLng: -4.0137,
+        description: 'Repas complet (4 portions) + Jus frais',
+        weight: 3.0,
+        packagePrice: 12500,
+        deliveryPrice: 2000,
+        adminNotes: 'Livraison à chaud - Fait hier matin',
+        status: 'completed',
+        driverId: createdDrivers[1].id, // Aya Koné
+        driverName: createdDrivers[1].name,
+        driverPhone: createdDrivers[1].phone,
+        approvedAt: new Date(now.getTime() - (24 * 60 * 60 * 1000)), // 24 heures ago
+        createdAt: new Date(now.getTime() - (25 * 60 * 60 * 1000)) // 25 heures ago
+      }
+    ];
+
+    const createdRequests = [];
+    for (const request of deliveryRequests) {
+      const deliveryRequest = await DeliveryRequest.create(request);
+      createdRequests.push(deliveryRequest);
+    }
+    console.log(`   ✅ ${createdRequests.length} demandes de livraison créées`);
+    console.log(`      • Client: ${clientName} (${clientPhone})`);
+    console.log(`      • 1 en attente d'approbation`);
+    console.log(`      • 1 approuvée et envoyée à Jean Kouassi`);
+    console.log(`      • 1 livrée par Aya Koné`);
+
+    // 8. LOGS D'AUDIT
+    console.log('\n📝 8. Création des logs d\'audit...');
     
     const auditLogs = [
       {
@@ -493,9 +580,10 @@ const completeSeeder = async () => {
     console.log(`   🗺️  Zones: ${createdZones.length} zones de livraison`);
     console.log(`   🚗 Livreurs: ${createdDrivers.length} avec statistiques réalistes`);
     console.log(`   📦 Colis: ${createdPackages.length} avec différents statuts`);
+    console.log(`   📋 Demandes clients: ${createdRequests.length} (du même client)`);
     console.log(`   📍 Points GPS: ${gpsData.length} positions historiques`);
-    console.log(`   📋 Historique: ${deliveryHistory.length} événements de livraison`);
-    console.log(`   📝 Audit: ${auditLogs.length} logs de traçabilité`);
+    console.log(`   📝 Historique: ${deliveryHistory.length} événements de livraison`);
+    console.log(`   📋 Audit: ${auditLogs.length} logs de traçabilité`);
     
     console.log('\n🔑 COMPTES DE TEST:');
     console.log('   🔐 Admin: admin@betex.com / admin123');
@@ -510,6 +598,11 @@ const completeSeeder = async () => {
     console.log('   📦 Colis collecté');
     console.log('   ⏳ Colis en attente');
     console.log('   ❌ Colis échoué');
+    console.log('\n📋 DEMANDES CLIENTS:');
+    console.log(`   Client: ${clientName} - ${clientPhone}`);
+    console.log('   ⏳ 1 en attente d\'approbation (Boutique Mode)');
+    console.log('   ✅ 1 approuvée à Jean Kouassi (Pharmacie)');
+    console.log('   📦 1 livrée par Aya Koné (Restaurant)');
     
     console.log('\n🚀 Prêt pour la démonstration complète !');
     console.log('='.repeat(60));
