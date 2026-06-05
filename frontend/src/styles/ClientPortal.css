@@ -131,7 +131,7 @@
 
 /* Main Content */
 .client-main {
-  margin-top: 200px;
+  margin-top: 240px;
   padding: 2rem;
   max-width: 1400px;
   margin-left: auto;
@@ -699,7 +699,7 @@ legend {
   }
 
   .client-main {
-    margin-top: 160px;
+    margin-top: 200px;
     padding: 1.5rem;
   }
 }
@@ -707,6 +707,7 @@ legend {
 @media (max-width: 768px) {
   .client-header {
     padding: 1rem 1.5rem;
+    min-height: 70px;
   }
 
   .client-header h1 {
@@ -725,7 +726,7 @@ legend {
   }
 
   .client-main {
-    margin-top: 160px;
+    margin-top: 180px;
     padding: 1.5rem;
   }
 
@@ -747,7 +748,8 @@ legend {
   .client-header {
     flex-direction: column;
     gap: 0.5rem;
-    padding: 1rem;
+    padding: 0.8rem;
+    min-height: auto;
   }
 
   .client-header h1 {
@@ -755,18 +757,19 @@ legend {
   }
 
   .tabs {
-    top: 80px;
+    top: 120px;
     gap: 0;
+    padding: 0.5rem;
   }
 
   .tab-btn {
     flex: 1;
     padding: 0.5rem;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
 
   .client-main {
-    margin-top: 150px;
+    margin-top: 170px;
     padding: 1rem;
   }
 
