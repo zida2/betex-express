@@ -11,6 +11,7 @@ const DeliveryRequestsPage = () => {
   const [requests, setRequests] = useState([]);
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [driversLoading, setDriversLoading] = useState(true);
   const [filter, setFilter] = useState('pending_approval');
   const [message, setMessage] = useState('');
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -39,10 +40,13 @@ const DeliveryRequestsPage = () => {
 
   const loadDrivers = async () => {
     try {
+      setDriversLoading(true);
       const response = await api.get('/drivers');
       setDrivers(response.data.data || []);
     } catch (error) {
       console.error('Failed to load drivers:', error);
+    } finally {
+      setDriversLoading(false);
     }
   };
 
@@ -293,18 +297,22 @@ const DeliveryRequestsPage = () => {
 
                     <div className="form-group">
                       <label>👨‍🚚 Assigner un livreur <span className="required">*</span></label>
-                      <select
-                        name="driverId"
-                        value={editData.driverId}
-                        onChange={handleEditChange}
-                      >
-                        <option value="">-- Sélectionner un livreur --</option>
-                        {drivers.map(driver => (
-                          <option key={driver.id} value={driver.id}>
-                            {driver.name} - {driver.phone} ({driver.status})
-                          </option>
-                        ))}
-                      </select>
+                      {driversLoading ? (
+                        <div className="loading-small">⏳ Chargement des livreurs...</div>
+                      ) : (
+                        <select
+                          name="driverId"
+                          value={editData.driverId}
+                          onChange={handleEditChange}
+                        >
+                          <option value="">-- Sélectionner un livreur --</option>
+                          {drivers.map(driver => (
+                            <option key={driver.id} value={driver.id}>
+                              {driver.name} - {driver.phone} ({driver.status})
+                            </option>
+                          ))}
+                        </select>
+                      )}
                     </div>
 
                     <div className="form-group">

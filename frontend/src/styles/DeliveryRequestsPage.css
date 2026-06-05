@@ -138,6 +138,14 @@
   color: #888;
 }
 
+.loading-small {
+  padding: 1rem;
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 .requests-list {
   display: flex;
   flex-direction: column;
