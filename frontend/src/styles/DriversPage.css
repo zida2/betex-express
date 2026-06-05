@@ -2,6 +2,7 @@
   min-height: 100vh;
   background: var(--bg-primary);
   padding: 20px 16px;
+  padding-top: 0;
 }
 
 .page-header {
@@ -9,10 +10,13 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  padding: 16px;
+  padding: 24px 16px;
   background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  border-radius: 0;
+  border-bottom: 2px solid var(--bg-tertiary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 10;
 }
 
 .page-header h1 {
@@ -50,7 +54,7 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   padding: 20px;
-  margin-bottom: 24px;
+  margin: 0 16px 24px 16px;
   border: 1px solid var(--bg-tertiary);
 }
 
@@ -115,6 +119,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
+  margin: 0 16px;
 }
 
 .driver-card {
