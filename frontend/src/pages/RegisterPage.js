@@ -124,93 +124,65 @@ const RegisterPage = () => {
         <div className="auth-header">
           <div className="auth-logo">
             <svg viewBox="0 0 240 250" className="betex-logo">
-              {/* White Rounded Background with 3D shadow */}
-              <defs>
-                <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#ffffff"/>
-                  <stop offset="100%" stopColor="#f0f0f0"/>
-                </linearGradient>
-                <filter id="logoShadow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feDropShadow dx="2" dy="4" stdDeviation="6" floodColor="#000" floodOpacity="0.2"/>
-                </filter>
-              </defs>
-              <circle cx="120" cy="125" r="115" fill="url(#bgGrad)" filter="url(#logoShadow)"/>
+              {/* White Background Circle */}
+              <circle cx="120" cy="125" r="110" fill="white"/>
               
-              {/* Motion Lines Behind (to the left) */}
-              <path d="M50 165 Q60 171 70 165" stroke="#ff6b35" strokeWidth="3" fill="none" opacity="0.7"/>
-              <path d="M40 158 Q50 164 60 158" stroke="#ff6b35" strokeWidth="2" fill="none" opacity="0.5"/>
-              
-              {/* Modern Delivery Icon */}
-              <g transform="translate(120, 100)">
-                {/* Package Box - 3D (Bigger and more visible) */}
-                <defs>
-                  <linearGradient id="packageGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#ff8a5c"/>
-                    <stop offset="100%" stopColor="#ff6b35"/>
-                  </linearGradient>
-                  <linearGradient id="packageSideGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#ff6b35"/>
-                    <stop offset="100%" stopColor="#cc5529"/>
-                  </linearGradient>
-                </defs>
-                <rect x="-30" y="-45" width="60" height="50" rx="8" fill="url(#packageGrad)"/>
-                <rect x="-28" y="-43" width="56" height="4" rx="2" fill="#ffaa80"/>
-                <rect x="-25" y="-35" width="50" height="4" rx="2" fill="#1a365d"/>
-                <rect x="-25" y="-20" width="50" height="4" rx="2" fill="#1a365d"/>
-                <rect x="30" y="-45" width="12" height="50" fill="url(#packageSideGrad)" transform="skewY(20)"/>
-                <line x1="0" y1="-45" x2="0" y2="5" stroke="#1a365d" strokeWidth="3"/>
-                <line x1="-30" y1="-20" x2="30" y2="-20" stroke="#1a365d" strokeWidth="3"/>
+              {/* Icon Group */}
+              <g transform="translate(120, 110)">
+                {/* Wheels (Orange with Blue Center) */}
+                <circle cx="-35" cy="25" r="22" fill="#ff6b35"/>
+                <circle cx="-35" cy="25" r="10" fill="#1a365d"/>
+                <circle cx="35" cy="25" r="22" fill="#ff6b35"/>
+                <circle cx="35" cy="25" r="10" fill="#1a365d"/>
                 
-                {/* Delivery Vehicle - Scooter 3D */}
-                <defs>
-                  <linearGradient id="wheelGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#2c5282"/>
-                    <stop offset="100%" stopColor="#1a365d"/>
-                  </linearGradient>
-                </defs>
-                <circle cx="-20" cy="30" r="16" fill="url(#wheelGrad)" stroke="#0f2443" strokeWidth="3"/>
-                <circle cx="-20" cy="30" r="10" fill="none" stroke="#3a669a" strokeWidth="2"/>
-                <circle cx="20" cy="30" r="16" fill="url(#wheelGrad)" stroke="#0f2443" strokeWidth="3"/>
-                <circle cx="20" cy="30" r="10" fill="none" stroke="#3a669a" strokeWidth="2"/>
-                <path d="M-20 30 L-20 15 L0 10 L20 15 L20 30" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
-                <path d="M-20 30 L-20 15 L0 10 L20 15 L20 30" stroke="#3a669a" strokeWidth="4" fill="none" strokeLinecap="round"/>
+                {/* Motion Lines Under Wheels */}
+                <path d="M-55 48 Q-35 55 -15 48" stroke="#ff6b35" strokeWidth="3" fill="none"/>
+                <path d="M15 48 Q35 55 55 48" stroke="#ff6b35" strokeWidth="3" fill="none"/>
                 
-                {/* Rider 3D */}
-                <defs>
-                  <linearGradient id="riderGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#2c5282"/>
-                    <stop offset="100%" stopColor="#1a365d"/>
-                  </linearGradient>
-                </defs>
-                <circle cx="0" cy="-5" r="10" fill="url(#riderGrad)"/>
-                <path d="M0 5 L0 15" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
-                <path d="M0 5 L0 15" stroke="#3a669a" strokeWidth="4" fill="none" strokeLinecap="round"/>
-                <path d="M0 7 L-12 17" stroke="#1a365d" strokeWidth="7" fill="none" strokeLinecap="round"/>
-                <path d="M0 15 L-15 30" stroke="#1a365d" strokeWidth="7" fill="none" strokeLinecap="round"/>
-                <path d="M0 15 L15 30" stroke="#1a365d" strokeWidth="7" fill="none" strokeLinecap="round"/>
+                {/* Rider and Scooter Body */}
+                <g fill="#1a365d">
+                  {/* Rider Head */}
+                  <circle cx="0" cy="-25" r="12"/>
+                  {/* Rider Cap */}
+                  <ellipse cx="0" cy="-35" rx="14" ry="5"/>
+                  <rect x="-8" y="-40" width="16" height="5" rx="2"/>
+                  
+                  {/* Rider Body (torso) */}
+                  <path d="M0 -13 L0 8" strokeWidth="10" stroke="#1a365d" fill="none" strokeLinecap="round"/>
+                  
+                  {/* Rider Right Arm (holding package) */}
+                  <path d="M5 -10 L35 -20" strokeWidth="9" stroke="#1a365d" fill="none" strokeLinecap="round"/>
+                  
+                  {/* Rider Left Arm */}
+                  <path d="M-5 -10 L-25 0" strokeWidth="8" stroke="#1a365d" fill="none" strokeLinecap="round"/>
+                  
+                  {/* Rider Right Leg (forward) */}
+                  <path d="M0 8 L25 25" strokeWidth="9" stroke="#1a365d" fill="none" strokeLinecap="round"/>
+                  
+                  {/* Rider Left Leg (back) */}
+                  <path d="M0 8 L-25 18" strokeWidth="9" stroke="#1a365d" fill="none" strokeLinecap="round"/>
+                  
+                  {/* Scooter Frame */}
+                  <path d="M-35 25 L-35 5 L0 0 L35 5 L35 25" strokeWidth="6" stroke="#1a365d" fill="none" strokeLinecap="round"/>
+                  
+                  {/* Package Box */}
+                  <rect x="40" y="-40" width="35" height="30" rx="4"/>
+                </g>
               </g>
               
-              {/* Text: Betex Express - 3D */}
+              {/* Text: Betex Express */}
               <defs>
-                <linearGradient id="betexGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#2c5282"/>
-                  <stop offset="100%" stopColor="#1a365d"/>
-                </linearGradient>
-                <linearGradient id="expressGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#ff8a5c"/>
-                  <stop offset="100%" stopColor="#ff6b35"/>
-                </linearGradient>
                 <filter id="textShadow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feDropShadow dx="1" dy="2" stdDeviation="1" floodColor="#000" floodOpacity="0.25"/>
+                  <feDropShadow dx="0" dy="1" stdDeviation="1" floodColor="#000" floodOpacity="0.15"/>
                 </filter>
               </defs>
-              <text x="120" y="190" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="24" fontWeight="bold" filter="url(#textShadow)">
-                <tspan fill="url(#betexGrad)">Betex</tspan>
-                <tspan fill="url(#expressGrad)">Express</tspan>
+              <text x="120" y="195" textAnchor="middle" fontFamily="Arial, Helvetica, sans-serif" fontSize="26" fontWeight="bold" filter="url(#textShadow)">
+                <tspan fill="#1a365d">Betex</tspan>
+                <tspan fill="#ff6b35">Express</tspan>
               </text>
               
               {/* Text: Livraison - Coursiers */}
-              <text x="120" y="215" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="12" fill="#666">
+              <text x="120" y="220" textAnchor="middle" fontFamily="Arial, Helvetica, sans-serif" fontSize="13" fill="#555">
                 Livraison - Coursiers
               </text>
             </svg>
