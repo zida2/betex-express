@@ -172,9 +172,11 @@ html {
 
 .betex-logo {
   width: 100%;
-  max-width: 280px;
+  max-width: 240px;
   height: auto;
   object-fit: contain;
+  border-radius: 50%;
+  overflow: hidden;
   filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.2));
 }
 
@@ -345,7 +347,7 @@ html {
 /* Submit Button */
 .btn-primary {
   padding: 14px 20px;
-  background: var(--primary-gradient);
+  background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
   border: none;
   border-radius: 12px;
   color: white;
@@ -359,14 +361,14 @@ html {
   gap: 8px;
   position: relative;
   overflow: hidden;
-  box-shadow: var(--shadow-glow-blue);
+  box-shadow: 0 8px 32px rgba(26, 54, 93, 0.4);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-top: 4px;
 }
 
 .betex-btn {
-  background: var(--primary-gradient);
+  background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
 }
 
 .betex-btn:hover:not(:disabled) {
