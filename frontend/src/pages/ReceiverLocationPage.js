@@ -4,13 +4,12 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { useParams } from 'react-router-dom';
+import { getDeliveryRequestByToken, updateDeliveryRequest } from '../services/firebaseService';
 import '../styles/ReceiverLocationPage.css';
 
 const ReceiverLocationPage = () => {
   const { token } = useParams();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [deliveryInfo, setDeliveryInfo] = useState(null);
   const [locationStatus, setLocationStatus] = useState('idle'); // idle, getting, success, error
@@ -18,16 +17,20 @@ const ReceiverLocationPage = () => {
 
   useEffect(() => {
     verifyToken();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const verifyToken = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/delivery-requests/location/${token}`);
-      setDeliveryInfo(response.data.data);
+      const req = await getDeliveryRequestByToken(token);
+      if (!req) {
+        throw new Error('Invalid token');
+      }
+      setDeliveryInfo(req);
       
       // Si localisation déjà fournie
-      if (response.data.data.receiverLat && response.data.data.receiverLng) {
+      if (req.receiverLat && req.receiverLng) {
         setLocationStatus('already-provided');
       }
     } catch (error) {
@@ -53,9 +56,11 @@ const ReceiverLocationPage = () => {
         
         try {
           // Envoyer la localisation au backend
-          await api.post(`/delivery-requests/location/${token}`, {
-            latitude,
-            longitude
+          await updateDeliveryRequest(deliveryInfo.id, {
+            receiverLat: latitude,
+            receiverLng: longitude,
+            receiverLocationConfirmed: true,
+            locationCapturedAt: new Date()
           });
 
           setLocationStatus('success');

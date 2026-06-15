@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { getDeliveryRequest, updateDeliveryRequest } from '../services/firebaseService';
 import '../styles/DeliveryLocationCapture.css';
 
 const DeliveryLocationCapture = () => {
@@ -19,12 +19,13 @@ const DeliveryLocationCapture = () => {
 
   useEffect(() => {
     loadRequest();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestId]);
 
   const loadRequest = async () => {
     try {
-      const response = await api.get(`/delivery-requests/${requestId}`);
-      setRequest(response.data.data);
+      const req = await getDeliveryRequest(requestId);
+      setRequest(req);
     } catch (error) {
       console.error('Failed to load request:', error);
       setMessage('❌ Demande non trouvée');
@@ -71,16 +72,12 @@ const DeliveryLocationCapture = () => {
       setLoading(true);
       
       // Update request with captured location
-      const updatedRequest = {
-        ...request,
+      await updateDeliveryRequest(requestId, {
         receiverLat: lat,
         receiverLng: lng,
         receiverLocationConfirmed: true,
-        locationCapturedAt: new Date().toISOString()
-      };
-
-      // In demo mode, this would be stored locally
-      await api.put(`/delivery-requests/${requestId}`, updatedRequest);
+        locationCapturedAt: new Date()
+      });
 
       setMessage('✅ Localisation confirmée avec succès!');
       

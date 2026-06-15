@@ -92,6 +92,17 @@ export const getDeliveryRequest = async (id) => {
   return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
 };
 
+// Get delivery request by location token
+export const getDeliveryRequestByToken = async (token) => {
+  const q = query(collection(db, 'deliveryRequests'), where('locationToken', '==', token));
+  const querySnapshot = await getDocs(q);
+  if (querySnapshot.docs.length > 0) {
+    const doc = querySnapshot.docs[0];
+    return { id: doc.id, ...doc.data() };
+  }
+  return null;
+};
+
 export const createDeliveryRequest = async (data) => {
   const docRef = await addDoc(collection(db, 'deliveryRequests'), {
     ...data,
