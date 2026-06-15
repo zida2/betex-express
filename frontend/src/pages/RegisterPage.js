@@ -123,11 +123,38 @@ const RegisterPage = () => {
         {/* Header */}
         <div className="auth-header">
           <div className="auth-logo">
-            <div className="logo-icon">🛵</div>
+            <svg viewBox="0 0 200 200" className="betex-logo">
+              {/* Rider */}
+              <circle cx="110" cy="80" r="15" fill="#1a365d" />
+              <path d="M110 95 L110 130" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
+              <path d="M110 105 L95 120" stroke="#1a365d" strokeWidth="6" fill="none" strokeLinecap="round"/>
+              <path d="M110 105 L125 115" stroke="#1a365d" strokeWidth="6" fill="none" strokeLinecap="round"/>
+              <path d="M110 130 L90 150" stroke="#1a365d" strokeWidth="6" fill="none" strokeLinecap="round"/>
+              <path d="M110 130 L130 145" stroke="#1a365d" strokeWidth="6" fill="none" strokeLinecap="round"/>
+              
+              {/* Motorcycle body */}
+              <path d="M80 135 L110 115 L140 135 L130 155 L90 155 Z" fill="#1a365d"/>
+              
+              {/* Wheels */}
+              <circle cx="90" cy="155" r="25" fill="none" stroke="#ff6b35" strokeWidth="6"/>
+              <circle cx="90" cy="155" r="15" fill="none" stroke="#ff6b35" strokeWidth="3"/>
+              <circle cx="130" cy="155" r="25" fill="none" stroke="#ff6b35" strokeWidth="6"/>
+              <circle cx="130" cy="155" r="15" fill="none" stroke="#ff6b35" strokeWidth="3"/>
+              
+              {/* Delivery box */}
+              <rect x="135" y="100" width="40" height="40" rx="5" fill="#1a365d" transform="rotate(-10 155 120)"/>
+              
+              {/* Motion lines */}
+              <path d="M60 160 Q70 165 80 160" stroke="#ff6b35" strokeWidth="3" fill="none" opacity="0.7"/>
+              <path d="M50 155 Q60 160 70 155" stroke="#ff6b35" strokeWidth="2" fill="none" opacity="0.5"/>
+              <path d="M40 150 Q50 155 60 150" stroke="#ff6b35" strokeWidth="1.5" fill="none" opacity="0.3"/>
+            </svg>
           </div>
-          <h1 className="auth-title">BETEX EXPRESS</h1>
+          <h1 className="auth-title">
+            <span className="betex">Betex</span>
+            <span className="express">Express</span>
+          </h1>
           <p className="auth-subtitle">Créer votre compte client</p>
-          <span className="auth-mode-badge">Auto-Inscription</span>
         </div>
 
         {/* Success Message */}
@@ -153,72 +180,85 @@ const RegisterPage = () => {
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="firstName">Prénom</label>
-                  <input
-                    type="text"
-                    id="firstName"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    onFocus={() => setErrors(prev => ({ ...prev, firstName: '' }))}
-                    placeholder="Jean"
-                    disabled={loading}
-                    className={errors.firstName ? 'error' : ''}
-                  />
+                  <div className="input-icon-wrapper">
+                    <span className="input-icon">👤</span>
+                    <input
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      onFocus={() => setErrors(prev => ({ ...prev, firstName: '' }))}
+                      placeholder="Jean"
+                      disabled={loading}
+                      className={errors.firstName ? 'error' : ''}
+                    />
+                  </div>
                   {errors.firstName && <span className="error-text">{errors.firstName}</span>}
                 </div>
 
                 <div className="form-group">
                   <label htmlFor="lastName">Nom</label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    onFocus={() => setErrors(prev => ({ ...prev, lastName: '' }))}
-                    placeholder="Kouassi"
-                    disabled={loading}
-                    className={errors.lastName ? 'error' : ''}
-                  />
+                  <div className="input-icon-wrapper">
+                    <span className="input-icon">👥</span>
+                    <input
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      onFocus={() => setErrors(prev => ({ ...prev, lastName: '' }))}
+                      placeholder="Kouassi"
+                      disabled={loading}
+                      className={errors.lastName ? 'error' : ''}
+                    />
+                  </div>
                   {errors.lastName && <span className="error-text">{errors.lastName}</span>}
                 </div>
               </div>
 
               <div className="form-group">
                 <label htmlFor="email">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  onFocus={() => setErrors(prev => ({ ...prev, email: '' }))}
-                  placeholder="votre@email.com"
-                  disabled={loading}
-                  className={errors.email ? 'error' : ''}
-                />
+                <div className="input-icon-wrapper">
+                  <span className="input-icon">📧</span>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    onFocus={() => setErrors(prev => ({ ...prev, email: '' }))}
+                    placeholder="votre@email.com"
+                    disabled={loading}
+                    className={errors.email ? 'error' : ''}
+                  />
+                </div>
                 {errors.email && <span className="error-text">{errors.email}</span>}
               </div>
 
               <div className="form-group">
                 <label htmlFor="phone">Numéro de téléphone</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  onFocus={() => setErrors(prev => ({ ...prev, phone: '' }))}
-                  placeholder="+226 XX XX XX XX"
-                  disabled={loading}
-                  className={errors.phone ? 'error' : ''}
-                />
+                <div className="input-icon-wrapper">
+                  <span className="input-icon">📱</span>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    onFocus={() => setErrors(prev => ({ ...prev, phone: '' }))}
+                    placeholder="+226 XX XX XX XX"
+                    disabled={loading}
+                    className={errors.phone ? 'error' : ''}
+                  />
+                </div>
                 {errors.phone && <span className="error-text">{errors.phone}</span>}
               </div>
 
               <div className="form-group">
                 <label htmlFor="password">Mot de passe</label>
-                <div className="password-input-wrapper">
+                <div className="input-icon-wrapper">
+                  <span className="input-icon">🔐</span>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     id="password"
@@ -244,7 +284,8 @@ const RegisterPage = () => {
 
               <div className="form-group">
                 <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
-                <div className="password-input-wrapper">
+                <div className="input-icon-wrapper">
+                  <span className="input-icon">🔒</span>
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     id="confirmPassword"
@@ -270,7 +311,7 @@ const RegisterPage = () => {
 
               <button 
                 type="submit" 
-                className="btn-primary"
+                className="btn-primary betex-btn"
                 disabled={loading}
               >
                 {loading ? (
@@ -287,7 +328,7 @@ const RegisterPage = () => {
             {/* Login Link */}
             <div className="auth-links">
               <p className="auth-link-text">Vous avez déjà un compte ?</p>
-              <Link to="/login" className="auth-link">
+              <Link to="/login" className="auth-link betex-link">
                 Se connecter
               </Link>
             </div>
