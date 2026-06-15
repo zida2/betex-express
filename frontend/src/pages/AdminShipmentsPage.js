@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { getPackages, updatePackage } from '../services/firebaseService';
 import '../styles/AdminShipmentsPage.css';
 
 const AdminShipmentsPage = () => {
@@ -29,8 +29,9 @@ const AdminShipmentsPage = () => {
   const loadShipments = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/shipments');
-      setShipments(response.data.data || []);
+      const allPackages = await getPackages();
+      // Filter shipments (type: 'shipment')
+      setShipments(allPackages.filter(pkg => pkg.type === 'shipment' || !pkg.type) || []);
     } catch (error) {
       console.error('Failed to load shipments:', error);
       setMessage('❌ Erreur lors du chargement des expéditions');
@@ -42,7 +43,7 @@ const AdminShipmentsPage = () => {
   const handleOpenPricing = (shipment) => {
     setSelectedShipment(shipment);
     setPricingData({
-      shippingAmount: shipment.shippingAmount || '',
+      shippingAmount: shipment.deliveryPrice || '',
       additionalFees: shipment.additionalFees || 0,
       adminNotes: shipment.adminNotes || ''
     });
@@ -65,10 +66,11 @@ const AdminShipmentsPage = () => {
 
     try {
       setLoading(true);
-      await api.put(`/shipments/${selectedShipment.id}/pricing`, {
-        shippingAmount: parseFloat(pricingData.shippingAmount),
+      await updatePackage(selectedShipment.id, {
+        deliveryPrice: parseFloat(pricingData.shippingAmount),
         additionalFees: parseFloat(pricingData.additionalFees || 0),
-        adminNotes: pricingData.adminNotes
+        adminNotes: pricingData.adminNotes,
+        status: 'awaiting_payment' // Or whatever status makes sense after pricing
       });
 
       setMessage('✅ Tarification enregistrée avec succès !');
@@ -90,7 +92,7 @@ const AdminShipmentsPage = () => {
 
   const handleUpdateStatus = async (shipmentId, newStatus) => {
     try {
-      await api.put(`/shipments/${shipmentId}/status`, {
+      await updatePackage(shipmentId, {
         status: newStatus
       });
       setMessage('✅ Statut mis à jour');
@@ -109,6 +111,7 @@ const AdminShipmentsPage = () => {
       paid: { label: '✅ Payé', class: 'paid' },
       processing: { label: '📦 En traitement', class: 'processing' },
       in_transit: { label: '🚚 En transit', class: 'transit' },
+      in_delivery: { label: '🚚 En livraison', class: 'transit' },
       delivered: { label: '✔️ Livré', class: 'delivered' },
       cancelled: { label: '❌ Annulé', class: 'cancelled' }
     };
@@ -117,14 +120,14 @@ const AdminShipmentsPage = () => {
 
   const filteredShipments = shipments.filter(shipment => {
     if (filter === 'all') return true;
-    if (filter === 'pending') return shipment.status === 'pending_pricing';
+    if (filter === 'pending') return shipment.status === 'pending_pricing' || shipment.status === 'pending';
     if (filter === 'awaiting') return shipment.status === 'awaiting_payment';
-    if (filter === 'active') return shipment.status === 'processing' || shipment.status === 'in_transit';
+    if (filter === 'active') return shipment.status === 'processing' || shipment.status === 'in_transit' || shipment.status === 'in_delivery';
     if (filter === 'completed') return shipment.status === 'delivered';
     return true;
   });
 
-  const pendingCount = shipments.filter(s => s.status === 'pending_pricing').length;
+  const pendingCount = shipments.filter(s => s.status === 'pending_pricing' || s.status === 'pending').length;
   const awaitingCount = shipments.filter(s => s.status === 'awaiting_payment').length;
 
   return (
@@ -176,7 +179,7 @@ const AdminShipmentsPage = () => {
           className={`filter-btn ${filter === 'active' ? 'active' : ''}`}
           onClick={() => setFilter('active')}
         >
-          Actives ({shipments.filter(s => s.status === 'processing' || s.status === 'in_transit').length})
+          Actives ({shipments.filter(s => s.status === 'processing' || s.status === 'in_transit' || s.status === 'in_delivery').length})
         </button>
         <button 
           className={`filter-btn ${filter === 'completed' ? 'active' : ''}`}
@@ -202,7 +205,7 @@ const AdminShipmentsPage = () => {
           <div className="shipments-grid">
             {filteredShipments.map(shipment => {
               const statusInfo = getStatusBadge(shipment.status);
-              const totalAmount = (parseFloat(shipment.shippingAmount || 0) + parseFloat(shipment.additionalFees || 0)).toFixed(2);
+              const totalAmount = (parseFloat(shipment.deliveryPrice || 0) + parseFloat(shipment.additionalFees || 0)).toFixed(2);
               
               return (
                 <div key={shipment.id} className="shipment-card">
@@ -210,7 +213,7 @@ const AdminShipmentsPage = () => {
                   <div className="shipment-header">
                     <div className="tracking-info">
                       <span className="tracking-label">N° Suivi</span>
-                      <span className="tracking-number">{shipment.trackingNumber}</span>
+                      <span className="tracking-number">{shipment.id?.substring(0, 8) || 'N/A'}</span>
                     </div>
                     <span className={`status-badge ${statusInfo.class}`}>
                       {statusInfo.label}
@@ -220,24 +223,24 @@ const AdminShipmentsPage = () => {
                   {/* Client Info */}
                   <div className="shipment-section">
                     <h4>👤 Client</h4>
-                    <p className="client-name">{shipment.Client?.firstName} {shipment.Client?.lastName}</p>
-                    <p className="client-email">{shipment.Client?.email}</p>
+                    <p className="client-name">{shipment.senderName || shipment.customerName || 'N/A'}</p>
+                    <p className="client-email">{shipment.senderPhone || shipment.customerPhone || 'N/A'}</p>
                   </div>
 
                   {/* Recipient Info */}
                   <div className="shipment-section">
                     <h4>📥 Destinataire</h4>
                     <div className="info-row">
-                      <strong>{shipment.recipientName}</strong>
-                      <span className="phone">{shipment.recipientPhone}</span>
+                      <strong>{shipment.receiverName || shipment.recipientName || 'N/A'}</strong>
+                      <span className="phone">{shipment.receiverPhone || shipment.recipientPhone || 'N/A'}</span>
                     </div>
-                    <p className="address">{shipment.destinationAddress}</p>
+                    <p className="address">{shipment.receiverAddress || shipment.destinationAddress || shipment.address || 'N/A'}</p>
                   </div>
 
                   {/* Package Info */}
                   <div className="shipment-section">
                     <h4>📦 Colis</h4>
-                    <p className="description">{shipment.packageDescription}</p>
+                    <p className="description">{shipment.description || shipment.packageDescription || 'Aucune description'}</p>
                     <div className="info-grid">
                       {shipment.weight && (
                         <div className="info-item">
@@ -247,21 +250,21 @@ const AdminShipmentsPage = () => {
                       )}
                       <div className="info-item">
                         <span className="label">Valeur:</span>
-                        <span className="value">{shipment.packageValue?.toLocaleString()} FCFA</span>
+                        <span className="value">{parseFloat(shipment.packagePrice || shipment.packageValue || 0).toLocaleString()} FCFA</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Pricing Section */}
-                  {(shipment.shippingAmount > 0 || shipment.status === 'pending_pricing') && (
-                    <div className={`shipment-section pricing-section ${shipment.status === 'pending_pricing' ? 'pending' : ''}`}>
+                  {shipment.deliveryPrice > 0 || shipment.status === 'pending' || shipment.status === 'pending_pricing' ? (
+                    <div className={`shipment-section pricing-section ${(shipment.status === 'pending_pricing' || shipment.status === 'pending') ? 'pending' : ''}`}>
                       <h4>💰 Tarification</h4>
-                      {shipment.shippingAmount > 0 ? (
+                      {shipment.deliveryPrice > 0 ? (
                         <>
                           <div className="pricing-details">
                             <div className="pricing-row">
                               <span>Frais d'expédition:</span>
-                              <span className="amount">{parseFloat(shipment.shippingAmount).toLocaleString()} FCFA</span>
+                              <span className="amount">{parseFloat(shipment.deliveryPrice).toLocaleString()} FCFA</span>
                             </div>
                             {shipment.additionalFees > 0 && (
                               <div className="pricing-row">
@@ -290,7 +293,7 @@ const AdminShipmentsPage = () => {
                         </button>
                       )}
                     </div>
-                  )}
+                  ) : null}
 
                   {/* Status Actions */}
                   {shipment.status === 'paid' && (
@@ -315,7 +318,7 @@ const AdminShipmentsPage = () => {
                     </div>
                   )}
 
-                  {shipment.status === 'in_transit' && (
+                  {shipment.status === 'in_transit' || shipment.status === 'in_delivery' ? (
                     <div className="action-section">
                       <button 
                         className="btn-action success"
@@ -324,7 +327,7 @@ const AdminShipmentsPage = () => {
                         ✅ Marquer comme livré
                       </button>
                     </div>
-                  )}
+                  ) : null}
 
                   {/* Admin Notes */}
                   {shipment.adminNotes && (
@@ -364,11 +367,11 @@ const AdminShipmentsPage = () => {
             <div className="modal-body">
               <div className="shipment-summary">
                 <h3>Résumé de l'expédition</h3>
-                <p><strong>N° Suivi:</strong> {selectedShipment.trackingNumber}</p>
-                <p><strong>Destinataire:</strong> {selectedShipment.recipientName}</p>
-                <p><strong>Destination:</strong> {selectedShipment.destinationAddress}</p>
+                <p><strong>N° Suivi:</strong> {selectedShipment.id?.substring(0, 8) || 'N/A'}</p>
+                <p><strong>Destinataire:</strong> {selectedShipment.receiverName || selectedShipment.recipientName || 'N/A'}</p>
+                <p><strong>Destination:</strong> {selectedShipment.receiverAddress || selectedShipment.destinationAddress || selectedShipment.address || 'N/A'}</p>
                 <p><strong>Poids:</strong> {selectedShipment.weight || 'Non spécifié'} kg</p>
-                <p><strong>Valeur du colis:</strong> {selectedShipment.packageValue?.toLocaleString()} FCFA</p>
+                <p><strong>Valeur du colis:</strong> {parseFloat(selectedShipment.packagePrice || selectedShipment.packageValue || 0).toLocaleString()} FCFA</p>
               </div>
 
               <form className="pricing-form">

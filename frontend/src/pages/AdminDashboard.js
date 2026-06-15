@@ -28,6 +28,7 @@ const AdminDashboard = () => {
     { id: 'packages', name: 'Colis', icon: '📦', path: '/admin/packages', color: '#0066ff' },
     { id: 'drivers', name: 'Livreurs', icon: '👨‍🚚', path: '/admin/drivers', color: '#00c853' },
     { id: 'requests', name: 'Demandes', icon: '📋', path: '/admin/delivery-requests', color: '#ff1744', badge: unreadRequests },
+    { id: 'shipments', name: 'Expéditions', icon: '📮', path: '/admin/shipments', color: '#455a64' },
     { id: 'routes', name: 'Tournées', icon: '🚛', path: '/admin/routes', color: '#aa00ff' },
     { id: 'tracking', name: 'Suivi GPS', icon: '🗺️', path: '/admin/map', color: '#00bfa5' },
     { id: 'pricing', name: 'Tarifs', icon: '💰', path: '/admin/pricing', color: '#ff9100' },
