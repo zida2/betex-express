@@ -240,7 +240,7 @@ const DeliveryRequestsPage = () => {
           `│ Description : ${request.description || 'Non spécifiée'}\n` +
           `│ Poids : ${request.weight ? request.weight + ' kg' : 'Non spécifié'}\n` +
           `│ Type : ${request.deliveryType === 'express' ? '🚀 Express' : '📅 Programmée'}\n` +
-          `│ Frais de livraison : ${editData.deliveryPrice} FCFA\n` +
+          `│ Frais de livraison : ${parseFloat(editData.deliveryPrice).toLocaleString()} FCFA\n` +
           `└─────────────────────────────┘\n\n` +
           
           `🚚 *VOTRE LIVREUR ASSIGNÉ*\n` +
@@ -306,46 +306,46 @@ const DeliveryRequestsPage = () => {
     
     // Formater le message WhatsApp professionnel avec tous les détails
     const whatsappMessage = encodeURIComponent(
-      `BETEX EXPRESS - Service de Livraison\n` +
-      `=======================================\n\n` +
+      `🛵 *BETEX EXPRESS* - Service de Livraison\n` +
+      `═══════════════════════════════════\n\n` +
       `Bonjour ${request.receiverName},\n\n` +
       `Vous avez un colis en attente de livraison :\n\n` +
       
-      `DETAILS DU COLIS\n` +
-      `-------------------------------\n` +
-      `Expediteur : ${request.senderName}\n` +
-      `Telephone : ${request.senderPhone}\n` +
-      `Description : ${request.description || 'Non specifiee'}\n` +
-      `Poids : ${request.weight ? request.weight + ' kg' : 'Non specifie'}\n` +
-      `Valeur : ${request.packagePrice ? request.packagePrice.toLocaleString() + ' FCFA' : 'Non specifiee'}\n` +
-      `Type : ${request.deliveryType === 'express' ? 'EXPRESS' : 'PROGRAMMEE'}\n` +
-      (request.deliveryPrice ? `Frais livraison : ${request.deliveryPrice.toLocaleString()} FCFA\n` : '') +
-      (request.scheduledDate ? `Date prevue : ${new Date(request.scheduledDate).toLocaleDateString('fr-FR')}\n` : '') +
-      (request.timeSlot ? `Creneau : ${request.timeSlot}\n` : '') +
-      `-------------------------------\n\n` +
+      `📦 *DÉTAILS DU COLIS*\n` +
+      `┌─────────────────────────────┐\n` +
+      `│ Expéditeur : ${request.senderName}\n` +
+      `│ Téléphone : ${request.senderPhone}\n` +
+      `│ Description : ${request.description || 'Non spécifiée'}\n` +
+      `│ Poids : ${request.weight ? request.weight + ' kg' : 'Non spécifié'}\n` +
+      `│ Valeur : ${request.packagePrice ? parseFloat(request.packagePrice).toLocaleString() + ' FCFA' : 'Non spécifiée'}\n` +
+      `│ Type : ${request.deliveryType === 'express' ? '🚀 Express' : '📅 Programmée'}\n` +
+      (request.deliveryPrice ? `│ Frais livraison : ${parseFloat(request.deliveryPrice).toLocaleString()} FCFA\n` : '') +
+      (request.scheduledDate ? `│ Date prévue : ${new Date(request.scheduledDate).toLocaleDateString('fr-FR')}\n` : '') +
+      (request.timeSlot ? `│ Créneau : ${request.timeSlot}\n` : '') +
+      `└─────────────────────────────┘\n\n` +
       
-      `LOCALISATION REQUISE\n` +
-      `Pour que notre livreur puisse vous trouver facilement, nous avons besoin de votre position GPS precise.\n\n` +
+      `📍 *LOCALISATION REQUISE*\n` +
+      `Pour que notre livreur puisse vous trouver facilement, nous avons besoin de votre position GPS précise.\n\n` +
       
-      `ETAPES A SUIVRE :\n` +
-      `1. Cliquez sur le lien ci-dessous\n` +
-      `2. Autorisez l'acces a votre localisation\n` +
-      `3. Votre position sera automatiquement enregistree\n\n` +
+      `👆 *ÉTAPES À SUIVRE :*\n` +
+      `1️⃣ Cliquez sur le lien ci-dessous\n` +
+      `2️⃣ Autorisez l'accès à votre localisation\n` +
+      `3️⃣ Votre position sera automatiquement enregistrée\n\n` +
       
-      `LIEN SECURISE :\n` +
+      `🔗 *LIEN SÉCURISÉ :*\n` +
       `${locationLink}\n\n` +
       
-      `IMPORTANT :\n` +
-      `- Ce lien est valide pendant 7 jours\n` +
-      `- Votre localisation est securisee et confidentielle\n` +
-      `- Une fois votre position enregistree, nous traiterons rapidement votre livraison\n\n` +
+      `⚠️ *IMPORTANT :*\n` +
+      `• Ce lien est valide pendant 7 jours\n` +
+      `• Votre localisation est sécurisée et confidentielle\n` +
+      `• Une fois votre position enregistrée, nous traiterons rapidement votre livraison\n\n` +
       
-      `BESOIN D'AIDE ?\n` +
+      `📞 *BESOIN D'AIDE ?*\n` +
       `Contactez-nous au : +225 XX XX XX XX\n\n` +
       
       `Merci de votre confiance,\n` +
-      `L'equipe BETEX EXPRESS\n` +
-      `Livraison rapide et securisee`
+      `*L'équipe BETEX EXPRESS* 🚚💨\n` +
+      `_Livraison rapide et sécurisée_`
     );
     
     // Nettoyer le numéro de téléphone (enlever espaces et garder uniquement les chiffres)
