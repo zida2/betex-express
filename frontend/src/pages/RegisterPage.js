@@ -124,8 +124,17 @@ const RegisterPage = () => {
         <div className="auth-header">
           <div className="auth-logo">
             <svg viewBox="0 0 240 250" className="betex-logo">
-              {/* White Rounded Background */}
-              <circle cx="120" cy="125" r="115" fill="white"/>
+              {/* White Rounded Background with 3D shadow */}
+              <defs>
+                <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#ffffff"/>
+                  <stop offset="100%" stopColor="#f0f0f0"/>
+                </linearGradient>
+                <filter id="logoShadow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feDropShadow dx="2" dy="4" stdDeviation="6" floodColor="#000" floodOpacity="0.2"/>
+                </filter>
+              </defs>
+              <circle cx="120" cy="125" r="115" fill="url(#bgGrad)" filter="url(#logoShadow)"/>
               
               {/* Motion Lines Behind (to the left) */}
               <path d="M50 165 Q60 171 70 165" stroke="#ff6b35" strokeWidth="3" fill="none" opacity="0.7"/>
@@ -133,28 +142,65 @@ const RegisterPage = () => {
               
               {/* Modern Delivery Icon */}
               <g transform="translate(120, 100)">
-                {/* Package Box */}
-                <rect x="-25" y="-35" width="50" height="40" rx="6" fill="#1a365d"/>
+                {/* Package Box - 3D */}
+                <defs>
+                  <linearGradient id="packageGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#2c5282"/>
+                    <stop offset="100%" stopColor="#1a365d"/>
+                  </linearGradient>
+                </defs>
+                <rect x="-25" y="-35" width="50" height="40" rx="6" fill="url(#packageGrad)"/>
+                <rect x="-23" y="-33" width="46" height="3" rx="1.5" fill="#3a669a"/>
                 <rect x="-15" y="-30" width="30" height="3" rx="1.5" fill="#ff6b35"/>
                 <rect x="-15" y="-20" width="30" height="3" rx="1.5" fill="#ff6b35"/>
+                <rect x="25" y="-35" width="8" height="40" fill="#0f2443" transform="skewY(20)"/>
                 
-                {/* Delivery Vehicle - Scooter */}
-                <circle cx="-20" cy="25" r="16" fill="none" stroke="#1a365d" strokeWidth="5"/>
-                <circle cx="20" cy="25" r="16" fill="none" stroke="#1a365d" strokeWidth="5"/>
-                <path d="M-20 25 L-20 10 L0 5 L20 10 L20 25" stroke="#1a365d" strokeWidth="6" fill="none" strokeLinecap="round"/>
+                {/* Delivery Vehicle - Scooter 3D */}
+                <defs>
+                  <linearGradient id="wheelGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#2c5282"/>
+                    <stop offset="100%" stopColor="#1a365d"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="-20" cy="25" r="16" fill="url(#wheelGrad)" stroke="#0f2443" strokeWidth="3"/>
+                <circle cx="-20" cy="25" r="10" fill="none" stroke="#3a669a" strokeWidth="2"/>
+                <circle cx="20" cy="25" r="16" fill="url(#wheelGrad)" stroke="#0f2443" strokeWidth="3"/>
+                <circle cx="20" cy="25" r="10" fill="none" stroke="#3a669a" strokeWidth="2"/>
+                <path d="M-20 25 L-20 10 L0 5 L20 10 L20 25" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
+                <path d="M-20 25 L-20 10 L0 5 L20 10 L20 25" stroke="#3a669a" strokeWidth="4" fill="none" strokeLinecap="round"/>
                 
-                {/* Rider */}
-                <circle cx="0" cy="-10" r="10" fill="#1a365d"/>
-                <path d="M0 0 L0 10" stroke="#1a365d" strokeWidth="6" fill="none" strokeLinecap="round"/>
-                <path d="M0 2 L-12 12" stroke="#1a365d" strokeWidth="5" fill="none" strokeLinecap="round"/>
-                <path d="M0 10 L-15 25" stroke="#1a365d" strokeWidth="5" fill="none" strokeLinecap="round"/>
-                <path d="M0 10 L15 25" stroke="#1a365d" strokeWidth="5" fill="none" strokeLinecap="round"/>
+                {/* Rider 3D */}
+                <defs>
+                  <linearGradient id="riderGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#2c5282"/>
+                    <stop offset="100%" stopColor="#1a365d"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="0" cy="-10" r="10" fill="url(#riderGrad)"/>
+                <path d="M0 0 L0 10" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
+                <path d="M0 0 L0 10" stroke="#3a669a" strokeWidth="4" fill="none" strokeLinecap="round"/>
+                <path d="M0 2 L-12 12" stroke="#1a365d" strokeWidth="7" fill="none" strokeLinecap="round"/>
+                <path d="M0 10 L-15 25" stroke="#1a365d" strokeWidth="7" fill="none" strokeLinecap="round"/>
+                <path d="M0 10 L15 25" stroke="#1a365d" strokeWidth="7" fill="none" strokeLinecap="round"/>
               </g>
               
-              {/* Text: Betex Express */}
-              <text x="120" y="190" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="24" fontWeight="bold">
-                <tspan fill="#1a365d">Betex</tspan>
-                <tspan fill="#ff6b35">Express</tspan>
+              {/* Text: Betex Express - 3D */}
+              <defs>
+                <linearGradient id="betexGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#2c5282"/>
+                  <stop offset="100%" stopColor="#1a365d"/>
+                </linearGradient>
+                <linearGradient id="expressGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#ff8a5c"/>
+                  <stop offset="100%" stopColor="#ff6b35"/>
+                </linearGradient>
+                <filter id="textShadow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feDropShadow dx="1" dy="2" stdDeviation="1" floodColor="#000" floodOpacity="0.25"/>
+                </filter>
+              </defs>
+              <text x="120" y="190" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="24" fontWeight="bold" filter="url(#textShadow)">
+                <tspan fill="url(#betexGrad)">Betex</tspan>
+                <tspan fill="url(#expressGrad)">Express</tspan>
               </text>
               
               {/* Text: Livraison - Coursiers */}
