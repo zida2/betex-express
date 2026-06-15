@@ -58,36 +58,43 @@ const LoginPage = () => {
         <div className="auth-header">
           <div className="auth-logo">
             <svg viewBox="0 0 240 200" className="betex-logo">
-              {/* Background Wheels (Orange) */}
-              <circle cx="80" cy="130" r="35" fill="none" stroke="#ff6b35" strokeWidth="8"/>
-              <circle cx="80" cy="130" r="22" fill="none" stroke="#ff6b35" strokeWidth="4"/>
-              <circle cx="160" cy="130" r="35" fill="none" stroke="#ff6b35" strokeWidth="8"/>
-              <circle cx="160" cy="130" r="22" fill="none" stroke="#ff6b35" strokeWidth="4"/>
+              {/* Wheels (Orange with Blue Center) */}
+              <circle cx="100" cy="135" r="28" fill="none" stroke="#ff6b35" strokeWidth="8"/>
+              <circle cx="100" cy="135" r="12" fill="#1a365d"/>
+              <circle cx="160" cy="135" r="28" fill="none" stroke="#ff6b35" strokeWidth="8"/>
+              <circle cx="160" cy="135" r="12" fill="#1a365d"/>
               
-              {/* Motorcycle Body */}
-              <path d="M60 110 L120 80 L180 110 L170 140 L70 140 Z" fill="#1a365d"/>
+              {/* Motion Lines Under Wheels */}
+              <path d="M75 150 Q85 156 95 150" stroke="#ff6b35" strokeWidth="3" fill="none" opacity="0.7"/>
+              <path d="M135 150 Q145 156 155 150" stroke="#ff6b35" strokeWidth="3" fill="none" opacity="0.7"/>
               
               {/* Rider Head */}
-              <circle cx="120" cy="55" r="18" fill="#1a365d"/>
+              <circle cx="130" cy="55" r="18" fill="#1a365d"/>
               
-              {/* Rider Body */}
-              <path d="M120 73 L120 105" stroke="#1a365d" strokeWidth="10" fill="none" strokeLinecap="round"/>
+              {/* Rider Cap */}
+              <path d="M115 45 L130 38 L145 45" stroke="#1a365d" strokeWidth="6" fill="none" strokeLinecap="round"/>
               
-              {/* Rider Arms */}
-              <path d="M120 82 L100 95" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
-              <path d="M120 82 L140 90" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
+              {/* Rider Body and Pose */}
+              <path d="M130 73 L130 100" stroke="#1a365d" strokeWidth="10" fill="none" strokeLinecap="round"/>
               
-              {/* Rider Legs */}
-              <path d="M120 105 L100 130" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
-              <path d="M120 105 L140 125" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
+              {/* Rider Right Arm (holding box) */}
+              <path d="M130 78 L165 75" stroke="#1a365d" strokeWidth="9" fill="none" strokeLinecap="round"/>
+              
+              {/* Rider Left Arm */}
+              <path d="M130 82 L110 95" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
+              
+              {/* Rider Right Leg (forward) */}
+              <path d="M130 100 L150 130" stroke="#1a365d" strokeWidth="9" fill="none" strokeLinecap="round"/>
+              
+              {/* Rider Left Leg (back) */}
+              <path d="M130 100 L110 120" stroke="#1a365d" strokeWidth="9" fill="none" strokeLinecap="round"/>
+              
+              {/* Rider's Feet on Wheels */}
+              <circle cx="150" cy="132" r="7" fill="#1a365d"/>
+              <circle cx="110" cy="122" r="7" fill="#1a365d"/>
               
               {/* Delivery Box */}
-              <rect x="170" y="70" width="50" height="45" rx="6" fill="#1a365d" transform="rotate(-8 195 92.5)"/>
-              
-              {/* Motion Lines */}
-              <path d="M30 135 Q45 142 60 135" stroke="#ff6b35" strokeWidth="4" fill="none" opacity="0.8"/>
-              <path d="M20 128 Q35 135 50 128" stroke="#ff6b35" strokeWidth="3" fill="none" opacity="0.6"/>
-              <path d="M10 121 Q25 128 40 121" stroke="#ff6b35" strokeWidth="2" fill="none" opacity="0.4"/>
+              <rect x="168" y="60" width="45" height="40" rx="4" fill="#1a365d"/>
             </svg>
           </div>
           <h1 className="auth-title">
