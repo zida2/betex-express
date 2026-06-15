@@ -124,6 +124,13 @@ const RegisterPage = () => {
         <div className="auth-header">
           <div className="auth-logo">
             <svg viewBox="0 0 240 200" className="betex-logo">
+              {/* White Rounded Background */}
+              <circle cx="120" cy="100" r="85" fill="white"/>
+              
+              {/* Motion Lines Behind (to the left) */}
+              <path d="M45 150 Q55 156 65 150" stroke="#ff6b35" strokeWidth="3" fill="none" opacity="0.7"/>
+              <path d="M35 143 Q45 149 55 143" stroke="#ff6b35" strokeWidth="2" fill="none" opacity="0.5"/>
+              
               {/* Wheels (Orange with Blue Center) */}
               <circle cx="100" cy="135" r="28" fill="none" stroke="#ff6b35" strokeWidth="8"/>
               <circle cx="100" cy="135" r="12" fill="#1a365d"/>
@@ -136,9 +143,6 @@ const RegisterPage = () => {
               
               {/* Rider Head */}
               <circle cx="130" cy="55" r="18" fill="#1a365d"/>
-              
-              {/* Rider Cap */}
-              <path d="M115 45 L130 38 L145 45" stroke="#1a365d" strokeWidth="6" fill="none" strokeLinecap="round"/>
               
               {/* Rider Body and Pose */}
               <path d="M130 73 L130 100" stroke="#1a365d" strokeWidth="10" fill="none" strokeLinecap="round"/>
