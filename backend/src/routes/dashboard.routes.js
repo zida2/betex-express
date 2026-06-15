@@ -1,35 +1,18 @@
 /**
  * Dashboard Routes
- * Dashboard statistics and metrics endpoints
+ * Handles dashboard overview and statistics
  */
 
 const express = require('express');
 const router = express.Router();
 const dashboardController = require('../controllers/dashboardController');
-const { authMiddleware } = require('../middleware/auth.middleware');
+const { authMiddleware, adminMiddleware } = require('../middleware/auth.middleware');
 
 /**
- * GET /api/v1/dashboard/overview
- * Get dashboard overview statistics
+ * Admin Routes
  */
-router.get('/overview', authMiddleware, dashboardController.getOverview);
 
-/**
- * GET /api/v1/dashboard/drivers
- * Get driver statistics
- */
-router.get('/drivers', authMiddleware, dashboardController.getDriverStatistics);
-
-/**
- * GET /api/v1/dashboard/statistics
- * Get detailed statistics
- */
-router.get('/statistics', authMiddleware, dashboardController.getDetailedStatistics);
-
-/**
- * GET /api/v1/dashboard/realtime
- * Get real-time dashboard data
- */
-router.get('/realtime', authMiddleware, dashboardController.getRealtimeData);
+// GET /api/v1/dashboard/overview (admin only)
+router.get('/overview', authMiddleware, adminMiddleware, dashboardController.getOverview);
 
 module.exports = router;

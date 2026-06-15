@@ -12,6 +12,7 @@ const { Op } = require('sequelize');
  */
 const getStockByProductAndZone = async (productId, zoneId) => {
   const stock = await Stock.findOne({
+    attributes: ['id', 'productId', 'zoneId', 'quantity', 'minimumQuantity', 'location', 'lastRestockDate', 'createdAt', 'updatedAt'],
     where: { productId, zoneId },
     include: [
       { model: Product, attributes: ['name', 'sku', 'price'] },
@@ -39,6 +40,7 @@ const getStocksByZone = async (zoneId, filters = {}) => {
   }
 
   const { count, rows } = await Stock.findAndCountAll({
+    attributes: ['id', 'productId', 'zoneId', 'quantity', 'minimumQuantity', 'location', 'lastRestockDate', 'createdAt', 'updatedAt'],
     where,
     include: [
       { model: Product, attributes: ['name', 'sku', 'price', 'category'] },
@@ -140,6 +142,7 @@ const createStock = async (productId, zoneId, quantity = 0, minimumQuantity = 10
  */
 const getLowStockAlerts = async () => {
   const lowStocks = await Stock.findAll({
+    attributes: ['id', 'productId', 'zoneId', 'quantity', 'minimumQuantity', 'location', 'lastRestockDate', 'createdAt', 'updatedAt'],
     where: {
       quantity: { [Op.lte]: sequelize.col('minimumQuantity') }
     },

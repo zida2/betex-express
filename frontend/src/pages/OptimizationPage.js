@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { translateStatus, getStatusIcon } from '../utils/translations';
 import '../styles/OptimizationPage.css';
+import '../styles/PageLayout.css';
 
 const OptimizationPage = () => {
   const { user } = useAuth();
@@ -122,13 +123,13 @@ const OptimizationPage = () => {
   };
 
   return (
-    <div className="optimization-page">
-      <div className="optimization-header">
+    <div className="page-layout optimization-page">
+      <div className="page-header optimization-header">
         <h1>Optimisation des Livraisons</h1>
         <p>Assignation intelligente des colis aux livreurs</p>
       </div>
 
-      <div className="optimization-container">
+      <div className="page-content optimization-container">
         {/* Tabs */}
         <div className="tabs">
           <button 

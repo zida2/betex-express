@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import '../styles/RoutesPage.css';
-import '../styles/RoutesPage.css';
+import '../styles/PageLayout.css';
 
 const RoutesPage = () => {
   const [routes, setRoutes] = useState([]);
@@ -91,7 +91,7 @@ const RoutesPage = () => {
   }
 
   return (
-    <div className="routes-page">
+    <div className="page-layout routes-page">
       <header className="page-header">
         <h1>🗺️ Gestion des Tournées</h1>
         <button 
@@ -102,6 +102,7 @@ const RoutesPage = () => {
         </button>
       </header>
 
+      <div className="page-content">
       {showForm && (
         <div className="form-container">
           <form onSubmit={handleSubmit} className="route-form">
@@ -203,6 +204,7 @@ const RoutesPage = () => {
             </tbody>
           </table>
         )}
+      </div>
       </div>
     </div>
   );

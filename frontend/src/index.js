@@ -9,6 +9,7 @@ import App from './App';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './components/Toast';
 import ErrorBoundary from './components/ErrorBoundary';
+import './services/firebase';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

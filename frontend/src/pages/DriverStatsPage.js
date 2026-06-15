@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import '../styles/DriverStatsPage.css';
+import '../styles/PageLayout.css';
 
 const DriverStatsPage = () => {
   const [stats, setStats] = useState(null);
@@ -35,7 +36,7 @@ const DriverStatsPage = () => {
   }
 
   return (
-    <div className="driver-stats-page">
+    <div className="page-layout driver-stats-page">
       <header className="page-header">
         <button className="btn-back" onClick={() => navigate('/driver/dashboard')}>
           ← Retour
@@ -43,7 +44,7 @@ const DriverStatsPage = () => {
         <h1>📊 Mes Statistiques</h1>
       </header>
 
-      <div className="stats-container">
+      <div className="page-content stats-container">
         {/* Performance Overview */}
         <div className="stats-section">
           <h2 className="section-title">🎯 Performance Globale</h2>

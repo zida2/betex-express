@@ -1,6 +1,7 @@
 /**
  * Database Configuration
  * PostgreSQL connection setup
+ * Updated to use 127.0.0.1 for IPv4
  */
 
 const { Sequelize } = require('sequelize');

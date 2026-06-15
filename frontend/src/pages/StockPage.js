@@ -1,360 +1,356 @@
-/**
- * Stock Management Page
- * Manage inventory by zone
- */
-
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import '../styles/StockPage.css';
-import '../styles/StockPage.css';
+import '../styles/PageLayout.css';
 
 const StockPage = () => {
-  const { user } = useAuth();
-  const [zones, setZones] = useState([]);
-  const [selectedZone, setSelectedZone] = useState('');
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [clients, setClients] = useState([]);
   const [stocks, setStocks] = useState([]);
-  const [lowStockAlerts, setLowStockAlerts] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
+  const [showMovementModal, setShowMovementModal] = useState(false);
+  const [selectedStock, setSelectedStock] = useState(null);
+
+  const [clientStockForm, setClientStockForm] = useState({
     productId: '',
-    zoneId: '',
-    quantity: 0,
-    minimumQuantity: 10
+    quantity: '',
+    notes: ''
   });
-  const [updateForm, setUpdateForm] = useState({
-    stockId: '',
-    quantity: 0,
+
+  const [movementForm, setMovementForm] = useState({
     type: 'in',
+    quantity: '',
     reason: ''
   });
 
-  // Fetch zones
   useEffect(() => {
-    fetchZones();
-    fetchLowStockAlerts();
+    fetchProducts();
+    fetchClients();
   }, []);
 
-  const fetchZones = async () => {
+  const fetchClients = async () => {
     try {
-      const response = await api.get('/zones');
-      const data = response.data.data;
-      const zonesList = Array.isArray(data) ? data : (data?.zones || []);
-      setZones(zonesList);
+      const response = await api.get('/auth/clients-with-activity');
+      setClients(response.data.data || []);
     } catch (error) {
-      console.error('Error fetching zones:', error);
-      setZones([]);
+      console.error('Error fetching clients:', error);
+      setClients([]);
     }
   };
 
-  const fetchStocks = async (zoneId) => {
-    if (!zoneId) return;
-    
+  const fetchProducts = async () => {
+    try {
+      const response = await api.get('/stock/products');
+      setProducts(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setProducts([]);
+    }
+  };
+
+  const fetchClientStocks = async (clientId) => {
     setLoading(true);
     try {
-      const response = await api.get(`/stock/zone/${zoneId}`);
-      const data = response.data.data;
-      const stocksList = Array.isArray(data) ? data : (data?.stocks || []);
-      setStocks(stocksList);
+      const response = await api.get('/client-stock', {
+        params: { clientId }
+      });
+      setStocks(response.data.data);
+      
+      setMessage('');
     } catch (error) {
-      console.error('Error fetching stocks:', error);
+      console.error('Error fetching client stocks:', error);
+      setMessage('❌ Erreur lors du chargement des stocks client');
       setStocks([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchLowStockAlerts = async () => {
-    try {
-      const response = await api.get('/stock/alerts/low');
-      const data = response.data.data;
-      const alertsList = Array.isArray(data) ? data : (data?.alerts || []);
-      setLowStockAlerts(alertsList);
-    } catch (error) {
-      console.error('Error fetching low stock alerts:', error);
-      setLowStockAlerts([]);
-    }
+  const handleClientChange = (client) => {
+    setSelectedClient(client);
+    fetchClientStocks(client.id);
   };
 
-  const handleZoneChange = (e) => {
-    const zoneId = e.target.value;
-    setSelectedZone(zoneId);
-    fetchStocks(zoneId);
-  };
-
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'quantity' || name === 'minimumQuantity' ? parseInt(value) : value
-    }));
-  };
-
-  const handleUpdateFormChange = (e) => {
-    const { name, value } = e.target;
-    setUpdateForm(prev => ({
-      ...prev,
-      [name]: name === 'quantity' ? parseInt(value) : value
-    }));
-  };
-
-  const handleCreateStock = async (e) => {
+  const handleAddClientStock = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/stock', formData);
-      alert('Stock créé avec succès');
-      setShowForm(false);
-      setFormData({ productId: '', zoneId: '', quantity: 0, minimumQuantity: 10 });
-      if (selectedZone) fetchStocks(selectedZone);
-    } catch (error) {
-      console.error('Error creating stock:', error);
-      alert('Erreur: ' + error.message);
-    }
-  };
-
-  const handleUpdateStock = async (e) => {
-    e.preventDefault();
-    try {
-      await api.put(`/stock/${updateForm.stockId}`, {
-        quantity: updateForm.quantity,
-        type: updateForm.type,
-        reason: updateForm.reason
+      await api.post('/client-stock', {
+        ...clientStockForm,
+        clientId: selectedClient.id,
+        quantity: parseInt(clientStockForm.quantity)
       });
-      alert('Stock mis à jour avec succès');
-      setUpdateForm({ stockId: '', quantity: 0, type: 'in', reason: '' });
-      if (selectedZone) fetchStocks(selectedZone);
+      setMessage('✅ Produit ajouté au stock client avec succès');
+      setShowForm(false);
+      setClientStockForm({ productId: '', quantity: '', notes: '' });
+      fetchClientStocks(selectedClient.id);
     } catch (error) {
-      console.error('Error updating stock:', error);
-      alert('Erreur: ' + error.message);
+      console.error('Error adding client stock:', error);
+      setMessage('❌ Erreur: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleRecordMovement = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/client-stock/movement', {
+        stockId: selectedStock.id,
+        type: movementForm.type,
+        quantity: parseInt(movementForm.quantity),
+        reason: movementForm.reason
+      });
+      setMessage('✅ Mouvement enregistré avec succès');
+      setShowMovementModal(false);
+      setMovementForm({ type: 'in', quantity: '', reason: '' });
+      fetchClientStocks(selectedClient.id);
+    } catch (error) {
+      console.error('Error recording movement:', error);
+      setMessage('❌ Erreur: ' + (error.response?.data?.message || error.message));
     }
   };
 
   return (
-    <div className="stock-page">
-      <div className="stock-header">
-        <h1>Gestion des Stocks</h1>
-        <p>Gérez l'inventaire des produits par zone</p>
+    <div className="page-layout stock-page">
+      <div className="page-header stock-header">
+        <h1>📦 Gestion des Stocks</h1>
+        <p>Gérez l'inventaire des clients</p>
       </div>
 
-      <div className="stock-container">
-        {/* Low Stock Alerts */}
-        {lowStockAlerts.length > 0 && (
-          <div className="alerts-section">
-            <h2>⚠️ Alertes Stock Faible</h2>
-            <div className="alerts-list">
-              {lowStockAlerts.map(alert => (
-                <div key={alert.id} className="alert-item">
-                  <div className="alert-info">
-                    <strong>{alert.Product?.name}</strong>
-                    <p>Zone: {alert.Zone?.name}</p>
-                    <p>Quantité: {alert.quantity} (Min: {alert.minimumQuantity})</p>
+      <div className="page-content stock-container">
+        {message && (
+          <div className={`message-banner ${message.includes('❌') ? 'error' : 'success'}`}>
+            {message}
+          </div>
+        )}
+
+        <div className="mode-selection">
+          <div className="mode-selector">
+            <h3>Mode: Par Client</h3>
+          </div>
+        </div>
+
+        <div className="client-mode">
+          <div className="content-wrapper">
+            <aside className="clients-sidebar">
+              <h3>👥 Clients</h3>
+              <div className="clients-list">
+                {clients.map(client => (
+                  <div
+                    key={client.id}
+                    className={`client-item ${selectedClient?.id === client.id ? 'active' : ''}`}
+                    onClick={() => handleClientChange(client)}
+                  >
+                    <div className="client-info">
+                      <strong>{client.firstName} {client.lastName}</strong>
+                      <span>{client.email}</span>
+                    </div>
                   </div>
+                ))}
+              </div>
+            </aside>
+
+            <main className="main-content">
+              {!selectedClient ? (
+                <div className="empty-state">
+                  <div className="empty-icon">👈</div>
+                  <h3>Sélectionnez un client</h3>
+                  <p>Choisissez un client pour gérer son stock</p>
                 </div>
-              ))}
+              ) : (
+                <>
+                  <div className="client-header">
+                    <h2>📦 Stock de {selectedClient.firstName} {selectedClient.lastName}</h2>
+                    <button className="btn-primary" onClick={() => setShowForm(true)}>
+                      ➕ Ajouter un produit
+                    </button>
+                  </div>
+
+                  <div className="stock-section">
+                    <h3>📊 Inventaire</h3>
+                    {loading ? (
+                      <div className="loading-state">
+                        <div className="spinner"></div>
+                        <p>Chargement...</p>
+                      </div>
+                    ) : stocks.length === 0 ? (
+                      <div className="empty-state-small">
+                        <p>Aucun produit en stock</p>
+                        <button className="btn-secondary" onClick={() => setShowForm(true)}>
+                          Ajouter le premier produit
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="stocks-table">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Produit</th>
+                              <th>Quantité</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {stocks.map(stock => (
+                              <tr key={stock.id}>
+                                <td>{stock.Product?.name}</td>
+                                <td>{stock.quantity}</td>
+                                <td>
+                                  <button
+                                    className="btn btn-sm btn-info"
+                                    onClick={() => {
+                                      setSelectedStock(stock);
+                                      setShowMovementModal(true);
+                                    }}
+                                  >
+                                    Mouvement
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </main>
+          </div>
+        </div>
+
+        {showForm && selectedClient && (
+          <div className="modal-overlay" onClick={() => setShowForm(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2>➕ Ajouter un produit</h2>
+                <button className="btn-close" onClick={() => setShowForm(false)}>×</button>
+              </div>
+              <div className="modal-body">
+                <form onSubmit={handleAddClientStock}>
+                  <div className="form-group">
+                    <label>Produit *</label>
+                    <select
+                      value={clientStockForm.productId}
+                      onChange={(e) => setClientStockForm({ ...clientStockForm, productId: e.target.value })}
+                      required
+                    >
+                      <option value="">Sélectionner un produit</option>
+                      {products.map(product => (
+                        <option key={product.id} value={product.id}>
+                          {product.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Quantité initiale *</label>
+                    <input
+                      type="number"
+                      value={clientStockForm.quantity}
+                      onChange={(e) => setClientStockForm({ ...clientStockForm, quantity: e.target.value })}
+                      placeholder="Ex: 100"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Notes</label>
+                    <textarea
+                      value={clientStockForm.notes}
+                      onChange={(e) => setClientStockForm({ ...clientStockForm, notes: e.target.value })}
+                      placeholder="Notes optionnelles..."
+                      rows="3"
+                    />
+                  </div>
+                  <div className="modal-footer">
+                    <button type="button" className="btn-cancel" onClick={() => setShowForm(false)}>
+                      Annuler
+                    </button>
+                    <button type="submit" className="btn-submit">
+                      ➕ Ajouter
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Zone Selection */}
-        <div className="zone-selection">
-          <label htmlFor="zone-select">Sélectionner une zone:</label>
-          <select 
-            id="zone-select"
-            value={selectedZone} 
-            onChange={handleZoneChange}
-            className="zone-select"
-          >
-            <option value="">-- Choisir une zone --</option>
-            {zones.map(zone => (
-              <option key={zone.id} value={zone.id}>
-                {zone.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Create Stock Button */}
-        <div className="action-buttons">
-          <button 
-            className="btn btn-primary"
-            onClick={() => setShowForm(!showForm)}
-          >
-            {showForm ? 'Annuler' : '+ Ajouter Stock'}
-          </button>
-        </div>
-
-        {/* Create Stock Form */}
-        {showForm && (
-          <div className="form-section">
-            <h3>Créer un nouveau stock</h3>
-            <form onSubmit={handleCreateStock} className="stock-form">
-              <div className="form-group">
-                <label>ID Produit:</label>
-                <input
-                  type="text"
-                  name="productId"
-                  value={formData.productId}
-                  onChange={handleFormChange}
-                  required
-                  placeholder="UUID du produit"
-                />
+        {showMovementModal && selectedStock && (
+          <div className="modal-overlay" onClick={() => setShowMovementModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2>
+                  {movementForm.type === 'in' ? '📥 Entrée' : '📤 Sortie'}
+                </h2>
+                <button className="btn-close" onClick={() => setShowMovementModal(false)}>×</button>
               </div>
-
-              <div className="form-group">
-                <label>Zone:</label>
-                <select
-                  name="zoneId"
-                  value={formData.zoneId}
-                  onChange={handleFormChange}
-                  required
-                >
-                  <option value="">-- Choisir une zone --</option>
-                  {zones.map(zone => (
-                    <option key={zone.id} value={zone.id}>
-                      {zone.name}
-                    </option>
-                  ))}
-                </select>
+              <div className="modal-body">
+                <form onSubmit={handleRecordMovement}>
+                  <div className="stock-info">
+                    <p><strong>Produit:</strong> {selectedStock.Product?.name}</p>
+                    <p><strong>Stock actuel:</strong> {selectedStock.quantity}</p>
+                  </div>
+                  <div className="form-group">
+                    <label>Type</label>
+                    <div className="radio-group">
+                      <label className="radio-option">
+                        <input
+                          type="radio"
+                          value="in"
+                          checked={movementForm.type === 'in'}
+                          onChange={(e) => setMovementForm({ ...movementForm, type: e.target.value })}
+                        />
+                        📥 Entrée
+                      </label>
+                      <label className="radio-option">
+                        <input
+                          type="radio"
+                          value="out"
+                          checked={movementForm.type === 'out'}
+                          onChange={(e) => setMovementForm({ ...movementForm, type: e.target.value })}
+                        />
+                        📤 Sortie
+                      </label>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label>Quantité *</label>
+                    <input
+                      type="number"
+                      value={movementForm.quantity}
+                      onChange={(e) => setMovementForm({ ...movementForm, quantity: e.target.value })}
+                      placeholder="Ex: 50"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Raison *</label>
+                    <textarea
+                      value={movementForm.reason}
+                      onChange={(e) => setMovementForm({ ...movementForm, reason: e.target.value })}
+                      placeholder="Ex: Réapprovisionnement, Livraison..."
+                      rows="3"
+                      required
+                    />
+                  </div>
+                  {movementForm.type === 'out' && parseFloat(movementForm.quantity) > selectedStock.quantity && (
+                    <div className="warning-message">
+                      ⚠️ La quantité demandée dépasse le stock disponible
+                    </div>
+                  )}
+                  <div className="modal-footer">
+                    <button type="button" className="btn-cancel" onClick={() => setShowMovementModal(false)}>
+                      Annuler
+                    </button>
+                    <button type="submit" className="btn-submit">
+                      Enregistrer
+                    </button>
+                  </div>
+                </form>
               </div>
-
-              <div className="form-group">
-                <label>Quantité:</label>
-                <input
-                  type="number"
-                  name="quantity"
-                  value={formData.quantity}
-                  onChange={handleFormChange}
-                  min="0"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Quantité Minimale:</label>
-                <input
-                  type="number"
-                  name="minimumQuantity"
-                  value={formData.minimumQuantity}
-                  onChange={handleFormChange}
-                  min="1"
-                />
-              </div>
-
-              <button type="submit" className="btn btn-success">
-                Créer Stock
-              </button>
-            </form>
-          </div>
-        )}
-
-        {/* Stocks List */}
-        {selectedZone && (
-          <div className="stocks-section">
-            <h2>Stocks de la zone</h2>
-            {loading ? (
-              <p>Chargement...</p>
-            ) : stocks.length > 0 ? (
-              <div className="stocks-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Produit</th>
-                      <th>SKU</th>
-                      <th>Quantité</th>
-                      <th>Min</th>
-                      <th>Prix</th>
-                      <th>Catégorie</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {stocks.map(stock => (
-                      <tr key={stock.id} className={stock.quantity <= stock.minimumQuantity ? 'low-stock' : ''}>
-                        <td>{stock.Product?.name}</td>
-                        <td>{stock.Product?.sku}</td>
-                        <td className="quantity">{stock.quantity}</td>
-                        <td>{stock.minimumQuantity}</td>
-                        <td>${stock.Product?.price}</td>
-                        <td>{stock.Product?.category}</td>
-                        <td>
-                          <button 
-                            className="btn btn-sm btn-info"
-                            onClick={() => {
-                              setUpdateForm({
-                                stockId: stock.id,
-                                quantity: stock.quantity,
-                                type: 'in',
-                                reason: ''
-                              });
-                            }}
-                          >
-                            Modifier
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p>Aucun stock pour cette zone</p>
-            )}
-          </div>
-        )}
-
-        {/* Update Stock Form */}
-        {updateForm.stockId && (
-          <div className="form-section">
-            <h3>Mettre à jour le stock</h3>
-            <form onSubmit={handleUpdateStock} className="stock-form">
-              <div className="form-group">
-                <label>Type de mouvement:</label>
-                <select
-                  name="type"
-                  value={updateForm.type}
-                  onChange={handleUpdateFormChange}
-                >
-                  <option value="in">Entrée</option>
-                  <option value="out">Sortie</option>
-                  <option value="adjustment">Ajustement</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Quantité:</label>
-                <input
-                  type="number"
-                  name="quantity"
-                  value={updateForm.quantity}
-                  onChange={handleUpdateFormChange}
-                  min="0"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Raison:</label>
-                <input
-                  type="text"
-                  name="reason"
-                  value={updateForm.reason}
-                  onChange={handleUpdateFormChange}
-                  placeholder="Raison du mouvement"
-                />
-              </div>
-
-              <div className="form-buttons">
-                <button type="submit" className="btn btn-success">
-                  Mettre à jour
-                </button>
-                <button 
-                  type="button" 
-                  className="btn btn-secondary"
-                  onClick={() => setUpdateForm({ stockId: '', quantity: 0, type: 'in', reason: '' })}
-                >
-                  Annuler
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
         )}
       </div>

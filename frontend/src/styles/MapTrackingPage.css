@@ -1,24 +1,30 @@
 .map-tracking-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-primary);
+  min-height: 100vh !important;
+  max-height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: var(--bg-primary) !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.map-tracking-page .page-content {
+  padding: 0 !important;
+  overflow: hidden !important;
 }
 
 .map-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  background: var(--gradient-primary);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  min-height: 56px;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 10px 16px !important;
+  background: var(--bg-card) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-sm) !important;
+  position: relative !important;
+  z-index: 100 !important;
+  min-height: 56px !important;
+  flex-shrink: 0 !important;
 }
 
 .header-left {
@@ -83,24 +89,25 @@
 }
 
 .map-content {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  margin-top: 56px;
-  height: calc(100vh - 56px);
-  position: relative;
+  display: flex !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+  height: 100% !important;
+  position: relative !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .btn-toggle-info {
   position: fixed;
-  top: 140px;
-  left: 10px;
+  top: 80px;
+  left: 16px;
   z-index: 999;
   padding: 10px 16px;
-  background: var(--gradient-primary);
-  border: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: white;
+  color: var(--text-primary);
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
@@ -285,6 +292,9 @@
 .map-container {
   flex: 1;
   position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
 }
 
 .map-popup h4 {
@@ -315,8 +325,8 @@
 /* Responsive */
 @media (max-width: 768px) {
   .map-header {
-    padding: 8px 10px;
-    min-height: 50px;
+    padding: 8px 10px !important;
+    min-height: 50px !important;
   }
 
   .map-header h1 {
@@ -343,21 +353,21 @@
 
   .btn-toggle-info {
     display: block;
-    top: 120px;
+    top: 100px;
   }
 
   .map-content {
-    margin-top: 50px;
-    height: calc(100vh - 50px);
+    margin-top: 0 !important;
+    height: 100% !important;
   }
 
   .map-sidebar {
     position: fixed;
     left: -100%;
-    top: 50px;
+    top: 0;
     width: 85%;
     max-width: 320px;
-    height: calc(100vh - 50px);
+    height: 100vh;
     z-index: 998;
     transition: left 0.3s ease;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
@@ -437,6 +447,45 @@
   color: var(--text-primary) !important;
   border-radius: var(--radius-md) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--bg-card) !important;
+}
+
+.map-popup h4 {
+  margin: 0 0 8px 0;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.map-popup p {
+  margin: 4px 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+/* Historique du trajet */
+.route-history {
+  padding: 8px 0;
+}
+
+.history-summary {
+  background: rgba(16, 185, 129, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 3px solid #10b981;
+}
+
+.history-summary p {
+  margin: 6px 0;
+  color: #e2e8f0;
+  font-size: 13px;
+}
+
+.history-time {
+  color: #94a3b8 !important;
+  font-size: 11px !important;
 }
 
 .leaflet-popup-tip {

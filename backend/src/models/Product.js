@@ -34,6 +34,12 @@ const Product = sequelize.define('Product', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
+  unit: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+    defaultValue: 'units',
+    comment: 'Unit of measurement (e.g., kg, liters, units, boxes)'
+  },
   weight: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: true

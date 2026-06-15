@@ -1,35 +1,28 @@
 /**
  * GPS Routes
- * GPS position tracking endpoints
+ * Handles real-time GPS tracking
  */
 
 const express = require('express');
 const router = express.Router();
 const gpsController = require('../controllers/gpsController');
-const { authMiddleware } = require('../middleware/auth.middleware');
+const { authMiddleware, adminMiddleware, driverMiddleware } = require('../middleware/auth.middleware');
 
 /**
- * POST /api/v1/gps/position
- * Submit driver GPS position
+ * Driver Routes
  */
-router.post('/position', authMiddleware, gpsController.submitPosition);
+
+// POST /api/v1/gps/update (driver only)
+router.post('/update', authMiddleware, driverMiddleware, gpsController.updateGPSPosition);
 
 /**
- * GET /api/v1/gps/drivers/current
- * Get current positions of all drivers
+ * Admin Routes
  */
-router.get('/drivers/current', authMiddleware, gpsController.getCurrentPositions);
 
-/**
- * GET /api/v1/gps/drivers/:id/current
- * Get current position of a specific driver
- */
-router.get('/drivers/:id/current', authMiddleware, gpsController.getDriverCurrentPosition);
+// GET /api/v1/gps/drivers/current (admin only)
+router.get('/drivers/current', authMiddleware, adminMiddleware, gpsController.getCurrentDriverLocations);
 
-/**
- * GET /api/v1/gps/drivers/:id/history
- * Get position history for a driver
- */
-router.get('/drivers/:id/history', authMiddleware, gpsController.getDriverPositionHistory);
+// GET /api/v1/gps/driver/:driverId/history (admin or driver own data)
+router.get('/driver/:driverId/history', authMiddleware, gpsController.getDriverGPSHistory);
 
 module.exports = router;

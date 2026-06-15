@@ -5,7 +5,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { translateStatus, getStatusIcon } from '../utils/translations';
 import '../styles/ChatSystem.css';
 
 const ChatSystem = ({ isOpen, onClose }) => {
@@ -30,116 +29,18 @@ const ChatSystem = ({ isOpen, onClose }) => {
   }, [messages]);
 
   const loadConversations = async () => {
-    // Simuler des conversations en mode démo
-    const demoConversations = [
-      {
-        id: 1,
-        driverId: 2,
-        driverName: 'Jean Kouassi',
-        lastMessage: 'Client absent, que faire ?',
-        lastMessageTime: new Date(Date.now() - 300000),
-        unreadCount: 2,
-        status: 'active'
-      },
-      {
-        id: 2,
-        driverId: 3,
-        driverName: 'Yao Emmanuel', 
-        lastMessage: 'Livraison terminée !',
-        lastMessageTime: new Date(Date.now() - 900000),
-        unreadCount: 0,
-        status: 'available'
-      },
-      {
-        id: 3,
-        driverId: 4,
-        driverName: 'Koné Abdoulaye',
-        lastMessage: 'Embouteillage sur ma route',
-        lastMessageTime: new Date(Date.now() - 1200000),
-        unreadCount: 1,
-        status: 'busy'
-      }
-    ];
-    setConversations(demoConversations);
+    // No demo data - show empty state
+    setConversations([]);
   };
 
   const loadOnlineDrivers = async () => {
-    const demoDrivers = [
-      { id: 2, name: 'Jean Kouassi', status: 'active' },
-      { id: 3, name: 'Yao Emmanuel', status: 'available' },
-      { id: 4, name: 'Koné Abdoulaye', status: 'busy' }
-    ];
-    setOnlineDrivers(demoDrivers);
+    // No demo data - show empty state
+    setOnlineDrivers([]);
   };
 
   const loadMessages = (conversationId) => {
-    // Simuler des messages
-    const demoMessages = {
-      1: [
-        {
-          id: 1,
-          senderId: 2,
-          senderName: 'Jean Kouassi',
-          message: 'Bonjour, je suis arrivé chez le client',
-          time: new Date(Date.now() - 900000),
-          type: 'received'
-        },
-        {
-          id: 2,
-          senderId: 1,
-          senderName: 'Admin',
-          message: 'Parfait ! Tenez-moi au courant',
-          time: new Date(Date.now() - 800000),
-          type: 'sent'
-        },
-        {
-          id: 3,
-          senderId: 2,
-          senderName: 'Jean Kouassi',
-          message: 'Le client n\'est pas là. Dois-je attendre ?',
-          time: new Date(Date.now() - 600000),
-          type: 'received'
-        },
-        {
-          id: 4,
-          senderId: 2,
-          senderName: 'Jean Kouassi',
-          message: 'Client absent, que faire ?',
-          time: new Date(Date.now() - 300000),
-          type: 'received'
-        }
-      ],
-      2: [
-        {
-          id: 5,
-          senderId: 3,
-          senderName: 'Yao Emmanuel',
-          message: 'Colis BX2024003 livré avec succès !',
-          time: new Date(Date.now() - 900000),
-          type: 'received'
-        },
-        {
-          id: 6,
-          senderId: 1,
-          senderName: 'Admin',
-          message: 'Excellent travail ! 👍',
-          time: new Date(Date.now() - 850000),
-          type: 'sent'
-        }
-      ],
-      3: [
-        {
-          id: 7,
-          senderId: 4,
-          senderName: 'Koné Abdoulaye',
-          message: 'Embouteillage important sur la route. Retard estimé 20 min',
-          time: new Date(Date.now() - 1200000),
-          type: 'received'
-        }
-      ]
-    };
-    
-    setMessages(demoMessages[conversationId] || []);
+    // No demo data - show empty state
+    setMessages([]);
   };
 
   const scrollToBottom = () => {

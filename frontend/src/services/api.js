@@ -1,168 +1,224 @@
 /**
- * API Service - DEMO MODE
- * Returns mock data directly without calling backend
+ * API Service - FIREBASE MODE
+ * Uses Firebase Firestore directly
  */
 
-import axios from 'axios';
-import * as mockData from './mockData';
+import * as firebaseService from './firebaseService';
+import { auth } from './firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { setDoc, doc } from 'firebase/firestore';
+import { db } from './firebase';
 
-const DEMO_MODE = true;
-const API_URL = process.env.REACT_APP_API_URL || '/api/v1';
-
-console.log('[API] 🎬 DEMO MODE - All requests return mock data');
-console.log('[API] URL: ' + API_URL);
-
-// Create axios instance (not really used in demo mode)
-const api = axios.create({
-  baseURL: API_URL,
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
-
-// Main request handler - Returns mock data immediately
-const handleDemoRequest = async (method, url, data = null, params = null) => {
-  console.log(`[DEMO] ${method} ${url}`);
-
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 300));
-
-  // Route to correct mock function
-  if (method === 'POST' && url.includes('/auth/login')) {
-    try {
-      return await mockData.mockLogin(data.email, data.password);
-    } catch (e) {
-      // Return default admin user on error
-      return Promise.resolve({
-        data: {
-          data: {
-            user: mockData.DEMO_USERS.admin,
-            token: mockData.DEMO_USERS.admin.token
-          }
-        }
-      });
-    }
-  }
-
-  if (method === 'GET' && url.includes('/dashboard/overview')) {
-    return await mockData.mockGetStats();
-  }
-
-  if (method === 'GET' && url.includes('/packages') && !url.includes('/packages/')) {
-    return await mockData.mockGetPackages(params);
-  }
-
-  if (method === 'GET' && url.includes('/drivers') && !url.includes('/drivers/')) {
-    return await mockData.mockGetDrivers();
-  }
-
-  if (method === 'GET' && url.includes('/history')) {
-    return await mockData.mockGetHistory(params);
-  }
-
-  if (method === 'GET' && url.includes('/zones')) {
-    return await mockData.mockGetZones();
-  }
-
-  if (method === 'GET' && url.includes('/routes')) {
-    return await mockData.mockGetRoutes();
-  }
-
-  if (method === 'GET' && url.includes('/delivery-requests') && !url.includes('/delivery-requests/')) {
-    return await mockData.mockGetDeliveryRequests(params);
-  }
-
-  if (method === 'POST' && url.includes('/delivery-requests') && !url.includes('/delivery-requests/')) {
-    return await mockData.mockCreateDeliveryRequest(data);
-  }
-
-  if (method === 'POST' && url.includes('/delivery-requests/') && url.includes('/approve')) {
-    const requestId = url.split('/')[url.split('/').length - 2];
-    return await mockData.mockApproveDeliveryRequest(requestId, data);
-  }
-
-  if (method === 'POST' && url.includes('/delivery-requests/') && url.includes('/reject')) {
-    const requestId = url.split('/')[url.split('/').length - 2];
-    return await mockData.mockRejectDeliveryRequest(requestId, data.rejectionReason);
-  }
-
-  if (method === 'POST' && url.includes('/delivery-requests/') && url.includes('/send-message')) {
-    const requestId = url.split('/')[url.split('/').length - 2];
-    return await mockData.mockSendMessageToClient(requestId, data.clientMessage, data.messageType);
-  }
-
-  if (method === 'GET' && url.includes('/delivery-requests/available/drivers')) {
-    return await mockData.mockGetAvailableDrivers();
-  }
-};
-
-// Override axios methods for demo mode
-if (DEMO_MODE) {
-  api.get = (url, config = {}) => {
-    return handleDemoRequest('GET', url, null, config.params);
-  };
-
-  api.post = (url, data, config = {}) => {
-    return handleDemoRequest('POST', url, data, config.params);
-  };
-
-  api.put = (url, data, config = {}) => {
-    return handleDemoRequest('PUT', url, data, config.params);
-  };
-
-  api.delete = (url, config = {}) => {
-    return handleDemoRequest('DELETE', url, null, config.params);
-  };
-
-  api.request = (config) => {
-    return handleDemoRequest(config.method, config.url, config.data, config.params);
-  };
-}
+console.log('[API] 🔥 FIREBASE MODE - Using Firestore');
 
 // API Methods
 export const apiMethods = {
-  login: (email, password) => 
-    api.post('/auth/login', { email, password }),
+  // Authentication
+  login: async (email, password) => {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    return { data: { data: { id: user.uid, email: user.email } } };
+  },
 
-  me: () => 
-    api.get('/auth/me'),
+  register: async (email, password, firstName, lastName, phone) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    const userData = {
+      email,
+      firstName,
+      lastName,
+      phone,
+      name: `${firstName} ${lastName}`,
+      role: 'client'
+    };
+    await setDoc(doc(db, 'users', user.uid), userData);
+    return { data: { data: { id: user.uid, ...userData } } };
+  },
 
-  logout: () => 
-    api.post('/auth/logout'),
+  refresh: () => Promise.resolve({ data: { data: { accessToken: null } } }),
 
-  getPackages: (params) => 
-    api.get('/packages', { params }),
+  me: async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) throw new Error('Not logged in');
+    const userDoc = await firebaseService.getUser(currentUser.uid);
+    return { data: { data: userDoc } };
+  },
 
-  getPackage: (id) => 
-    api.get(`/packages/${id}`),
+  logout: async () => {
+    await signOut(auth);
+    return { data: { data: { success: true } } };
+  },
 
-  createPackage: (data) => 
-    api.post('/packages', data),
+  // Delivery Requests
+  createDeliveryRequest: async (data) => {
+    const result = await firebaseService.createDeliveryRequest(data);
+    return { data: { data: result } };
+  },
 
-  updatePackage: (id, data) => 
-    api.put(`/packages/${id}`, data),
+  getDeliveryRequests: async (params) => {
+    const result = await firebaseService.getDeliveryRequests(params);
+    return { data: { data: result } };
+  },
 
-  getDrivers: (params) => 
-    api.get('/drivers', { params }),
+  getDeliveryRequest: async (id) => {
+    const result = await firebaseService.getDeliveryRequest(id);
+    return { data: { data: result } };
+  },
 
-  getDriver: (id) => 
-    api.get(`/drivers/${id}`),
+  approveDeliveryRequest: async (id, data) => {
+    const result = await firebaseService.updateDeliveryRequest(id, { status: 'approved', ...data });
+    return { data: { data: result } };
+  },
 
-  getRoutes: (params) => 
-    api.get('/routes', { params }),
+  rejectDeliveryRequest: async (id, rejectionReason) => {
+    const result = await firebaseService.updateDeliveryRequest(id, { status: 'rejected', rejectionReason });
+    return { data: { data: result } };
+  },
 
-  updateGPS: (driverId, data) => 
-    api.post('/gps/update', { driverId, ...data }),
+  // Drivers
+  getDrivers: async (params) => {
+    const result = await firebaseService.getDrivers(params);
+    return { data: { data: result } };
+  },
 
-  getGPSHistory: (driverId, params) => 
-    api.get(`/gps/${driverId}/history`, { params })
+  getDriver: async (id) => {
+    const result = await firebaseService.getUser(id);
+    return { data: { data: result } };
+  },
+
+  getDriverStats: async (id) => {
+    return { data: { data: { totalDeliveries: 0, revenue: 0 } } };
+  },
+
+  createDriver: async (data) => {
+    const result = await firebaseService.createUser({ ...data, role: 'driver' });
+    return { data: { data: result } };
+  },
+
+  updateDriverStatus: async (id, status) => {
+    const result = await firebaseService.updateUser(id, { status });
+    return { data: { data: result } };
+  },
+
+  // Zones
+  getZones: async (params) => {
+    const result = await firebaseService.getZones(params);
+    return { data: { data: result } };
+  },
+
+  createZone: async (data) => {
+    const result = await firebaseService.createZone(data);
+    return { data: { data: result } };
+  },
+
+  updateZone: async (id, data) => {
+    return { data: { data: { id, ...data } } };
+  },
+
+  deleteZone: async (id) => {
+    return { data: { data: { id } } };
+  },
+
+  // Pricing
+  getPricing: async () => {
+    const result = await firebaseService.getPricing();
+    return { data: { data: result } };
+  },
+
+  updatePricing: async (data) => {
+    const result = await firebaseService.updatePricing(data);
+    return { data: { data: result } };
+  },
+
+  calculateExpressPrice: async (distance) => {
+    const basePrice = 1000;
+    const perKmPrice = 500;
+    const price = basePrice + (distance * perKmPrice);
+    return { data: { data: { price } } };
+  },
+
+  // Revenue
+  getDailyRevenue: async (params) => {
+    return { data: { data: [] } };
+  },
+
+  getMonthlyRevenue: async (params) => {
+    return { data: { data: [] } };
+  },
+
+  // Dashboard
+  getDashboardOverview: async () => {
+    const drivers = await firebaseService.getDrivers();
+    const requests = await firebaseService.getDeliveryRequests();
+    return {
+      data: {
+        data: {
+          totalDrivers: drivers.length,
+          totalDeliveryRequests: requests.length,
+          pendingRequests: requests.filter(r => r.status === 'pending').length,
+          todayRevenue: 0
+        }
+      }
+    };
+  },
+
+  // GPS
+  updateGPSPosition: async (data) => {
+    return { data: { data: { success: true } } };
+  },
+
+  getCurrentDriverLocations: async (params) => {
+    return { data: { data: [] } };
+  },
+
+  getDriverGPSHistory: async (driverId, params) => {
+    return { data: { data: [] } };
+  }
+};
+
+// Add direct methods on apiMethods for compatibility
+apiMethods.get = async (url, config) => {
+  if (url === '/dashboard/overview') return apiMethods.getDashboardOverview();
+  if (url === '/delivery-requests') return apiMethods.getDeliveryRequests(config?.params);
+  if (url.startsWith('/delivery-requests/')) return apiMethods.getDeliveryRequest(url.split('/')[2]);
+  if (url === '/drivers') return apiMethods.getDrivers(config?.params);
+  if (url.startsWith('/drivers/') && url.endsWith('/stats')) return apiMethods.getDriverStats(url.split('/')[2]);
+  if (url === '/zones') return apiMethods.getZones(config?.params);
+  if (url === '/pricing') return apiMethods.getPricing();
+  if (url === '/auth/me') return apiMethods.me();
+  return { data: { data: [] } };
+};
+
+apiMethods.post = async (url, data, config) => {
+  if (url === '/auth/login') return apiMethods.login(data.email, data.password);
+  if (url === '/auth/register') return apiMethods.register(data.email, data.password, data.firstName, data.lastName, data.phone);
+  if (url === '/auth/logout') return apiMethods.logout();
+  if (url === '/delivery-requests') return apiMethods.createDeliveryRequest(data);
+  if (url.startsWith('/delivery-requests/') && url.endsWith('/approve')) return apiMethods.approveDeliveryRequest(url.split('/')[2], data);
+  if (url.startsWith('/delivery-requests/') && url.endsWith('/reject')) return apiMethods.rejectDeliveryRequest(url.split('/')[2], data.rejectionReason);
+  if (url === '/drivers') return apiMethods.createDriver(data);
+  if (url === '/zones') return apiMethods.createZone(data);
+  if (url === '/pricing/calculate-express') return apiMethods.calculateExpressPrice(data.distance);
+  if (url === '/gps/update') return apiMethods.updateGPSPosition(data);
+  return { data: { data: {} } };
+};
+
+apiMethods.put = async (url, data, config) => {
+  if (url === '/pricing') return apiMethods.updatePricing(data);
+  if (url.startsWith('/zones/')) return apiMethods.updateZone(url.split('/')[2], data);
+  if (url.startsWith('/drivers/') && url.endsWith('/status')) return apiMethods.updateDriverStatus(url.split('/')[2], data.status);
+  return { data: { data: {} } };
+};
+
+apiMethods.delete = async (url, config) => {
+  if (url.startsWith('/zones/')) return apiMethods.deleteZone(url.split('/')[2]);
+  return { data: { data: {} } };
 };
 
 // Direct exports for backward compatibility
-export const get = (url, config) => api.get(url, config);
-export const post = (url, data, config) => api.post(url, data, config);
-export const put = (url, data, config) => api.put(url, data, config);
-export const del = (url, config) => api.delete(url, config);
+export const get = apiMethods.get;
+export const post = apiMethods.post;
+export const put = apiMethods.put;
+export const del = apiMethods.delete;
 
-export default api;
+export default apiMethods;

@@ -5,6 +5,7 @@
 
 const stockService = require('../services/stockService');
 const logger = require('../utils/logger');
+const { Product } = require('../models');
 
 /**
  * Get stock by product and zone
@@ -147,11 +148,34 @@ const getStockMovementHistory = async (req, res, next) => {
   }
 };
 
+/**
+ * Get all products
+ * GET /api/v1/stock/products
+ */
+const getAllProducts = async (req, res, next) => {
+  try {
+    const products = await Product.findAll({
+      attributes: ['id', 'name', 'description', 'price', 'unit', 'createdAt'],
+      order: [['name', 'ASC']]
+    });
+    
+    res.status(200).json({
+      success: true,
+      data: products,
+      count: products.length
+    });
+  } catch (error) {
+    logger.error('Error fetching products:', error);
+    next(error);
+  }
+};
+
 module.exports = {
   getStock,
   getStocksByZone,
   createStock,
   updateStockQuantity,
   getLowStockAlerts,
-  getStockMovementHistory
+  getStockMovementHistory,
+  getAllProducts
 };

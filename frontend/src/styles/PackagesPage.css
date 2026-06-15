@@ -1,24 +1,18 @@
-﻿.packages-page {
+.packages-page {
   min-height: 100vh;
+  max-height: 100vh;
   background: var(--bg-primary);
-  padding-bottom: 80px;
-  padding-top: 80px;
   width: 100%;
   overflow-x: hidden;
 }
 
 .page-header {
+  flex-shrink: 0;
   background: var(--gradient-primary);
   padding: 20px;
   box-shadow: var(--shadow-md);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
   min-height: 80px;
   width: 100%;
-  will-change: transform;
 }
 
 .page-header h1 {

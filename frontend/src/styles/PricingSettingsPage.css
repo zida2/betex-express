@@ -1,8 +1,8 @@
-/* Pricing Settings Page - Professional Design */
+/* Pricing Settings Page - Cosmic Theme */
 
 .pricing-settings-page {
   min-height: 100vh;
-  background: #f5f7fa;
+  background: transparent;
   display: flex;
   flex-direction: column;
 }
@@ -13,14 +13,16 @@
   align-items: center;
   gap: 1.5rem;
   padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 30%, #312e81 60%, #0f172a 100%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   flex-shrink: 0;
+  border-bottom: 3px solid transparent;
+  border-image: linear-gradient(90deg, #6366f1, #a855f7, #6366f1) 1;
 }
 
 .btn-back {
   padding: 0.8rem 1.5rem;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   border: none;
   border-radius: 8px;
   color: white;
@@ -31,7 +33,7 @@
 }
 
 .btn-back:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
 }
 
@@ -58,15 +60,15 @@
 }
 
 .alert.success {
-  background: #dcfce7;
+  background: rgba(34, 197, 94, 0.15);
   border-left-color: #22c55e;
-  color: #166534;
+  color: #4ade80;
 }
 
 .alert.error {
-  background: #fee2e2;
+  background: rgba(239, 68, 68, 0.15);
   border-left-color: #ef4444;
-  color: #991b1b;
+  color: #fca5a5;
 }
 
 @keyframes slideDown {
@@ -88,6 +90,8 @@
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 /* Tabs */
@@ -95,7 +99,7 @@
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid rgba(148, 163, 184, 0.2);
 }
 
 .tab-btn {
@@ -103,7 +107,7 @@
   background: transparent;
   border: none;
   border-bottom: 3px solid transparent;
-  color: #6b7280;
+  color: #94a3b8;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
@@ -111,33 +115,34 @@
 }
 
 .tab-btn:hover {
-  color: #374151;
+  color: #e2e8f0;
 }
 
 .tab-btn.active {
-  color: #2563eb;
-  border-bottom-color: #2563eb;
+  color: #a78bfa;
+  border-bottom-color: #a78bfa;
 }
 
 /* Pricing Section */
 .pricing-section {
-  background: white;
+  background: rgba(15, 23, 42, 0.9);
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 .pricing-section h2 {
   margin: 0 0 0.5rem 0;
-  color: #1f2937;
+  color: #e2e8f0;
   font-size: 1.5rem;
   font-weight: 700;
 }
 
 .section-description {
   margin: 0 0 2rem 0;
-  color: #6b7280;
+  color: #94a3b8;
   font-size: 0.95rem;
 }
 
@@ -162,47 +167,49 @@
 
 .form-group label {
   font-weight: 600;
-  color: #374151;
+  color: #cbd5e1;
   font-size: 0.95rem;
 }
 
 .required {
-  color: #ef4444;
+  color: #f87171;
   font-weight: 700;
 }
 
 .form-group input {
   padding: 0.75rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid rgba(148, 163, 184, 0.3);
   border-radius: 8px;
   font-size: 0.95rem;
   transition: all 0.2s ease;
   font-family: inherit;
+  color: #e2e8f0;
+  background-color: rgba(15, 23, 42, 0.7);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #a855f7;
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
 }
 
 .form-group small {
-  color: #9ca3af;
+  color: #64748b;
   font-size: 0.8rem;
   margin-top: 0.3rem;
 }
 
 /* Examples Section */
 .examples-section {
-  background: #f9fafb;
-  border: 2px solid #e5e7eb;
+  background: rgba(30, 41, 59, 0.7);
+  border: 2px solid rgba(148, 163, 184, 0.2);
   border-radius: 8px;
   padding: 1.5rem;
 }
 
 .examples-section h3 {
   margin: 0 0 1rem 0;
-  color: #1f2937;
+  color: #e2e8f0;
   font-size: 1.1rem;
   font-weight: 700;
 }
@@ -214,8 +221,8 @@
 }
 
 .example-card {
-  background: white;
-  border: 2px solid #e5e7eb;
+  background: rgba(15, 23, 42, 0.8);
+  border: 2px solid rgba(148, 163, 184, 0.2);
   border-radius: 8px;
   padding: 1rem;
   text-align: center;
@@ -226,34 +233,34 @@
 
 .example-distance {
   font-weight: 700;
-  color: #2563eb;
+  color: #a78bfa;
   font-size: 0.95rem;
 }
 
 .example-price {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #059669;
+  color: #a78bfa;
 }
 
 /* Formula Section */
 .formula-section {
-  background: #f0fdf4;
-  border: 2px solid #86efac;
+  background: rgba(168, 85, 247, 0.1);
+  border: 2px solid rgba(168, 85, 247, 0.3);
   border-radius: 8px;
   padding: 1.5rem;
 }
 
 .formula-section h3 {
   margin: 0 0 1rem 0;
-  color: #166534;
+  color: #c4b5fd;
   font-size: 1.1rem;
   font-weight: 700;
 }
 
 .formula-box {
-  background: white;
-  border: 1px solid #86efac;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(168, 85, 247, 0.3);
   border-radius: 6px;
   padding: 1rem;
   overflow-x: auto;
@@ -261,7 +268,7 @@
 
 .formula-box code {
   font-family: 'Courier New', monospace;
-  color: #059669;
+  color: #c4b5fd;
   font-size: 0.9rem;
   line-height: 1.6;
 }
@@ -275,7 +282,7 @@
 
 .zones-list h3 {
   margin: 0 0 1rem 0;
-  color: #1f2937;
+  color: #e2e8f0;
   font-size: 1.1rem;
   font-weight: 700;
 }
@@ -283,24 +290,25 @@
 .no-data {
   text-align: center;
   padding: 2rem;
-  color: #9ca3af;
+  color: #94a3b8;
   font-size: 0.95rem;
-  background: #f9fafb;
+  background: rgba(30, 41, 59, 0.7);
   border-radius: 8px;
-  border: 2px dashed #e5e7eb;
+  border: 2px dashed rgba(148, 163, 184, 0.3);
 }
 
 .zone-card {
-  background: white;
-  border: 2px solid #e5e7eb;
+  background: rgba(15, 23, 42, 0.9);
+  border: 2px solid rgba(148, 163, 184, 0.2);
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
 }
 
 .zone-card:hover {
-  border-color: #2563eb;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+  border-color: #a855f7;
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.2);
 }
 
 .zone-header {
@@ -308,7 +316,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   color: white;
 }
 
@@ -348,37 +356,39 @@
 .zone-content label {
   display: block;
   font-weight: 600;
-  color: #374151;
+  color: #cbd5e1;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
 }
 
 .zone-content input {
   padding: 0.75rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid rgba(148, 163, 184, 0.3);
   border-radius: 6px;
   font-size: 0.9rem;
   transition: all 0.2s ease;
   width: 100%;
+  color: #e2e8f0;
+  background-color: rgba(15, 23, 42, 0.7);
 }
 
 .zone-content input:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #a855f7;
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
 }
 
 /* Add Zone Section */
 .add-zone-section {
-  background: #f0f9ff;
-  border: 2px dashed #93c5fd;
+  background: rgba(168, 85, 247, 0.1);
+  border: 2px dashed rgba(168, 85, 247, 0.4);
   border-radius: 8px;
   padding: 1.5rem;
 }
 
 .add-zone-section h3 {
   margin: 0 0 1rem 0;
-  color: #1e40af;
+  color: #c4b5fd;
   font-size: 1.1rem;
   font-weight: 700;
 }
@@ -391,7 +401,7 @@
 }
 
 .btn-add-zone {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   border: none;
   color: white;
   padding: 0.75rem 1.5rem;
@@ -407,9 +417,9 @@
 }
 
 .btn-add-zone:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3);
 }
 
 /* Actions Section */
@@ -435,31 +445,32 @@
 }
 
 .btn-save {
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
   color: white;
 }
 
 .btn-save:hover:not(.disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.3);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.35);
 }
 
 .btn-save.disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: #9ca3af;
+  background: #64748b;
 }
 
 .btn-cancel {
   background: transparent;
-  border: 2px solid #e5e7eb;
-  color: #6b7280;
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  color: #94a3b8;
 }
 
 .btn-cancel:hover {
-  background: #f3f4f6;
-  border-color: #d1d5db;
+  background: rgba(148, 163, 184, 0.15);
+  border-color: #cbd5e1;
   transform: translateY(-2px);
+  color: #e2e8f0;
 }
 
 /* Responsive */
@@ -487,7 +498,7 @@
   .pricing-tabs {
     flex-direction: column;
     border-bottom: none;
-    border-right: 2px solid #e5e7eb;
+    border-right: 2px solid rgba(148, 163, 184, 0.2);
   }
 
   .tab-btn {
@@ -497,7 +508,7 @@
   }
 
   .tab-btn.active {
-    border-right-color: #2563eb;
+    border-right-color: #a855f7;
     border-bottom-color: transparent;
   }
 

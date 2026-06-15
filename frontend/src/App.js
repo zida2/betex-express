@@ -1,12 +1,8 @@
-/**
- * Main App Component
- * Root component for the application
- */
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import AdminDashboard from './pages/AdminDashboard';
 import DriverDashboard from './pages/DriverDashboard';
 import DriverHistoryPage from './pages/DriverHistoryPage';
@@ -23,8 +19,13 @@ import HistoryPage from './pages/HistoryPage';
 import ClientPortal from './pages/ClientPortal';
 import DeliveryRequestsPage from './pages/DeliveryRequestsPage';
 import DeliveryLocationCapture from './pages/DeliveryLocationCapture';
+import ReceiverLocationPage from './pages/ReceiverLocationPage';
 import PricingSettingsPage from './pages/PricingSettingsPage';
 import RevenueDashboard from './pages/RevenueDashboard';
+import ShipmentsPage from './pages/ShipmentsPage';
+import AdminShipmentsPage from './pages/AdminShipmentsPage';
+import QuartierDashboard from './pages/QuartierDashboard';
+import AnnouncementsManagement from './pages/AnnouncementsManagement';
 import './App.css';
 
 // Root redirect Component
@@ -43,7 +44,12 @@ const RootRedirect = () => {
     return <Navigate to="/driver/dashboard" replace />;
   }
 
-  return <Navigate to="/admin/dashboard" replace />;
+  if (user.role === 'admin' || user.role === 'dispatcher') {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
+  // Si role client ou autre, rediriger vers client portal
+  return <Navigate to="/client" replace />;
 };
 
 // Protected Route Component
@@ -69,6 +75,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       
       <Route 
         path="/admin/dashboard" 
@@ -199,7 +206,7 @@ function AppRoutes() {
       <Route 
         path="/admin/pricing" 
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={['admin', 'dispatcher']}>
             <PricingSettingsPage />
           </ProtectedRoute>
         } 
@@ -215,6 +222,33 @@ function AppRoutes() {
       />
 
       <Route 
+        path="/admin/shipments" 
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'dispatcher']}>
+            <AdminShipmentsPage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/admin/quartier-dashboard" 
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'dispatcher']}>
+            <QuartierDashboard />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/admin/announcements" 
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'dispatcher']}>
+            <AnnouncementsManagement />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
         path="/client" 
         element={
           <ProtectedRoute allowedRoles={['client']}>
@@ -224,8 +258,22 @@ function AppRoutes() {
       />
 
       <Route 
+        path="/client/shipments" 
+        element={
+          <ProtectedRoute allowedRoles={['client']}>
+            <ShipmentsPage />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
         path="/delivery-location/:requestId" 
         element={<DeliveryLocationCapture />}
+      />
+
+      <Route 
+        path="/location/:token" 
+        element={<ReceiverLocationPage />}
       />
       
       <Route 

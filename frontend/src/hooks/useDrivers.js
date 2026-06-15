@@ -4,7 +4,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import api from '../services/api';
+import { getDrivers } from '../services/firebaseService';
 import { useToast } from '../components/Toast';
 
 export const useDrivers = () => {
@@ -18,11 +18,10 @@ export const useDrivers = () => {
     setError(null);
 
     try {
-      const response = await api.get('/drivers');
-      const driversData = response.data.data?.drivers || response.data.data || [];
+      const driversData = await getDrivers();
       setDrivers(Array.isArray(driversData) ? driversData : []);
     } catch (err) {
-      const message = err.response?.data?.message || 'Erreur lors du chargement des chauffeurs';
+      const message = err.message || 'Erreur lors du chargement des chauffeurs';
       setError(message);
       addToast(message, 'error');
       console.error('Error loading drivers:', err);

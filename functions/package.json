@@ -1,0 +1,14 @@
+{
+  "name": "betex-express-functions",
+  "version": "1.0.0",
+  "description": "Cloud Functions for BETEX EXPRESS",
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^11.11.1",
+    "firebase-functions": "^4.6.0"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}

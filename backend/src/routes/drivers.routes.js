@@ -1,53 +1,39 @@
 /**
  * Drivers Routes
- * Driver management endpoints
+ * Handles driver management
  */
 
 const express = require('express');
 const router = express.Router();
 const driverController = require('../controllers/driverController');
-const { authMiddleware } = require('../middleware/auth.middleware');
+const { authMiddleware, adminMiddleware } = require('../middleware/auth.middleware');
 
 /**
- * GET /api/v1/drivers
- * List all drivers
+ * Protected Routes (require authentication)
  */
+
+// GET /api/v1/drivers
 router.get('/', authMiddleware, driverController.getDrivers);
 
-/**
- * POST /api/v1/drivers
- * Create a new driver
- */
-router.post('/', authMiddleware, driverController.createDriver);
+// POST /api/v1/drivers (admin only - create new driver)
+router.post('/', authMiddleware, adminMiddleware, driverController.createDriver);
 
-/**
- * GET /api/v1/drivers/:id
- * Get driver details
- */
+// GET /api/v1/drivers/:id
 router.get('/:id', authMiddleware, driverController.getDriverById);
 
-/**
- * PUT /api/v1/drivers/:id
- * Update driver
- */
-router.put('/:id', authMiddleware, driverController.updateDriver);
+// GET /api/v1/drivers/:id/stats (driver statistics)
+router.get('/:id/stats', authMiddleware, driverController.getDriverStatistics);
 
-/**
- * DELETE /api/v1/drivers/:id
- * Delete driver
- */
-router.delete('/:id', authMiddleware, driverController.deleteDriver);
-
-/**
- * PATCH /api/v1/drivers/:id/status
- * Update driver status
- */
-router.patch('/:id/status', authMiddleware, driverController.updateDriverStatus);
-
-/**
- * GET /api/v1/drivers/:id/statistics
- * Get driver statistics
- */
+// GET /api/v1/drivers/:id/statistics (comprehensive driver statistics)
 router.get('/:id/statistics', authMiddleware, driverController.getDriverStatistics);
+
+// PATCH /api/v1/drivers/:id/status (admin only - update status)
+router.patch('/:id/status', authMiddleware, adminMiddleware, driverController.updateDriverStatus);
+
+// PUT /api/v1/drivers/:id (admin only - update driver profile)
+router.put('/:id', authMiddleware, adminMiddleware, driverController.updateDriver);
+
+// DELETE /api/v1/drivers/:id (admin only - delete driver)
+router.delete('/:id', authMiddleware, adminMiddleware, driverController.deleteDriver);
 
 module.exports = router;

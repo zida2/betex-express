@@ -1,6 +1,6 @@
 /**
  * Authentication Routes
- * User registration, login, and token management
+ * User login, registration, token management
  */
 
 const express = require('express');
@@ -9,39 +9,32 @@ const authController = require('../controllers/authController');
 const { authMiddleware } = require('../middleware/auth.middleware');
 
 /**
- * POST /api/v1/auth/register
- * Register a new user
+ * Public Routes
  */
-router.post('/register', authController.register);
 
-/**
- * POST /api/v1/auth/login
- * User login
- */
+// POST /api/v1/auth/login
 router.post('/login', authController.login);
 
+// POST /api/v1/auth/register
+router.post('/register', authController.register);
+
+// POST /api/v1/auth/refresh
+router.post('/refresh', authController.refresh);
+
 /**
- * POST /api/v1/auth/logout
- * User logout
+ * Protected Routes (require authentication)
  */
+
+// GET /api/v1/auth/me
+router.get('/me', authMiddleware, authController.getMe);
+
+// POST /api/v1/auth/logout
 router.post('/logout', authMiddleware, authController.logout);
 
-/**
- * GET /api/v1/auth/me
- * Get current user profile
- */
-router.get('/me', authMiddleware, authController.getProfile);
+// GET /api/v1/auth/users
+router.get('/users', authMiddleware, authController.listUsers);
 
-/**
- * PUT /api/v1/auth/profile
- * Update user profile
- */
-router.put('/profile', authMiddleware, authController.updateProfile);
-
-/**
- * POST /api/v1/auth/change-password
- * Change password
- */
-router.post('/change-password', authMiddleware, authController.changePassword);
+// GET /api/v1/auth/clients-with-activity
+router.get('/clients-with-activity', authMiddleware, authController.getClientsWithActivity);
 
 module.exports = router;

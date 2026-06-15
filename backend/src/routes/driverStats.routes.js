@@ -6,10 +6,10 @@
 const express = require('express');
 const router = express.Router();
 const driverStatsController = require('../controllers/driverStatsController');
-const authMiddleware = require('../middleware/auth.middleware');
+const { authMiddleware } = require('../middleware/auth.middleware');
 
 // Apply auth middleware to all routes
-router.use(authMiddleware.authenticateToken);
+router.use(authMiddleware);
 
 /**
  * GET /drivers/:driverId/statistics

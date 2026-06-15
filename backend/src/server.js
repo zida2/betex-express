@@ -13,7 +13,7 @@ const socketIo = require('socket.io');
 
 // Import configuration
 const logger = require('./utils/logger');
-const { sequelize } = require('./models');
+const { sequelize, Announcement } = require('./models');
 
 // Import routes
 const authRoutes = require('./routes/auth.routes');
@@ -27,6 +27,18 @@ const stockRoutes = require('./routes/stock.routes');
 const optimizationRoutes = require('./routes/optimization.routes');
 const driverStatsRoutes = require('./routes/driverStats.routes');
 const deliveryRequestsRoutes = require('./routes/deliveryRequests.routes');
+const migrationRoutes = require('./routes/migration.routes');
+const announcementsRoutes = require('./routes/announcements.routes');
+const pricingRoutes = require('./routes/pricing.routes');
+
+// New routes for logistics platform
+const clientStockRoutes = require('./routes/clientStock.routes');
+const storageRoutes = require('./routes/storage.routes');
+const expenseRoutes = require('./routes/expense.routes');
+const shipmentRoutes = require('./routes/shipment.routes');
+const scheduledDeliveryRoutes = require('./routes/scheduledDelivery.routes');
+const financialRoutes = require('./routes/financial.routes');
+const revenueRoutes = require('./routes/revenue.routes');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler.middleware');
@@ -54,6 +66,9 @@ app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(requestLogger);
+
+// Serve static files
+app.use('/uploads', express.static('uploads'));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -92,6 +107,18 @@ app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/stock', stockRoutes);
 app.use('/api/v1/optimization', optimizationRoutes);
 app.use('/api/v1/delivery-requests', deliveryRequestsRoutes);
+app.use('/api/v1/migration', migrationRoutes);
+
+// New logistics platform routes
+app.use('/api/v1/client-stock', clientStockRoutes);
+app.use('/api/v1/storage', storageRoutes);
+app.use('/api/v1/expenses', expenseRoutes);
+app.use('/api/v1/shipments', shipmentRoutes);
+app.use('/api/v1/scheduled-deliveries', scheduledDeliveryRoutes);
+app.use('/api/v1/financial', financialRoutes);
+app.use('/api/v1/announcements', announcementsRoutes);
+app.use('/api/v1/revenue', revenueRoutes);
+app.use('/api/v1/pricing', pricingRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -112,6 +139,8 @@ require('./socket/socketHandler')(io);
 // Database synchronization and server startup
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
+// Redémarrage du serveur - tentative finale
+
 
 const startServer = async () => {
   try {
@@ -119,9 +148,13 @@ const startServer = async () => {
     await sequelize.authenticate();
     logger.info('Database connection established');
 
-    // Sync database models
-    await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
-    logger.info('Database models synchronized');
+    // Sync Announcement table (without alter to avoid constraint issues)
+    try {
+      await Announcement.sync();
+      logger.info('Announcement table synced successfully');
+    } catch (syncError) {
+      logger.warn('Announcement table sync warning (continuing anyway):', syncError.message);
+    }
 
     // Start server
     server.listen(PORT, HOST, () => {
@@ -168,3 +201,4 @@ process.on('SIGINT', gracefulShutdown);
 startServer();
 
 module.exports = { app, server, io };
+// End of server.js

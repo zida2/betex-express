@@ -12,6 +12,12 @@ const { authMiddleware } = require('../middleware/auth.middleware');
 router.use(authMiddleware);
 
 /**
+ * GET /api/v1/stock/products
+ * Get all products
+ */
+router.get('/products', stockController.getAllProducts);
+
+/**
  * GET /api/v1/stock/alerts/low
  * Get low stock alerts
  */

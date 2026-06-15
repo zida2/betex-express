@@ -1,12 +1,12 @@
 /**
- * Delivery Requests Management Page
- * Admin can view, edit, and send delivery requests to drivers
- * Handles both Express and Scheduled delivery types
+ * Delivery Requests Management Page - Modal Version
+ * Small cards with modal for details and editing
  */
 
 import React, { useState, useEffect } from 'react';
-import api from '../services/api';
+import { getDeliveryRequests, getDrivers, updateDeliveryRequest, createPackage } from '../services/firebaseService';
 import '../styles/DeliveryRequestsPage.css';
+import '../styles/PageLayout.css';
 
 const DeliveryRequestsPage = () => {
   const [requests, setRequests] = useState([]);
@@ -14,197 +14,17 @@ const DeliveryRequestsPage = () => {
   const [loading, setLoading] = useState(false);
   const [driversLoading, setDriversLoading] = useState(true);
   const [filter, setFilter] = useState('all');
-  const [deliveryTypeFilter, setDeliveryTypeFilter] = useState('all'); // 'express', 'scheduled', 'all'
+  const [deliveryTypeFilter, setDeliveryTypeFilter] = useState('all');
   const [message, setMessage] = useState('');
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [suggestedDriver, setSuggestedDriver] = useState(null);
   const [editData, setEditData] = useState({
     deliveryPrice: '',
     driverId: '',
     adminNotes: '',
     timeSlotId: ''
   });
-
-  // Mock data for testing
-  const mockDeliveryRequests = [
-    {
-      id: 'req-001',
-      senderName: 'Ahmed Diallo',
-      senderPhone: '+226 70 50 50 50',
-      senderAddress: 'Quartier 1, Ouagadougou',
-      senderLatitude: 12.3656,
-      senderLongitude: -1.5197,
-      receiverName: 'Fatou Coulibaly',
-      receiverPhone: '+226 70 60 60 60',
-      receiverAddress: 'Secteur 4, Ouagadougou',
-      receiverLatitude: 12.3700,
-      receiverLongitude: -1.5250,
-      packageType: 'colis',
-      packagePrice: 50000,
-      weight: 2.5,
-      notes: 'Colis fragile - à manipuler avec soin',
-      deliveryOption: 'express',
-      distance: 5.2,
-      status: 'pending_approval',
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'req-002',
-      senderName: 'Amadou Traore',
-      senderPhone: '+226 70 70 70 70',
-      senderAddress: 'Centre-ville, Ouagadougou',
-      senderLatitude: 12.3656,
-      senderLongitude: -1.5197,
-      receiverName: 'Mariam Ndiaye',
-      receiverPhone: '+226 70 80 80 80',
-      receiverAddress: 'Zone Nord, Ouagadougou',
-      receiverLatitude: 12.4100,
-      receiverLongitude: -1.5300,
-      packageType: 'nourriture',
-      packagePrice: 0,
-      weight: 1.0,
-      notes: 'Livraison de repas - prioritaire',
-      deliveryOption: 'express',
-      distance: 8.5,
-      status: 'pending_approval',
-      createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'req-003',
-      senderName: 'Ibrahim Sow',
-      senderPhone: '+226 70 90 90 90',
-      senderAddress: 'Quartier 2, Ouagadougou',
-      senderLatitude: 12.3550,
-      senderLongitude: -1.5150,
-      receiverName: 'Sophie Kabore',
-      receiverPhone: '+226 70 15 15 15',
-      receiverAddress: 'Secteur 5, Ouagadougou',
-      receiverLatitude: 12.3200,
-      receiverLongitude: -1.5000,
-      packageType: 'document',
-      packagePrice: 0,
-      weight: 0.2,
-      notes: 'Documents administratifs importants',
-      deliveryOption: 'express',
-      distance: 6.3,
-      status: 'pending_approval',
-      createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'req-004',
-      senderName: 'Alassane Samba',
-      senderPhone: '+226 70 25 25 25',
-      senderAddress: 'Centre Commercial, Ouagadougou',
-      senderLatitude: 12.3656,
-      senderLongitude: -1.5197,
-      receiverName: 'Ismail Jallo',
-      receiverPhone: '+226 70 35 35 35',
-      receiverAddress: 'Secteur 6, Ouagadougou',
-      receiverLatitude: 12.3100,
-      receiverLongitude: -1.5050,
-      packageType: 'colis',
-      packagePrice: 75000,
-      weight: 3.0,
-      notes: 'Équipement électronique - emballage sécurisé demandé',
-      deliveryOption: 'scheduled',
-      timeSlot: 'Créneau du matin (09:00 - 12:00)',
-      zone: 'Zone Centre-Ville',
-      zonePrice: 1500,
-      status: 'pending_approval',
-      createdAt: new Date(Date.now() - 15 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'req-005',
-      senderName: 'Fanta Diallo',
-      senderPhone: '+226 70 45 45 45',
-      senderAddress: 'Quartier Résidentiel, Ouagadougou',
-      senderLatitude: 12.3750,
-      senderLongitude: -1.5300,
-      receiverName: 'Moussa Ouedraogo',
-      receiverPhone: '+226 70 55 55 55',
-      receiverAddress: 'Zone Centre-Ville, Ouagadougou',
-      receiverLatitude: 12.3656,
-      receiverLongitude: -1.5197,
-      packageType: 'other',
-      packagePrice: 25000,
-      weight: 1.5,
-      notes: 'Colis standard - livraison flexible',
-      deliveryOption: 'scheduled',
-      timeSlot: 'Créneau de l\'après-midi (14:00 - 17:00)',
-      zone: 'Zone Secteur 1-2',
-      zonePrice: 1200,
-      status: 'pending_approval',
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'req-006',
-      senderName: 'Hassane Diop',
-      senderPhone: '+226 70 65 65 65',
-      senderAddress: 'Marché Central, Ouagadougou',
-      senderLatitude: 12.3600,
-      senderLongitude: -1.5200,
-      receiverName: 'Aïssatou Bah',
-      receiverPhone: '+226 70 75 75 75',
-      receiverAddress: 'Kyassa, Ouagadougou',
-      receiverLatitude: 12.4200,
-      receiverLongitude: -1.5250,
-      packageType: 'nourriture',
-      packagePrice: 0,
-      weight: 2.0,
-      notes: 'Denrées alimentaires fraiches - livraison rapide',
-      deliveryOption: 'express',
-      distance: 4.7,
-      status: 'approved',
-      driverId: 'driver-1',
-      driverName: 'Amadou Traore',
-      driverPhone: '+226 70 50 50 50',
-      deliveryPrice: 1675,
-      approvedAt: new Date(Date.now() - 3 * 60 * 1000).toISOString()
-    },
-    {
-      id: 'req-007',
-      senderName: 'Yacouba Traore',
-      senderPhone: '+226 70 85 85 85',
-      senderAddress: 'Zone Industrielle, Ouagadougou',
-      senderLatitude: 12.3500,
-      senderLongitude: -1.5400,
-      receiverName: 'Oumou Cisse',
-      receiverPhone: '+226 70 95 95 95',
-      receiverAddress: 'Quartier Administratif, Ouagadougou',
-      receiverLatitude: 12.3750,
-      receiverLongitude: -1.5150,
-      packageType: 'document',
-      packagePrice: 0,
-      weight: 0.5,
-      notes: 'Dossier pour signature officielle',
-      deliveryOption: 'express',
-      distance: 3.2,
-      status: 'rejected',
-      rejectReason: 'Adresse destinataire incomplète'
-    },
-    {
-      id: 'req-008',
-      senderName: 'Mariama Kone',
-      senderPhone: '+226 70 11 11 11',
-      senderAddress: 'Secteur 1, Ouagadougou',
-      senderLatitude: 12.3550,
-      senderLongitude: -1.5250,
-      receiverName: 'Adama Sow',
-      receiverPhone: '+226 70 22 22 22',
-      receiverAddress: 'Secteur 3, Ouagadougou',
-      receiverLatitude: 12.3400,
-      receiverLongitude: -1.5300,
-      packageType: 'fragile',
-      packagePrice: 120000,
-      weight: 5.0,
-      notes: 'Équipement fragile - manipulation délicate requise',
-      deliveryOption: 'scheduled',
-      timeSlot: 'Créneau du matin (09:00 - 12:00)',
-      zone: 'Zone Secteur 5-6',
-      zonePrice: 1000,
-      status: 'pending_approval',
-      createdAt: new Date().toISOString()
-    }
-  ];
 
   useEffect(() => {
     loadRequests();
@@ -214,20 +34,12 @@ const DeliveryRequestsPage = () => {
   const loadRequests = async () => {
     try {
       setLoading(true);
-      // Try to load from API first
-      try {
-        const response = await api.get('/delivery-requests');
-        console.log('API Response:', response.data.data);
-        setRequests(response.data.data || mockDeliveryRequests);
-      } catch (error) {
-        // If API fails, use mock data
-        console.warn('API failed, using mock delivery requests:', mockDeliveryRequests.length);
-        setRequests(mockDeliveryRequests);
-      }
+      const data = await getDeliveryRequests();
+      setRequests(data || []);
     } catch (error) {
       console.error('Failed to load requests:', error);
-      console.log('Setting mock data as fallback:', mockDeliveryRequests.length);
-      setRequests(mockDeliveryRequests);
+      setMessage('❌ Erreur de chargement des demandes');
+      setRequests([]);
     } finally {
       setLoading(false);
     }
@@ -236,21 +48,12 @@ const DeliveryRequestsPage = () => {
   const loadDrivers = async () => {
     try {
       setDriversLoading(true);
-      // Try to load from API first
-      try {
-        const response = await api.get('/drivers');
-        setDrivers(response.data.data || []);
-      } catch (error) {
-        // Mock drivers if API fails
-        setDrivers([
-          { id: 'driver-1', name: 'Amadou Traore', phone: '+226 70 50 50 50', status: 'available' },
-          { id: 'driver-2', name: 'Fatoumata Diallo', phone: '+226 70 60 60 60', status: 'available' },
-          { id: 'driver-3', name: 'Ibrahim Sow', phone: '+226 70 70 70 70', status: 'available' },
-          { id: 'driver-4', name: 'Sophie Sanou', phone: '+226 70 80 80 80', status: 'busy' }
-        ]);
-      }
+      const data = await getDrivers();
+      setDrivers(data || []);
     } catch (error) {
       console.error('Failed to load drivers:', error);
+      setMessage('⚠️ Erreur de chargement des livreurs');
+      setDrivers([]);
     } finally {
       setDriversLoading(false);
     }
@@ -265,20 +68,81 @@ const DeliveryRequestsPage = () => {
     }
 
     if (deliveryTypeFilter !== 'all') {
-      typeMatch = req.deliveryOption === deliveryTypeFilter;
+      typeMatch = req.deliveryType === deliveryTypeFilter;
     }
 
     return statusMatch && typeMatch;
   });
 
+  // Calculate distance between two coordinates (Haversine formula)
+  const calculateDistance = (lat1, lng1, lat2, lng2) => {
+    const R = 6371; // Earth radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLng/2) * Math.sin(dLng/2); 
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    return R * c; // Distance in km
+  };
+
+  const findNearestDriver = (request) => {
+    if (!drivers.length || !request.senderLat || !request.senderLng) {
+      setSuggestedDriver(null);
+      return null;
+    }
+
+    let nearestDriver = null;
+    let minDistance = Infinity;
+
+    drivers.forEach(driver => {
+      if (driver.currentLat && driver.currentLng) {
+        const distance = calculateDistance(
+          request.senderLat,
+          request.senderLng,
+          driver.currentLat,
+          driver.currentLng
+        );
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearestDriver = { ...driver, distance: distance.toFixed(2) };
+        }
+      }
+    });
+
+    setSuggestedDriver(nearestDriver);
+    return nearestDriver;
+  };
+
   const handleSelectRequest = (request) => {
     setSelectedRequest(request);
-    setEditData({
-      deliveryPrice: request.deliveryPrice || '',
-      driverId: request.driverId || '',
-      adminNotes: request.adminNotes || '',
-      timeSlotId: request.timeSlotId || ''
-    });
+    setShowModal(true);
+
+    // Find nearest driver for any delivery type with sender coordinates
+    if (request.senderLat && request.senderLng) {
+      const nearest = findNearestDriver(request);
+      
+      setEditData({
+        deliveryPrice: request.deliveryPrice || (request.distanceKm ? Math.round(500 + (request.distanceKm * 250)) : ''),
+        driverId: nearest ? nearest.id : request.driverId || '',
+        adminNotes: request.adminNotes || '',
+        timeSlotId: request.timeSlotId || ''
+      });
+    } else {
+      setEditData({
+        deliveryPrice: request.deliveryPrice || '',
+        driverId: request.driverId || '',
+        adminNotes: request.adminNotes || '',
+        timeSlotId: request.timeSlotId || ''
+      });
+      setSuggestedDriver(null);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedRequest(null);
   };
 
   const handleEditChange = (e) => {
@@ -295,424 +159,533 @@ const DeliveryRequestsPage = () => {
       return;
     }
 
-    if (selectedRequest.deliveryOption === 'express' && !editData.driverId) {
-      setMessage('❌ Veuillez sélectionner un livreur pour Express');
-      return;
-    }
-
-    if (selectedRequest.deliveryOption === 'scheduled' && !editData.timeSlotId) {
-      setMessage('❌ Veuillez sélectionner un créneau horaire');
+    if (!selectedRequest.receiverLat || !selectedRequest.receiverLng) {
+      setMessage('❌ La localisation du destinataire est requise pour approuver');
       return;
     }
 
     try {
-      const selectedDriver = drivers.find(d => d.id == editData.driverId);
+      // Trouver le livreur sélectionné pour avoir son nom
+      const selectedDriver = drivers.find(d => d.id === editData.driverId);
       
-      const updatedRequest = {
-        ...selectedRequest,
-        ...editData,
+      // Mettre à jour la demande de livraison
+      await updateDeliveryRequest(selectedRequest.id, {
+        driverId: editData.driverId || null,
+        driverName: selectedDriver?.name || null,
+        adminNotes: editData.adminNotes || '',
+        deliveryPrice: editData.deliveryPrice,
         status: 'approved',
-        approvedAt: new Date().toISOString(),
-        ...(selectedRequest.deliveryOption === 'express' && {
-          driverId: parseInt(editData.driverId),
+        approvedAt: new Date()
+      });
+      
+      // Créer un nouveau package pour cette demande (si un livreur est assigné)
+      if (editData.driverId) {
+        await createPackage({
+          customerName: selectedRequest.receiverName,
+          customerPhone: selectedRequest.receiverPhone,
+          address: selectedRequest.receiverAddress,
+          senderName: selectedRequest.senderName,
+          senderPhone: selectedRequest.senderPhone,
+          senderAddress: selectedRequest.senderAddress,
+          senderLatitude: selectedRequest.senderLat,
+          senderLongitude: selectedRequest.senderLng,
+          deliveryLatitude: selectedRequest.receiverLat,
+          deliveryLongitude: selectedRequest.receiverLng,
+          packageType: selectedRequest.description || 'Colis',
+          packagePrice: selectedRequest.packagePrice || 0,
+          weight: selectedRequest.weight || null,
+          notes: selectedRequest.adminNotes || '',
+          deliveryOption: selectedRequest.deliveryType,
+          deliveryPrice: editData.deliveryPrice,
+          driverId: editData.driverId,
           driverName: selectedDriver?.name,
-          driverPhone: selectedDriver?.phone
-        })
-      };
+          status: 'assigned'
+        });
+      }
 
-      setRequests(requests.map(req => 
-        req.id === selectedRequest.id ? updatedRequest : req
-      ));
-
+      await loadRequests();
+      
+      // Envoyer notification WhatsApp au client seulement si un livreur est assigné
+      if (editData.driverId) {
+        await sendClientNotification(selectedRequest, editData.driverId);
+      }
+      
       setMessage('✅ Demande approuvée avec succès!');
+      setShowModal(false);
       setSelectedRequest(null);
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
-      setMessage('❌ Erreur lors de l\'approbation');
+      setMessage(`❌ Erreur lors de l'approbation: ${error.message}`);
       console.error('Error:', error);
+    }
+  };
+
+  const sendClientNotification = async (request, driverId) => {
+    try {
+      // Récupérer les infos du livreur
+      const driver = drivers.find(d => d.id === driverId);
+      
+      if (driver && request.senderPhone) {
+        const clientMessage = encodeURIComponent(
+          `🛵 *BETEX EXPRESS* - Confirmation de Livraison\n` +
+          `═══════════════════════════════════\n\n` +
+          `Bonjour ${request.senderName},\n\n` +
+          `🎉 *EXCELLENTE NOUVELLE !*\n` +
+          `Votre demande de livraison a été approuvée et prise en charge.\n\n` +
+          
+          `📦 *RÉCAPITULATIF DE VOTRE ENVOI*\n` +
+          `┌─────────────────────────────┐\n` +
+          `│ Destinataire : ${request.receiverName}\n` +
+          `│ Téléphone : ${request.receiverPhone}\n` +
+          `│ Description : ${request.description || 'Non spécifiée'}\n` +
+          `│ Poids : ${request.weight ? request.weight + ' kg' : 'Non spécifié'}\n` +
+          `│ Type : ${request.deliveryType === 'express' ? '🚀 Express' : '📅 Programmée'}\n` +
+          `│ Frais de livraison : ${editData.deliveryPrice} FCFA\n` +
+          `└─────────────────────────────┘\n\n` +
+          
+          `🚚 *VOTRE LIVREUR ASSIGNÉ*\n` +
+          `┌─────────────────────────────┐\n` +
+          `│ Nom : ${driver.name}\n` +
+          `│ Téléphone : ${driver.phone}\n` +
+          `│ Véhicule : ${driver.vehicleType || 'Moto'}\n` +
+          `└─────────────────────────────┘\n\n` +
+          
+          `🚀 *PROCHAINES ÉTAPES*\n` +
+          `• Votre livreur va bientôt commencer sa mission\n` +
+          `• Il vous contactera avant la collecte\n` +
+          `• Suivez l'évolution via notre système\n\n` +
+          
+          `📞 *CONTACT LIVREUR*\n` +
+          `Vous pouvez contacter directement votre livreur au : ${driver.phone}\n\n` +
+          
+          `📍 *SUIVI EN TEMPS RÉEL*\n` +
+          `Votre colis sera suivi tout au long de sa livraison.\n\n` +
+          
+          `Merci de votre confiance,\n` +
+          `*L'équipe BETEX EXPRESS* 🚚💨\n` +
+          `_Livraison rapide et sécurisée_`
+        );
+        
+        const clientPhone = request.senderPhone.replace(/\s+/g, '').replace(/\+/g, '');
+        const whatsappUrl = `https://wa.me/${clientPhone}?text=${clientMessage}`;
+        
+        console.log('Client notification prepared:', whatsappUrl);
+      }
+    } catch (error) {
+      console.error('Error preparing client notification:', error);
     }
   };
 
   const handleReject = async () => {
-    const rejectReason = prompt('Raison du rejet:');
-    if (!rejectReason) return;
+    const rejectionReason = prompt('Raison du rejet:');
+    if (!rejectionReason) return;
 
     try {
-      setRequests(requests.map(req => 
-        req.id === selectedRequest.id 
-          ? { ...req, status: 'rejected', rejectReason }
-          : req
-      ));
+      await updateDeliveryRequest(selectedRequest.id, {
+        rejectionReason,
+        status: 'rejected'
+      });
+
+      await loadRequests();
       setMessage('❌ Demande rejetée');
+      setShowModal(false);
       setSelectedRequest(null);
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
-      setMessage('❌ Erreur lors du rejet');
+      setMessage(`❌ Erreur lors du rejet: ${error.message}`);
       console.error('Error:', error);
     }
   };
 
-  const getDeliveryTypeLabel = (type) => {
-    return type === 'express' ? '🚀 Express' : '📅 Programmée';
+  const handleGenerateLocationLink = (request) => {
+    // Générer un token unique pour cette demande
+    const locationToken = btoa(`${request.id}-${Date.now()}`);
+    
+    // Créer le lien de localisation
+    const locationLink = `${window.location.origin}/location/${locationToken}`;
+    
+    // Formater le message WhatsApp professionnel avec tous les détails
+    const whatsappMessage = encodeURIComponent(
+      `BETEX EXPRESS - Service de Livraison\n` +
+      `=======================================\n\n` +
+      `Bonjour ${request.receiverName},\n\n` +
+      `Vous avez un colis en attente de livraison :\n\n` +
+      
+      `DETAILS DU COLIS\n` +
+      `-------------------------------\n` +
+      `Expediteur : ${request.senderName}\n` +
+      `Telephone : ${request.senderPhone}\n` +
+      `Description : ${request.description || 'Non specifiee'}\n` +
+      `Poids : ${request.weight ? request.weight + ' kg' : 'Non specifie'}\n` +
+      `Valeur : ${request.packagePrice ? request.packagePrice.toLocaleString() + ' FCFA' : 'Non specifiee'}\n` +
+      `Type : ${request.deliveryType === 'express' ? 'EXPRESS' : 'PROGRAMMEE'}\n` +
+      (request.deliveryPrice ? `Frais livraison : ${request.deliveryPrice.toLocaleString()} FCFA\n` : '') +
+      (request.scheduledDate ? `Date prevue : ${new Date(request.scheduledDate).toLocaleDateString('fr-FR')}\n` : '') +
+      (request.timeSlot ? `Creneau : ${request.timeSlot}\n` : '') +
+      `-------------------------------\n\n` +
+      
+      `LOCALISATION REQUISE\n` +
+      `Pour que notre livreur puisse vous trouver facilement, nous avons besoin de votre position GPS precise.\n\n` +
+      
+      `ETAPES A SUIVRE :\n` +
+      `1. Cliquez sur le lien ci-dessous\n` +
+      `2. Autorisez l'acces a votre localisation\n` +
+      `3. Votre position sera automatiquement enregistree\n\n` +
+      
+      `LIEN SECURISE :\n` +
+      `${locationLink}\n\n` +
+      
+      `IMPORTANT :\n` +
+      `- Ce lien est valide pendant 7 jours\n` +
+      `- Votre localisation est securisee et confidentielle\n` +
+      `- Une fois votre position enregistree, nous traiterons rapidement votre livraison\n\n` +
+      
+      `BESOIN D'AIDE ?\n` +
+      `Contactez-nous au : +225 XX XX XX XX\n\n` +
+      
+      `Merci de votre confiance,\n` +
+      `L'equipe BETEX EXPRESS\n` +
+      `Livraison rapide et securisee`
+    );
+    
+    // Nettoyer le numéro de téléphone (enlever espaces et garder uniquement les chiffres)
+    const cleanPhone = request.receiverPhone.replace(/\s+/g, '').replace(/\+/g, '');
+    
+    // Ouvrir WhatsApp avec le message pré-rempli
+    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${whatsappMessage}`;
+    
+    // Sauvegarder le token dans la base de données
+    saveLocationToken(request.id, locationToken);
+    
+    // Ouvrir WhatsApp dans un nouvel onglet
+    window.open(whatsappUrl, '_blank');
+    
+    setMessage('✅ Message WhatsApp professionnel généré avec tous les détails du colis! Le destinataire peut maintenant partager sa localisation.');
+    setTimeout(() => setMessage(''), 6000);
   };
 
-  const getPricingInfo = (request) => {
-    if (request.deliveryOption === 'express') {
-      return `Distance: ${request.distance}km | Prix estimé: ${500 + (request.distance * 250)} FCFA`;
-    } else {
-      return `Zone: ${request.zone} | Prix fixe: ${request.zonePrice} FCFA`;
+  const saveLocationToken = async (requestId, token) => {
+    try {
+      await updateDeliveryRequest(requestId, { locationToken: token });
+    } catch (error) {
+      console.error('Error saving location token:', error);
     }
   };
 
   return (
-    <div className="delivery-requests-page">
-      <header className="requests-header">
-        <h1>📋 Gestion des Demandes de Livraison Client</h1>
-        <p>Approuvez, complétez les informations et envoyez au livreur</p>
+    <div className="page-layout delivery-requests-page">
+      <header className="page-header requests-header">
+        <h1>📋 Demandes de Livraison</h1>
+        <p>Cliquez sur une carte pour voir les détails et approuver</p>
       </header>
 
-      {message && (
-        <div className={`alert ${message.includes('❌') ? 'error' : 'success'}`}>
-          {message}
-        </div>
-      )}
+      <div className="page-content">
+        {message && (
+          <div className={`alert ${message.includes('❌') ? 'error' : 'success'}`}>
+            {message}
+          </div>
+        )}
 
-      {/* Filters Section */}
-      <div className="filters">
-        <div className="filter-group">
-          <label>🔍 État de la demande</label>
-          <button
-            className={`filter-btn ${filter === 'pending_approval' ? 'active' : ''}`}
-            onClick={() => setFilter('pending_approval')}
-            title="Demandes en attente d'approbation"
-          >
-            ⏳ En attente <span style={{fontSize: '0.75rem', opacity: 0.8}}>({requests.filter(r => r.status === 'pending_approval').length})</span>
-          </button>
-          <button
-            className={`filter-btn ${filter === 'approved' ? 'active' : ''}`}
-            onClick={() => setFilter('approved')}
-            title="Demandes approuvées"
-          >
-            ✅ Approuvées <span style={{fontSize: '0.75rem', opacity: 0.8}}>({requests.filter(r => r.status === 'approved').length})</span>
-          </button>
-          <button
-            className={`filter-btn ${filter === 'rejected' ? 'active' : ''}`}
-            onClick={() => setFilter('rejected')}
-            title="Demandes rejetées"
-          >
-            ❌ Rejetées <span style={{fontSize: '0.75rem', opacity: 0.8}}>({requests.filter(r => r.status === 'rejected').length})</span>
-          </button>
-          <button
-            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-            onClick={() => setFilter('all')}
-            title="Toutes les demandes"
-          >
-            📊 Toutes <span style={{fontSize: '0.75rem', opacity: 0.8}}>({requests.length})</span>
+        {/* Filtres Compacts */}
+        <div className="filters-compact">
+          <div className="filter-inline">
+            <label>État:</label>
+            <select 
+              className="filter-select"
+              value={filter} 
+              onChange={(e) => setFilter(e.target.value)}
+            >
+              <option value="all">📊 Toutes ({requests.length})</option>
+                      <option value="pending">⏳ En attente ({requests.filter(r => r.status === 'pending').length})</option>
+                      <option value="approved">✅ Approuvées ({requests.filter(r => r.status === 'approved').length})</option>
+                      <option value="rejected">❌ Rejetées ({requests.filter(r => r.status === 'rejected').length})</option>
+            </select>
+          </div>
+
+          <div className="filter-inline">
+            <label>Type:</label>
+            <select 
+              className="filter-select"
+              value={deliveryTypeFilter} 
+              onChange={(e) => setDeliveryTypeFilter(e.target.value)}
+            >
+              <option value="all">📦 Tous</option>
+              <option value="express">🚀 Express ({requests.filter(r => r.deliveryType === 'express').length})</option>
+              <option value="scheduled">📅 Programmée ({requests.filter(r => r.deliveryType === 'scheduled').length})</option>
+            </select>
+          </div>
+
+          <button className="btn-refresh" onClick={loadRequests} title="Actualiser">
+            🔄 Actualiser
           </button>
         </div>
 
-        <div className="filter-group">
-          <label>🚚 Type de livraison</label>
-          <button
-            className={`filter-btn ${deliveryTypeFilter === 'express' ? 'active' : ''}`}
-            onClick={() => setDeliveryTypeFilter('express')}
-            title="Livraisons express - Basé sur la distance"
-          >
-            🚀 Express <span style={{fontSize: '0.75rem', opacity: 0.8}}>({requests.filter(r => r.deliveryOption === 'express').length})</span>
-          </button>
-          <button
-            className={`filter-btn ${deliveryTypeFilter === 'scheduled' ? 'active' : ''}`}
-            onClick={() => setDeliveryTypeFilter('scheduled')}
-            title="Livraisons programmées - Créneau horaire"
-          >
-            📅 Programmée <span style={{fontSize: '0.75rem', opacity: 0.8}}>({requests.filter(r => r.deliveryOption === 'scheduled').length})</span>
-          </button>
-          <button
-            className={`filter-btn ${deliveryTypeFilter === 'all' ? 'active' : ''}`}
-            onClick={() => setDeliveryTypeFilter('all')}
-            title="Tous les types de livraison"
-          >
-            📦 Tous les types
-          </button>
-        </div>
+        {/* Grille de mini-cartes */}
+        <main className="requests-content">
+          {loading ? (
+            <div className="loading">⏳ Chargement...</div>
+          ) : filteredRequests.length === 0 ? (
+            <div className="no-data">Aucune demande pour ce filtre</div>
+          ) : (
+            <div className="requests-grid">
+              {filteredRequests.map(request => (
+                <div
+                  key={request.id}
+                  className={`mini-card status-${request.status}`}
+                  onClick={() => handleSelectRequest(request)}
+                >
+                  <div className="mini-card-top">
+                    <div className="status-dot"></div>
+                    <div className="mini-type">
+                      {request.deliveryType === 'express' ? '🚀' : '📅'}
+                    </div>
+                    <div className="mini-id">#{request.id.substring(0, 6)}</div>
+                  </div>
+                  
+                  <div className="mini-card-main">
+                    <div className="mini-name">
+                      <span className="mini-icon">📤</span>
+                      <span>{request.senderName}</span>
+                    </div>
+                    <div className="mini-arrow">→</div>
+                    <div className="mini-name">
+                      <span className="mini-icon">📥</span>
+                      <span>{request.receiverName}</span>
+                    </div>
+                  </div>
+
+                  <div className="mini-card-bottom">
+                    {request.deliveryPrice != null && (
+                      <span className="mini-price">{Number(request.deliveryPrice).toLocaleString()} FCFA</span>
+                    )}
+                    {request.status === 'pending' && (!request.receiverLat || !request.receiverLng) && (
+                      <span className="location-alert">📍</span>
+                    )}
+                    {request.senderQuartier && (
+                      <span className="mini-quartier">{request.senderQuartier}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </main>
       </div>
 
-      <main className="requests-content">
-        <div className="requests-layout">
-          {/* List View */}
-          <div className="requests-list-panel">
-            {loading ? (
-              <div className="loading">Chargement...</div>
-            ) : filteredRequests.length === 0 ? (
-              <div className="no-data">Aucune demande pour ce filtre</div>
-            ) : (
-              <div className="requests-list">
-                {filteredRequests.map(request => (
-                  <div
-                    key={request.id}
-                    className={`request-item-preview ${selectedRequest?.id === request.id ? 'active' : ''} status-${request.status} type-${request.deliveryOption}`}
-                    onClick={() => handleSelectRequest(request)}
-                  >
-                    <div className="preview-header">
-                      <div>
-                        <h4>#{request.id}</h4>
-                        <span className="delivery-type-badge">{getDeliveryTypeLabel(request.deliveryOption)}</span>
-                      </div>
-                      <span className={`status-badge status-${request.status}`}>
-                        {request.status === 'pending_approval' && '⏳'}
-                        {request.status === 'approved' && '✅'}
-                        {request.status === 'rejected' && '❌'}
-                      </span>
-                    </div>
-                    <p className="preview-text"><strong>{request.receiverName}</strong></p>
-                    <p className="preview-text">☎️ {request.receiverPhone}</p>
-                    <p className="preview-text">📍 {request.receiverAddress || 'Non spécifié'}</p>
-                    <p className="preview-pricing">{getPricingInfo(request)}</p>
-                  </div>
-                ))}
+      {/* Modal pour détails et édition */}
+      {showModal && selectedRequest && (
+        <div className="modal-overlay" onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <h2>#{selectedRequest.id.substring(0, 8)}</h2>
+                <span className={`type-badge-modal type-${selectedRequest.deliveryType}`}>
+                  {selectedRequest.deliveryType === 'express' ? '🚀 Express' : '📅 Programmée'}
+                </span>
               </div>
-            )}
-          </div>
+              <button className="btn-close-modal" onClick={handleCloseModal}>✕</button>
+            </div>
 
-          {/* Detail View */}
-          <div className="request-detail-panel">
-            {selectedRequest ? (
-              <div className="detail-form">
-                <div className="detail-header">
-                  <div>
-                    <h2>Demande #{selectedRequest.id}</h2>
-                    <span className="delivery-type-badge large">{getDeliveryTypeLabel(selectedRequest.deliveryOption)}</span>
-                  </div>
-                  <button className="btn-close" onClick={() => setSelectedRequest(null)}>✕</button>
-                </div>
-
-                <div className="detail-sections">
-                  {/* Sender Info */}
-                  <section className="info-section">
-                    <h3>📤 Expéditeur</h3>
-                    <div className="info-group">
-                      <div className="info-field">
-                        <label>Nom</label>
-                        <p>{selectedRequest.senderName}</p>
-                      </div>
-                      <div className="info-field">
-                        <label>Téléphone</label>
-                        <p>{selectedRequest.senderPhone}</p>
-                      </div>
-                      <div className="info-field">
-                        <label>Adresse</label>
-                        <p>{selectedRequest.senderAddress || 'Non spécifié'}</p>
-                      </div>
-                      {selectedRequest.senderLatitude && selectedRequest.senderLongitude && (
-                        <div className="info-field">
-                          <label>Coordonnées</label>
-                          <p>{selectedRequest.senderLatitude}, {selectedRequest.senderLongitude}</p>
-                        </div>
-                      )}
-                    </div>
-                  </section>
-
-                  {/* Receiver Info */}
-                  <section className="info-section">
-                    <h3>📥 Destinataire</h3>
-                    <div className="info-group">
-                      <div className="info-field">
-                        <label>Nom</label>
-                        <p>{selectedRequest.receiverName}</p>
-                      </div>
-                      <div className="info-field">
-                        <label>Téléphone</label>
-                        <p>{selectedRequest.receiverPhone}</p>
-                      </div>
-                      <div className="info-field">
-                        <label>Adresse</label>
-                        <p>{selectedRequest.receiverAddress || 'Non spécifié'}</p>
-                      </div>
-                      {selectedRequest.receiverLatitude && selectedRequest.receiverLongitude && (
-                        <div className="info-field">
-                          <label>Coordonnées</label>
-                          <p>{selectedRequest.receiverLatitude}, {selectedRequest.receiverLongitude}</p>
-                        </div>
-                      )}
-                    </div>
-                  </section>
-
-                  {/* Package Info */}
-                  <section className="info-section">
-                    <h3>📦 Colis</h3>
-                    <div className="info-group">
-                      <div className="info-field">
-                        <label>Type</label>
-                        <p>{selectedRequest.packageType}</p>
-                      </div>
-                      {selectedRequest.notes && (
-                        <div className="info-field">
-                          <label>Notes</label>
-                          <p>{selectedRequest.notes}</p>
-                        </div>
-                      )}
-                      {selectedRequest.weight && (
-                        <div className="info-field">
-                          <label>Poids</label>
-                          <p>{selectedRequest.weight} kg</p>
-                        </div>
-                      )}
-                      {selectedRequest.packagePrice > 0 && (
-                        <div className="info-field">
-                          <label>Prix du colis</label>
-                          <p>{selectedRequest.packagePrice} FCFA</p>
-                        </div>
-                      )}
-                    </div>
-                  </section>
-
-                  {/* Pricing Info */}
-                  <section className="info-section">
-                    <h3>💰 Informations de Tarification</h3>
-                    <div className="info-group">
-                      {selectedRequest.deliveryOption === 'express' && (
-                        <>
-                          <div className="info-field">
-                            <label>Distance</label>
-                            <p>{selectedRequest.distance} km</p>
-                          </div>
-                          <div className="info-field">
-                            <label>Calcul</label>
-                            <p>500 FCFA + ({selectedRequest.distance} × 250 FCFA/km) = {500 + (selectedRequest.distance * 250)} FCFA</p>
-                          </div>
-                        </>
-                      )}
-                      {selectedRequest.deliveryOption === 'scheduled' && (
-                        <>
-                          <div className="info-field">
-                            <label>Zone</label>
-                            <p>{selectedRequest.zone}</p>
-                          </div>
-                          <div className="info-field">
-                            <label>Créneau</label>
-                            <p>{selectedRequest.timeSlot}</p>
-                          </div>
-                          <div className="info-field">
-                            <label>Prix fixe zone</label>
-                            <p>{selectedRequest.zonePrice} FCFA</p>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </section>
-
-                  {/* Admin Completion Form */}
-                  {selectedRequest.status === 'pending_approval' && (
-                    <section className="edit-section">
-                      <h3>✏️ À Compléter par l'Admin</h3>
-
-                      <div className="form-group">
-                        <label>💰 Prix de la livraison (FCFA) <span className="required">*</span></label>
-                        <input
-                          type="number"
-                          name="deliveryPrice"
-                          value={editData.deliveryPrice}
-                          onChange={handleEditChange}
-                          placeholder={selectedRequest.deliveryOption === 'express' 
-                            ? Math.round(500 + (selectedRequest.distance * 250)) 
-                            : selectedRequest.zonePrice}
-                          min="0"
-                        />
-                      </div>
-
-                      {selectedRequest.deliveryOption === 'express' && (
-                        <div className="form-group">
-                          <label>👨‍🚚 Assigner un livreur <span className="required">*</span></label>
-                          {driversLoading ? (
-                            <div className="loading-small">⏳ Chargement des livreurs...</div>
-                          ) : (
-                            <select
-                              name="driverId"
-                              value={editData.driverId}
-                              onChange={handleEditChange}
-                            >
-                              <option value="">-- Sélectionner un livreur --</option>
-                              {drivers.map(driver => (
-                                <option key={driver.id} value={driver.id}>
-                                  {driver.name} - {driver.phone} ({driver.status})
-                                </option>
-                              ))}
-                            </select>
-                          )}
-                        </div>
-                      )}
-
-                      {selectedRequest.deliveryOption === 'scheduled' && (
-                        <div className="form-group">
-                          <label>⏰ Confirmer le créneau <span className="required">*</span></label>
-                          <select
-                            name="timeSlotId"
-                            value={editData.timeSlotId}
-                            onChange={handleEditChange}
-                          >
-                            <option value="">-- Confirmer le créneau --</option>
-                            <option value="slot-1">Créneau du matin (09:00 - 12:00)</option>
-                            <option value="slot-2">Créneau de l'après-midi (14:00 - 17:00)</option>
-                          </select>
-                        </div>
-                      )}
-
-                      <div className="form-group">
-                        <label>📝 Notes de l'admin</label>
-                        <textarea
-                          name="adminNotes"
-                          value={editData.adminNotes}
-                          onChange={handleEditChange}
-                          placeholder="Notes pour le livreur..."
-                          rows="3"
-                        />
-                      </div>
-
-                      <div className="form-actions">
-                        <button className="btn-approve" onClick={handleApprove}>
-                          ✅ Approuver
-                        </button>
-                        <button className="btn-reject" onClick={handleReject}>
-                          ❌ Rejeter
-                        </button>
-                      </div>
-                    </section>
+            <div className="modal-body">
+              {/* Expéditeur */}
+              <section className="modal-section">
+                <h3>📤 Expéditeur</h3>
+                <div className="info-grid">
+                  <div><label>Nom:</label><p>{selectedRequest.senderName}</p></div>
+                  <div><label>Téléphone:</label><p>{selectedRequest.senderPhone}</p></div>
+                  {selectedRequest.senderQuartier && (
+                    <div><label>🏘️ Quartier:</label><p style={{color: '#00ff88', fontWeight: '600'}}>{selectedRequest.senderQuartier}</p></div>
                   )}
-
-                  {selectedRequest.status === 'rejected' && (
-                    <section className="status-section">
-                      <h3>❌ Demande Rejetée</h3>
-                      <div className="reject-info">
-                        <p><strong>Raison:</strong> {selectedRequest.rejectReason}</p>
-                      </div>
-                    </section>
+                  {selectedRequest.senderZone && (
+                    <div><label>📍 Zone:</label><p style={{color: '#00d4aa'}}>{selectedRequest.senderZone}</p></div>
                   )}
-
-                  {selectedRequest.status === 'approved' && (
-                    <section className="status-section">
-                      <h3>✅ Demande Approuvée</h3>
-                      <div className="approved-info">
-                        {selectedRequest.deliveryOption === 'express' && (
-                          <p><strong>Livreur assigné:</strong> {selectedRequest.driverName} ({selectedRequest.driverPhone})</p>
-                        )}
-                        {selectedRequest.deliveryOption === 'scheduled' && (
-                          <p><strong>Créneau confirmé:</strong> {selectedRequest.timeSlot}</p>
-                        )}
-                        <p><strong>Prix approuvé:</strong> {selectedRequest.deliveryPrice} FCFA</p>
-                        <p><strong>Approuvé le:</strong> {new Date(selectedRequest.approvedAt).toLocaleString('fr-FR')}</p>
-                      </div>
-                    </section>
+                  {selectedRequest.senderAddress && (
+                    <div className="full-width"><label>Adresse:</label><p>{selectedRequest.senderAddress}</p></div>
                   )}
                 </div>
-              </div>
-            ) : (
-              <div className="no-selection">
-                👆 Cliquez sur une demande pour voir les détails
-              </div>
-            )}
+              </section>
+
+              {/* Destinataire */}
+              <section className="modal-section">
+                <h3>📥 Destinataire</h3>
+                <div className="info-grid">
+                  <div><label>Nom:</label><p>{selectedRequest.receiverName}</p></div>
+                  <div><label>Téléphone:</label><p>{selectedRequest.receiverPhone}</p></div>
+                  {selectedRequest.receiverQuartier && (
+                    <div><label>🏘️ Quartier:</label><p style={{color: '#00ff88', fontWeight: '600'}}>{selectedRequest.receiverQuartier}</p></div>
+                  )}
+                  {selectedRequest.receiverZone && (
+                    <div><label>📍 Zone:</label><p style={{color: '#00d4aa'}}>{selectedRequest.receiverZone}</p></div>
+                  )}
+                  {selectedRequest.receiverAddress && (
+                    <div className="full-width"><label>Adresse:</label><p>{selectedRequest.receiverAddress}</p></div>
+                  )}
+                  <div className="full-width">
+                    <label>Localisation GPS:</label>
+                    {selectedRequest.receiverLat && selectedRequest.receiverLng ? (
+                      <p style={{color: '#22c55e', fontWeight: '600'}}>
+                        ✅ Localisé ({selectedRequest.receiverLat}, {selectedRequest.receiverLng})
+                      </p>
+                    ) : (
+                      <div style={{marginTop: '0.5rem'}}>
+                        <p style={{color: '#ef4444', fontWeight: '600', marginBottom: '0.5rem'}}>
+                          ❌ Localisation manquante
+                        </p>
+                        <button 
+                          className="btn-generate-link"
+                          onClick={() => handleGenerateLocationLink(selectedRequest)}
+                        >
+                          📍 Générer Lien WhatsApp
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+
+              {/* Colis */}
+              <section className="modal-section">
+                <h3>📦 Colis</h3>
+                <div className="info-grid">
+                  {selectedRequest.description && (
+                    <div><label>Description:</label><p>{selectedRequest.description}</p></div>
+                  )}
+                  {selectedRequest.weight && (
+                    <div><label>Poids:</label><p>{selectedRequest.weight} kg</p></div>
+                  )}
+                  {selectedRequest.packagePrice > 0 && (
+                    <div><label>Valeur:</label><p>{selectedRequest.packagePrice} FCFA</p></div>
+                  )}
+                  {selectedRequest.deliveryType === 'express' && selectedRequest.distanceKm && (
+                    <div><label>Distance:</label><p>{selectedRequest.distanceKm} km</p></div>
+                  )}
+                </div>
+              </section>
+
+              {/* Formulaire Admin */}
+                  {selectedRequest.status === 'pending' && (
+                    <section className="modal-section edit">
+                  <h3>✏️ Compléter par l'Admin</h3>
+
+                  {/* Message si localisation manquante */}
+                  {!selectedRequest.receiverLat && !selectedRequest.receiverLng && (
+                    <div className="location-warning">
+                      <p>⚠️ <strong>Localisation du destinataire manquante</strong></p>
+                      <p>Générez un lien WhatsApp pour que le destinataire partage sa localisation avant d'approuver la demande.</p>
+                    </div>
+                  )}
+
+                  <div className="form-group">
+                    <label>💰 Prix de livraison (FCFA) *</label>
+                    <input
+                      type="number"
+                      name="deliveryPrice"
+                      value={editData.deliveryPrice}
+                      onChange={handleEditChange}
+                      placeholder={selectedRequest.deliveryType === 'express' && selectedRequest.distanceKm
+                        ? Math.round(500 + (selectedRequest.distanceKm * 250)) 
+                        : 2000}
+                      min="0"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>👨‍🚚 Assigner un livreur</label>
+                    
+                    {suggestedDriver && (
+                      <div className="suggested-driver">
+                        <div className="suggested-header">🎉 Livreur le plus proche suggéré</div>
+                        <div className="suggested-info">
+                          <span className="driver-name">{suggestedDriver.name}</span>
+                          <span className="driver-phone">{suggestedDriver.phone}</span>
+                          <span className="driver-distance">📍 {suggestedDriver.distance} km</span>
+                          <span className="driver-vehicle">🚗 {suggestedDriver.vehicleType || 'Moto'}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {driversLoading ? (
+                      <div className="loading-small">⏳ Chargement...</div>
+                    ) : (
+                      <select name="driverId" value={editData.driverId} onChange={handleEditChange}>
+                        <option value="">-- Sélectionner un livreur (optionnel) --</option>
+                        {drivers.map(driver => {
+                          let label = `${driver.name} - ${driver.phone}`;
+                          if (driver.currentLat && driver.currentLng && selectedRequest.senderLat && selectedRequest.senderLng) {
+                            const dist = calculateDistance(
+                              selectedRequest.senderLat,
+                              selectedRequest.senderLng,
+                              driver.currentLat,
+                              driver.currentLng
+                            );
+                            label += ` (${dist.toFixed(2)} km)`;
+                          }
+                          return (
+                            <option key={driver.id} value={driver.id}>
+                              {label}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label>📝 Notes admin</label>
+                    <textarea
+                      name="adminNotes"
+                      value={editData.adminNotes}
+                      onChange={handleEditChange}
+                      placeholder="Notes..."
+                      rows="2"
+                    />
+                  </div>
+
+                  <div className="modal-actions">
+                    <button 
+                      className="btn-approve" 
+                      onClick={handleApprove}
+                      disabled={!selectedRequest.receiverLat || !selectedRequest.receiverLng}
+                      title={!selectedRequest.receiverLat || !selectedRequest.receiverLng ? 
+                        'Localisation du destinataire requise pour approuver' : 
+                        'Approuver cette demande'}
+                    >
+                      ✅ Approuver
+                    </button>
+                    <button className="btn-reject" onClick={handleReject}>❌ Rejeter</button>
+                  </div>
+                </section>
+              )}
+
+              {/* Statut Approuvé */}
+              {selectedRequest.status === 'approved' && (
+                <section className="modal-section approved">
+                  <h3>✅ Approuvée</h3>
+                  <div className="status-info">
+                    {selectedRequest.driverName && (
+                      <p><strong>Livreur:</strong> {selectedRequest.driverName}</p>
+                    )}
+                    <p><strong>Prix:</strong> {selectedRequest.deliveryPrice} FCFA</p>
+                    {selectedRequest.approvedAt && (
+                      <p><strong>Le:</strong> {new Date(selectedRequest.approvedAt).toLocaleString('fr-FR')}</p>
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {/* Statut Rejeté */}
+              {selectedRequest.status === 'rejected' && (
+                <section className="modal-section rejected">
+                  <h3>❌ Rejetée</h3>
+                  <div className="status-info">
+                    <p><strong>Raison:</strong> {selectedRequest.rejectionReason || 'Non spécifiée'}</p>
+                  </div>
+                </section>
+              )}
+            </div>
           </div>
         </div>
-      </main>
+      )}
     </div>
   );
 };

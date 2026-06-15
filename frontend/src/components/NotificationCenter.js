@@ -6,50 +6,37 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/NotificationCenter.css';
 
-const NotificationCenter = () => {
+const NotificationCenter = ({ isOpen: controlledIsOpen, onClose, showBell = true }) => {
   const [notifications, setNotifications] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const [localIsOpen, setLocalIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  useEffect(() => {
-    // Simuler des notifications en mode démo
-    const demoNotifications = [
-      {
-        id: 1,
-        type: 'success',
-        title: 'Livraison terminée',
-        message: 'Jean Kouassi a livré le colis BX2024002',
-        time: new Date(Date.now() - 300000),
-        read: false
-      },
-      {
-        id: 2,
-        type: 'info',
-        title: 'Nouveau colis',
-        message: 'Un nouveau colis BX2024005 a été créé',
-        time: new Date(Date.now() - 600000),
-        read: false
-      },
-      {
-        id: 3,
-        type: 'warning',
-        title: 'Retard signalé',
-        message: 'Yao Emmanuel signale un retard de 15 min',
-        time: new Date(Date.now() - 1200000),
-        read: true
-      },
-      {
-        id: 4,
-        type: 'success',
-        title: 'Livreur disponible',
-        message: 'Koné Abdoulaye est maintenant disponible',
-        time: new Date(Date.now() - 1800000),
-        read: true
-      }
-    ];
+  // Determine if we're in controlled mode
+  const isControlled = controlledIsOpen !== undefined;
+  const isOpen = isControlled ? controlledIsOpen : localIsOpen;
 
-    setNotifications(demoNotifications);
-    setUnreadCount(demoNotifications.filter(n => !n.read).length);
+  const handleToggle = () => {
+    if (isControlled) {
+      if (isOpen) {
+        onClose?.();
+      }
+    } else {
+      setLocalIsOpen(!localIsOpen);
+    }
+  };
+
+  const handleClose = () => {
+    if (isControlled) {
+      onClose?.();
+    } else {
+      setLocalIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    // No demo data - show empty state
+    setNotifications([]);
+    setUnreadCount(0);
   }, []);
 
   const markAsRead = (id) => {
@@ -85,15 +72,17 @@ const NotificationCenter = () => {
 
   return (
     <div className="notification-center">
-      <button 
-        className="notification-bell" 
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        🔔
-        {unreadCount > 0 && (
-          <span className="notification-badge">{unreadCount}</span>
-        )}
-      </button>
+      {showBell && (
+        <button 
+          className="notification-bell" 
+          onClick={handleToggle}
+        >
+          🔔
+          {unreadCount > 0 && (
+            <span className="notification-badge">{unreadCount}</span>
+          )}
+        </button>
+      )}
 
       {isOpen && (
         <div className="notification-dropdown">
@@ -104,6 +93,9 @@ const NotificationCenter = () => {
                 Tout marquer lu
               </button>
             )}
+            <button onClick={handleClose} className="btn-close-modal" style={{ marginLeft: 'auto' }}>
+              ✕
+            </button>
           </div>
 
           <div className="notification-list">

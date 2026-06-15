@@ -13,7 +13,15 @@ const DeliveryRequest = sequelize.define('DeliveryRequest', {
     primaryKey: true
   },
   
-  // Sender Information
+  // Tracking
+  trackingNumber: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+    unique: true,
+    field: 'trackingnumber'
+  },
+  
+  // Sender Information (database columns are camelCase)
   senderName: {
     type: DataTypes.STRING(100),
     allowNull: false,
@@ -36,8 +44,18 @@ const DeliveryRequest = sequelize.define('DeliveryRequest', {
     type: DataTypes.FLOAT,
     allowNull: true
   },
+  senderQuartier: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+    comment: 'Quartier automatiquement détecté du client'
+  },
+  senderZone: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+    comment: 'Zone géographique du client (Centre, Nord, Sud, etc.)'
+  },
   
-  // Receiver Information
+  // Receiver Information (database columns are camelCase)
   receiverName: {
     type: DataTypes.STRING(100),
     allowNull: false,
@@ -60,6 +78,16 @@ const DeliveryRequest = sequelize.define('DeliveryRequest', {
     type: DataTypes.FLOAT,
     allowNull: true
   },
+  receiverQuartier: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+    comment: 'Quartier automatiquement détecté du destinataire'
+  },
+  receiverZone: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+    comment: 'Zone géographique du destinataire'
+  },
   
   // Package Information
   description: {
@@ -74,6 +102,38 @@ const DeliveryRequest = sequelize.define('DeliveryRequest', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: true,
     defaultValue: 0
+  },
+  isPaid: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    field: 'ispaid'
+  },
+  
+  // Delivery Information
+  deliveryType: {
+    type: DataTypes.ENUM('express', 'scheduled'),
+    allowNull: true,
+    field: 'deliverytype'
+  },
+  distanceKm: {
+    type: DataTypes.FLOAT,
+    allowNull: true,
+    field: 'distancekm'
+  },
+  scheduledDate: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+    field: 'scheduleddate'
+  },
+  timeSlot: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    field: 'timeslot'
+  },
+  zoneId: {
+    type: DataTypes.UUID,
+    allowNull: true,
+    field: 'zoneid'
   },
   
   // Admin Information (to be filled by admin before approval)
@@ -97,7 +157,7 @@ const DeliveryRequest = sequelize.define('DeliveryRequest', {
     type: DataTypes.UUID,
     allowNull: true,
     references: {
-      model: 'Drivers',
+      model: 'drivers',
       key: 'id'
     }
   },
@@ -114,6 +174,23 @@ const DeliveryRequest = sequelize.define('DeliveryRequest', {
   rejectionReason: {
     type: DataTypes.TEXT,
     allowNull: true
+  },
+  
+  // Location Token for receiver sharing (database columns are lowercase)
+  locationToken: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    field: 'locationtoken'
+  },
+  locationTokenCreatedAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    field: 'locationtokencreatedat'
+  },
+  locationSharedAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    field: 'locationsharedat'
   },
   
   // Communication
@@ -151,7 +228,7 @@ const DeliveryRequest = sequelize.define('DeliveryRequest', {
   }
 }, {
   timestamps: true,
-  tableName: 'DeliveryRequests'
+  tableName: 'delivery_requests'
 });
 
 module.exports = DeliveryRequest;

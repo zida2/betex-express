@@ -29,6 +29,11 @@ const Driver = sequelize.define('Driver', {
     type: DataTypes.STRING(255),
     allowNull: true
   },
+  cnib: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+    comment: 'Numéro CNIB (Carte Nationale d\'Identité Burkinabè)'
+  },
   vehicleType: {
     type: DataTypes.STRING(50),
     allowNull: true
@@ -38,7 +43,7 @@ const Driver = sequelize.define('Driver', {
     allowNull: true
   },
   status: {
-    type: DataTypes.ENUM('online', 'in_delivery', 'offline'),
+    type: DataTypes.ENUM('online', 'in_delivery', 'offline', 'active', 'available', 'busy'),
     defaultValue: 'offline'
   },
   currentZoneId: {
@@ -57,9 +62,32 @@ const Driver = sequelize.define('Driver', {
     type: DataTypes.INTEGER,
     defaultValue: 0
   },
+  completedToday: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
+  },
+  assignedPackages: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
+  },
   rating: {
     type: DataTypes.FLOAT,
     defaultValue: 5.0
+  },
+  currentLat: {
+    type: DataTypes.DECIMAL(10, 8),
+    allowNull: true,
+    comment: 'Latitude actuelle du livreur'
+  },
+  currentLng: {
+    type: DataTypes.DECIMAL(11, 8),
+    allowNull: true,
+    comment: 'Longitude actuelle du livreur'
+  },
+  lastLocationUpdate: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Dernière mise à jour de la position'
   },
   lastLatitude: {
     type: DataTypes.DECIMAL(10, 8),

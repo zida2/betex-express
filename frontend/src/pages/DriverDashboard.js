@@ -6,10 +6,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../services/api';
-import socketService from '../services/socketService';
+import { getPackages, updatePackage } from '../services/firebaseService';
 import '../styles/DriverDashboard.css';
-import '../styles/DriverDashboard.css';
+import '../styles/PageLayout.css';
 
 const DriverDashboard = () => {
   const [packages, setPackages] = useState([]);
@@ -22,27 +21,25 @@ const DriverDashboard = () => {
 
   useEffect(() => {
     loadDriverData();
-    connectSocket();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadDriverData = async () => {
     try {
-      // Load only active packages (collected and in_delivery)
-      const packagesResponse = await api.get('/packages', {
-        params: { driverId: user.id, status: 'collected,in_delivery' }
-      });
-      
-      const data = packagesResponse.data.data;
-      // Filter to ensure we only have active deliveries
-      const activePackages = (Array.isArray(data) ? data : []).filter(pkg => 
-        pkg.status === 'collected' || pkg.status === 'in_delivery'
+      // Load all packages assigned to this driver
+      const allPackages = await getPackages();
+      const driverPackages = allPackages.filter(pkg => 
+        pkg.driverId === user.id && 
+        (pkg.status === 'pending' || pkg.status === 'collected' || pkg.status === 'in_delivery' || pkg.status === 'assigned')
       );
-      setPackages(activePackages);
+      setPackages(driverPackages);
 
-      // Load driver statistics
-      const statsResponse = await api.get(`/drivers/${user.id}/statistics`);
-      setStats(statsResponse.data.data);
+      // Load driver statistics from user document
+      setStats({
+        successfulDeliveries: user.successfulDeliveries || 0,
+        totalDeliveries: user.totalDeliveries || 0,
+        rating: user.rating || 5
+      });
     } catch (error) {
       console.error('Failed to load driver data:', error);
     } finally {
@@ -50,47 +47,27 @@ const DriverDashboard = () => {
     }
   };
 
-  const connectSocket = () => {
-    socketService.connectDriver(user.id);
-    
-    // Start sending GPS updates if geolocation is available
-    if (navigator.geolocation) {
-      navigator.geolocation.watchPosition(
-        (position) => {
-          socketService.sendPosition({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy,
-            speed: position.coords.speed,
-            heading: position.coords.heading
-          });
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0
-        }
-      );
+  const handleAcceptDelivery = async (packageId) => {
+    try {
+      await updatePackage(packageId, { status: 'collected' });
+      loadDriverData();
+    } catch (error) {
+      console.error('Failed to accept delivery:', error);
     }
   };
 
-  const handleStatusChange = async (newStatus) => {
+  const handleDeclineDelivery = async (packageId) => {
     try {
-      await api.patch(`/drivers/${user.id}/status`, { status: newStatus });
-      setStatus(newStatus);
-      socketService.updateStatus(newStatus);
+      await updatePackage(packageId, { status: 'pending', driverId: null, driverName: null });
+      loadDriverData();
     } catch (error) {
-      console.error('Failed to update status:', error);
+      console.error('Failed to decline delivery:', error);
     }
   };
 
   const handlePackageStatusUpdate = async (packageId, newStatus) => {
     try {
-      await api.patch(`/packages/${packageId}/status`, { status: newStatus });
-      socketService.updatePackageStatus(packageId, newStatus);
+      await updatePackage(packageId, { status: newStatus });
       loadDriverData(); // Reload data
     } catch (error) {
       console.error('Failed to update package status:', error);
@@ -98,7 +75,6 @@ const DriverDashboard = () => {
   };
 
   const handleLogout = () => {
-    socketService.disconnect();
     logout();
     navigate('/login');
   };
@@ -108,32 +84,20 @@ const DriverDashboard = () => {
   }
 
   return (
-    <div className="driver-dashboard">
-      <header className="dashboard-header">
+    <div className="page-layout driver-dashboard">
+      <header className="page-header dashboard-header">
         <div className="header-left">
           <h1>🛵 BETEX EXPRESS</h1>
           <span className="user-info">Livreur: {user?.firstName || user?.email}</span>
         </div>
         <div className="header-right">
-          <div className="status-selector">
-            <select 
-              value={status} 
-              onChange={(e) => handleStatusChange(e.target.value)}
-              className="status-select"
-            >
-              <option value="offline">Hors ligne</option>
-              <option value="online">En ligne</option>
-              <option value="in_delivery">En livraison</option>
-              <option value="on_break">En pause</option>
-            </select>
-          </div>
           <button onClick={handleLogout} className="btn-logout">
             Déconnexion
           </button>
         </div>
       </header>
 
-      <main className="dashboard-content">
+      <main className="page-content dashboard-content">
         <div className="stats-summary">
           <div className="stat-item">
             <span className="stat-label">Livraisons réussies</span>
@@ -180,15 +144,18 @@ const DriverDashboard = () => {
                 <div key={pkg.id} className="package-card">
                   <div className="package-header">
                     <div className="package-title">
-                      <h3>📦 {pkg.trackingNumber}</h3>
+                      <h3>📦 {pkg.id?.substring(0, 8) || 'Livraison'}</h3>
                       <span className="package-priority">
                         {pkg.priority === 'urgent' && '🔥 URGENT'}
                         {pkg.priority === 'high' && '⚡ PRIORITAIRE'}
                       </span>
                     </div>
                     <span className={`status-badge status-${pkg.status}`}>
+                      {pkg.status === 'pending' && '⏳ En attente'}
+                      {pkg.status === 'assigned' && '📋 Assigné'}
                       {pkg.status === 'collected' && '📦 À livrer'}
                       {pkg.status === 'in_delivery' && '🚚 En livraison'}
+                      {pkg.status === 'delivered' && '✅ Livré'}
                     </span>
                   </div>
                   
@@ -199,7 +166,6 @@ const DriverDashboard = () => {
                       <p><strong>👤 Client:</strong> {pkg.customerName || pkg.receiverName}</p>
                       <p><strong>📞 Téléphone:</strong> {pkg.customerPhone || pkg.receiverPhone}</p>
                       <p><strong>📍 Adresse:</strong> {pkg.address || pkg.receiverAddress}</p>
-                      <p><strong>🗺️ Zone:</strong> {pkg.Zone?.name || 'N/A'}</p>
                       {pkg.description && <p><strong>📝 Contenu:</strong> {pkg.description}</p>}
                       {pkg.weight && <p><strong>⚖️ Poids:</strong> {pkg.weight} kg</p>}
                       {pkg.notes && (
@@ -228,6 +194,23 @@ const DriverDashboard = () => {
                   </div>
 
                   <div className="package-actions">
+                    {(pkg.status === 'pending' || pkg.status === 'assigned') && (
+                      <div className="status-actions">
+                        <button 
+                          className="btn-action btn-success"
+                          onClick={() => handleAcceptDelivery(pkg.id)}
+                        >
+                          ✅ Accepter
+                        </button>
+                        <button 
+                          className="btn-action btn-danger"
+                          onClick={() => handleDeclineDelivery(pkg.id)}
+                        >
+                          ❌ Refuser
+                        </button>
+                      </div>
+                    )}
+                    
                     {pkg.status === 'collected' && (
                       <>
                         <button 

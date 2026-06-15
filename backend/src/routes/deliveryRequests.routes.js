@@ -1,38 +1,43 @@
 /**
  * Delivery Requests Routes
- * Endpoints for managing delivery requests
+ * Handles all delivery request operations
  */
 
 const express = require('express');
 const router = express.Router();
-const deliveryRequestsController = require('../controllers/deliveryRequestsController');
-const authMiddleware = require('../middleware/auth.middleware');
+const deliveryController = require('../controllers/deliveryRequestsController');
+const { authMiddleware, adminMiddleware } = require('../middleware/auth.middleware');
 
-// Public endpoint - Client creates delivery request
-router.post('/', deliveryRequestsController.create);
+/**
+ * Public Routes (client can create delivery requests)
+ */
 
-// Admin endpoints
-router.use(authMiddleware.authenticate); // All below require authentication
+// POST /api/v1/delivery-requests
+router.post('/', authMiddleware, deliveryController.createDeliveryRequest);
 
-// Get all delivery requests with optional filters
-router.get('/', deliveryRequestsController.getAll);
+// GET /api/v1/delivery-requests (list all - clients can see their own, admins see all)
+router.get('/', authMiddleware, deliveryController.getDeliveryRequests);
 
-// Get single delivery request
-router.get('/:id', deliveryRequestsController.getById);
+// GET /api/v1/delivery-requests/:id (get single)
+router.get('/:id', authMiddleware, deliveryController.getDeliveryRequest);
 
-// Get available drivers for assignment
-router.get('/available/drivers', deliveryRequestsController.getAvailableDrivers);
+/**
+ * Admin Routes
+ */
 
-// Approve delivery request and assign driver
-router.post('/:id/approve', deliveryRequestsController.approve);
+// POST /api/v1/delivery-requests/:id/approve
+router.post('/:id/approve', authMiddleware, adminMiddleware, deliveryController.approveDeliveryRequest);
 
-// Reject delivery request
-router.post('/:id/reject', deliveryRequestsController.reject);
+// POST /api/v1/delivery-requests/:id/reject
+router.post('/:id/reject', authMiddleware, adminMiddleware, deliveryController.rejectDeliveryRequest);
 
-// Send message to client
-router.post('/:id/send-message', deliveryRequestsController.sendMessageToClient);
+// POST /api/v1/delivery-requests/:id/location-token (save location token)
+router.post('/:id/location-token', authMiddleware, adminMiddleware, deliveryController.saveLocationToken);
 
-// Update delivery request status
-router.patch('/:id/status', deliveryRequestsController.updateStatus);
+// GET /api/v1/delivery-requests/location/:token (verify token and get delivery info)
+router.get('/location/:token', deliveryController.getDeliveryByToken);
+
+// POST /api/v1/delivery-requests/location/:token (save receiver location)
+router.post('/location/:token', deliveryController.saveReceiverLocation);
 
 module.exports = router;

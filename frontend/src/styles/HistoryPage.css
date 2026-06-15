@@ -1,18 +1,13 @@
 .history-page {
   min-height: 100vh;
+  max-height: 100vh;
   background: var(--bg-primary);
-  padding-top: 56px;
-  padding-bottom: 20px;
   width: 100%;
   overflow-x: hidden;
 }
 
 .history-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -21,7 +16,6 @@
   box-shadow: var(--shadow-md);
   min-height: 56px;
   width: 100%;
-  will-change: transform;
 }
 
 .header-left {

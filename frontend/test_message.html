@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Message WhatsApp</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background: #f0f2f5;
+        }
+        .message-preview {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            white-space: pre-line;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        button {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">
+        <h2>📱 Aperçu du Message WhatsApp</h2>
+        <p>Voici comment le destinataire verra le message professionnel :</p>
+    </div>
+    
+    <div class="message-preview" id="messagePreview">
+        <!-- Le message sera inséré ici -->
+    </div>
+    
+    <button onclick="generateMessage()">🔄 Régénérer le message</button>
+    
+    <script>
+        function generateMessage() {
+            // Simulation des données d'une vraie demande
+            const request = {
+                receiverName: "Marie OUEDRAOGO",
+                senderName: "Jean KONE",
+                senderPhone: "+225 70 12 34 56",
+                description: "Ordinateur portable Dell + accessoires",
+                weight: 3.5,
+                packagePrice: 850000,
+                deliveryType: "express",
+                deliveryPrice: 2500,
+                scheduledDate: null,
+                timeSlot: null
+            };
+            
+            const locationLink = "https://betex-express.com/location/QlghODg0YjQzYmMtYWEyMy00MDY1LThiZjUtOTRmMmVhMGQzYmQz";
+            
+            const message = `🛵 *BETEX EXPRESS* - Service de Livraison
+═══════════════════════════════════
+
+Bonjour ${request.receiverName},
+
+Vous avez un colis en attente de livraison :
+
+📦 *DÉTAILS DU COLIS*
+┌─────────────────────────────┐
+│ Expéditeur : ${request.senderName}
+│ Téléphone : ${request.senderPhone}
+│ Description : ${request.description || 'Non spécifiée'}
+│ Poids : ${request.weight ? request.weight + ' kg' : 'Non spécifié'}
+│ Valeur : ${request.packagePrice ? request.packagePrice.toLocaleString() + ' FCFA' : 'Non spécifiée'}
+│ Type : ${request.deliveryType === 'express' ? '🚀 Express' : '📅 Programmée'}
+${request.deliveryPrice ? `│ Frais livraison : ${request.deliveryPrice.toLocaleString()} FCFA` : ''}
+${request.scheduledDate ? `│ Date prévue : ${new Date(request.scheduledDate).toLocaleDateString('fr-FR')}` : ''}
+${request.timeSlot ? `│ Créneau : ${request.timeSlot}` : ''}
+└─────────────────────────────┘
+
+📍 *LOCALISATION REQUISE*
+Pour que notre livreur puisse vous trouver facilement, nous avons besoin de votre position GPS précise.
+
+👆 *ÉTAPES À SUIVRE :*
+1️⃣ Cliquez sur le lien ci-dessous
+2️⃣ Autorisez l'accès à votre localisation
+3️⃣ Votre position sera automatiquement enregistrée
+
+🔗 *LIEN SÉCURISÉ :*
+${locationLink}
+
+⚠️ *IMPORTANT :*
+• Ce lien est valide pendant 7 jours
+• Votre localisation est sécurisée et confidentielle
+• Une fois votre position enregistrée, nous traiterons rapidement votre livraison
+
+📞 *BESOIN D'AIDE ?*
+Contactez-nous au : +225 XX XX XX XX
+
+Merci de votre confiance,
+*L'équipe BETEX EXPRESS* 🚚💨
+_Livraison rapide et sécurisée_`;
+            
+            document.getElementById('messagePreview').textContent = message;
+        }
+        
+        // Générer le message au chargement
+        generateMessage();
+    </script>
+</body>
+</html>

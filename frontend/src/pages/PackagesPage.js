@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import api from '../services/api';
+import { getPackages, getDrivers, createPackage } from '../services/firebaseService';
 import LocationPicker from '../components/LocationPicker';
 import DeliveryOptions from '../components/DeliveryOptions';
 import ExpressDeliveryFlow from '../components/ExpressDeliveryFlow';
 import ScheduledDeliveryFlow from '../components/ScheduledDeliveryFlow';
 import { translateStatus, getStatusIcon } from '../utils/translations';
 import '../styles/PackagesPage.css';
+import '../styles/PageLayout.css';
 
 const PackagesPage = () => {
   const [packages, setPackages] = useState([]);
@@ -36,15 +37,16 @@ const PackagesPage = () => {
 
   const loadData = async () => {
     try {
-      const [packagesRes, driversRes] = await Promise.all([
-        api.get('/packages'),
-        api.get('/drivers')
+      const [packagesData, driversData] = await Promise.all([
+        getPackages(),
+        getDrivers()
       ]);
-      setPackages(Array.isArray(packagesRes.data.data) ? packagesRes.data.data : []);
-      const driversData = driversRes.data.data?.drivers || driversRes.data.data || [];
+      setPackages(packagesData);
       setDrivers(driversData);
     } catch (error) {
       console.error('Erreur:', error);
+      setPackages([]);
+      setDrivers([]);
     } finally {
       setLoading(false);
     }
@@ -72,28 +74,28 @@ const PackagesPage = () => {
     });
   };
 
-  const findNearestDriver = async () => {
-    if (!formData.senderLatitude || !formData.senderLongitude) {
-      alert('Veuillez entrer la localisation de l\'expediteur');
-      return;
-    }
+  // const findNearestDriver = async () => {
+  //   if (!formData.senderLatitude || !formData.senderLongitude) {
+  //     alert('Veuillez entrer la localisation de l\'expediteur');
+  //     return;
+  //   }
 
-    setFindingDriver(true);
-    try {
-      const response = await api.post('/optimization/suggest-driver', {
-        latitude: parseFloat(formData.senderLatitude),
-        longitude: parseFloat(formData.senderLongitude)
-      });
-      setSuggestedDriver(response.data.data?.driver || response.data.data);
-      setSelectedDriver(response.data.data?.driver || response.data.data);
-      setShowDriverSelection(false);
-    } catch (error) {
-      console.error('Erreur:', error);
-      alert(error.response?.data?.message || 'Impossible de trouver un livreur');
-    } finally {
-      setFindingDriver(false);
-    }
-  };
+  //   setFindingDriver(true);
+  //   try {
+  //     const response = await api.post('/optimization/suggest-driver', {
+  //       latitude: parseFloat(formData.senderLatitude),
+  //       longitude: parseFloat(formData.senderLongitude)
+  //     });
+  //     setSuggestedDriver(response.data.data?.driver || response.data.data);
+  //     setSelectedDriver(response.data.data?.driver || response.data.data);
+  //     setShowDriverSelection(false);
+  //   } catch (error) {
+  //     console.error('Erreur:', error);
+  //     alert(error.response?.data?.message || 'Impossible de trouver un livreur');
+  //   } finally {
+  //     setFindingDriver(false);
+  //   }
+  // };
 
   const handleManualDriverSelection = () => {
     setShowDriverSelection(!showDriverSelection);
@@ -146,20 +148,22 @@ const PackagesPage = () => {
         weight: formData.weight ? parseFloat(formData.weight) : null,
         notes: formData.notes,
         deliveryOption: deliveryOption,
-        deliveryPrice: pricingInfo.totalPrice
+        deliveryPrice: pricingInfo.totalPrice,
+        status: 'pending'
       };
 
       if (deliveryOption === 'express') {
         payload.driverId = selectedDriver.id;
+        payload.driverName = selectedDriver.name;
         payload.pricingModel = 'distance_based';
-        payload.distance = selectedDriver.distance;
+        payload.distance = pricingInfo.distance;
       } else {
         payload.timeSlotId = selectedTimeSlot.id;
         payload.zone = pricingInfo.zone?.id;
         payload.pricingModel = 'zone_based';
       }
 
-      await api.post('/packages', payload);
+      await createPackage(payload);
 
       alert(`✅ Livraison ${deliveryOption === 'express' ? 'Express' : 'Programmée'} créée avec succès!`);
       
@@ -168,7 +172,7 @@ const PackagesPage = () => {
       loadData();
     } catch (error) {
       console.error('Erreur:', error);
-      alert(error.response?.data?.message || 'Erreur lors de la création');
+      alert(error.message || 'Erreur lors de la création');
     }
   };
 
@@ -192,7 +196,7 @@ const PackagesPage = () => {
   }
 
   return (
-    <div className="packages-page">
+    <div className="page-layout packages-page">
       <header className="page-header">
         <h1>Gestion des Colis</h1>
         <button className="btn-primary" onClick={() => setShowForm(!showForm)}>
@@ -200,6 +204,7 @@ const PackagesPage = () => {
         </button>
       </header>
 
+      <div className="page-content">
       {showForm && (
         <div className="form-container">
           <form onSubmit={handleSubmit} className="package-form">
@@ -466,6 +471,7 @@ const PackagesPage = () => {
             ))}
           </div>
         )}
+      </div>
       </div>
     </div>
   );

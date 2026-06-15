@@ -680,3 +680,120 @@
 .form-group input::placeholder {
   color: rgba(255, 255, 255, 0.3);
 }
+
+
+/* Registration Page Styles */
+.register-container {
+  max-width: 580px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group.error input {
+  border-color: #ff6b6b;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.error-text {
+  font-size: 12px;
+  color: #ff6b6b;
+  margin-top: 4px;
+  display: block;
+}
+
+.success-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #22c55e;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  margin-bottom: 20px;
+  animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.success-icon {
+  font-size: 18px;
+}
+
+/* Registration Link Section */
+.registration-section {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.registration-section p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.btn-register-link {
+  display: inline-block;
+  padding: 12px 28px;
+  background: transparent;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-register-link:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.btn-register-link:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 560px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .register-container {
+    max-width: 100%;
+  }
+}
+
+/* Phone Input */
+input[type="tel"] {
+  font-family: Arial, sans-serif;
+}
+
+/* Required Field Indicator */
+label span,
+.required {
+  color: #ff6b6b;
+}

@@ -22,9 +22,17 @@ const Stock = sequelize.define('Stock', {
   },
   zoneId: {
     type: DataTypes.UUID,
-    allowNull: false,
+    allowNull: true,  // Made nullable for migration
     references: {
       model: 'zones',
+      key: 'id'
+    }
+  },
+  clientId: {
+    type: DataTypes.UUID,
+    allowNull: true,  // Will be made NOT NULL after migration
+    references: {
+      model: 'users',
       key: 'id'
     }
   },
@@ -59,7 +67,9 @@ const Stock = sequelize.define('Stock', {
   tableName: 'stocks',
   timestamps: true,
   indexes: [
-    { fields: ['productId', 'zoneId'], unique: true },
+    { fields: ['productId', 'zoneId'] },  // Keep for backward compatibility
+    { fields: ['productId', 'clientId'], unique: true },  // New primary index
+    { fields: ['clientId'] },
     { fields: ['zoneId'] }
   ]
 });

@@ -6,34 +6,37 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getPricing, updatePricing } from '../services/firebaseService';
 import '../styles/PricingSettingsPage.css';
+import '../styles/PageLayout.css';
 
 const PricingSettingsPage = () => {
-  const [pricingConfig, setPricingConfig] = useState({
-    express: {
-      basePrice: 500,
-      pricePerKm: 250,
-      minPrice: 500,
-      maxPrice: 10000
-    },
-    scheduled: {
-      zones: [
-        { id: 'zone-1', name: 'Zone Centre-Ville', price: 1500 },
-        { id: 'zone-2', name: 'Zone Secteur 1-2', price: 1200 },
-        { id: 'zone-3', name: 'Zone Secteur 5-6', price: 1000 },
-        { id: 'zone-4', name: 'Zone Nord', price: 2000 }
-      ]
-    }
-  });
-
-  const [formData, setFormData] = useState({ ...pricingConfig });
+  const [pricingConfig, setPricingConfig] = useState(null);
+  const [formData, setFormData] = useState(null);
   const [message, setMessage] = useState('');
   const [activeTab, setActiveTab] = useState('express');
-  const [editingZone, setEditingZone] = useState(null);
   const [newZone, setNewZone] = useState({ name: '', price: '' });
   const [hasChanges, setHasChanges] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Load pricing from API on mount
+  useEffect(() => {
+    const loadPricing = async () => {
+      try {
+        const pricing = await getPricing();
+        setPricingConfig(pricing);
+        setFormData({ ...pricing });
+      } catch (error) {
+        console.error('Error loading pricing:', error);
+        setMessage('❌ Erreur lors du chargement des tarifs');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadPricing();
+  }, []);
 
   const handleExpressChange = (field, value) => {
     setFormData(prev => ({
@@ -102,11 +105,19 @@ const PricingSettingsPage = () => {
     setTimeout(() => setMessage(''), 3000);
   };
 
-  const handleSave = () => {
-    setPricingConfig(formData);
-    setHasChanges(false);
-    setMessage('✅ Configuration sauvegardée avec succès!');
-    setTimeout(() => setMessage(''), 3000);
+  const handleSave = async () => {
+    try {
+      setMessage('⏳ Sauvegarde en cours...');
+      await updatePricing(formData);
+      setPricingConfig(formData);
+      setHasChanges(false);
+      setMessage('✅ Configuration sauvegardée avec succès!');
+    } catch (error) {
+      console.error('Error saving pricing:', error);
+      setMessage('❌ Erreur lors de la sauvegarde');
+    } finally {
+      setTimeout(() => setMessage(''), 3000);
+    }
   };
 
   const calculatePrice = (distance) => {
@@ -115,8 +126,16 @@ const PricingSettingsPage = () => {
     return Math.max(minPrice, Math.min(maxPrice, calculated));
   };
 
+  if (loading) {
+    return (
+      <div className="page-layout pricing-settings-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <div style={{ color: '#e2e8f0', fontSize: '1.5rem' }}>⏳ Chargement...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="pricing-settings-page">
+    <div className="page-layout pricing-settings-page">
       <header className="page-header">
         <button className="btn-back" onClick={() => navigate('/admin/dashboard')}>
           ← Retour
@@ -130,7 +149,7 @@ const PricingSettingsPage = () => {
         </div>
       )}
 
-      <div className="pricing-container">
+      <div className="page-content pricing-container">
         {/* Tabs */}
         <div className="pricing-tabs">
           <button

@@ -6,9 +6,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../services/api';
+import { getPackages } from '../services/firebaseService';
 import { translateStatus, getStatusIcon } from '../utils/translations';
 import '../styles/HistoryPage.css';
+import '../styles/PageLayout.css';
 
 const HistoryPage = () => {
   const [packages, setPackages] = useState([]);
@@ -39,12 +40,12 @@ const HistoryPage = () => {
 
   const loadHistory = async () => {
     try {
-      const response = await api.get('/packages/history');
-      const data = response.data.data || response.data || [];
+      const data = await getPackages();
       setPackages(data);
       calculateStats(data);
     } catch (error) {
       console.error('Failed to load history:', error);
+      setPackages([]);
     } finally {
       setLoading(false);
     }
@@ -123,8 +124,8 @@ const HistoryPage = () => {
   }
 
   return (
-    <div className="history-page">
-      <header className="history-header">
+    <div className="page-layout history-page">
+      <header className="page-header history-header">
         <div className="header-left">
           <button onClick={() => navigate('/admin/dashboard')} className="btn-back">
             ← Retour
@@ -138,6 +139,7 @@ const HistoryPage = () => {
         </div>
       </header>
 
+      <div className="page-content">
       <div className="history-stats">
         <div className="stat-card">
           <div className="stat-icon">📦</div>
@@ -306,6 +308,7 @@ const HistoryPage = () => {
             })}
           </div>
         )}
+      </div>
       </div>
     </div>
   );

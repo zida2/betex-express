@@ -1,36 +1,152 @@
 /**
- * Admin Dashboard Page
- * Main dashboard for administrators
+ * Admin Dashboard Page - Android Style
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../services/api';
-import NotificationCenter from '../components/NotificationCenter';
-import ChatSystem from '../components/ChatSystem';
+import { getDrivers, getDeliveryRequests, listenToDeliveryRequests, listenToPackages } from '../services/firebaseService';
 import '../styles/AdminDashboard.css';
+import '../styles/PageLayout.css';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showChat, setShowChat] = useState(false);
-  const [isStatsCollapsed, setIsStatsCollapsed] = useState(true);
-  const [isActionsCollapsed, setIsActionsCollapsed] = useState(true);
-  
+  const [unreadRequests, setUnreadRequests] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+  const [allRequests, setAllRequests] = useState([]);
+  const [allPackages, setAllPackages] = useState([]);
+  const previousRequestsLength = useRef(0);
+  const previousPackagesLength = useRef(0);
+
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  // Liste des applications (style Android)
+  const apps = [
+    { id: 'packages', name: 'Colis', icon: '📦', path: '/admin/packages', color: '#0066ff' },
+    { id: 'drivers', name: 'Livreurs', icon: '👨‍🚚', path: '/admin/drivers', color: '#00c853' },
+    { id: 'requests', name: 'Demandes', icon: '📋', path: '/admin/delivery-requests', color: '#ff1744', badge: unreadRequests },
+    { id: 'routes', name: 'Tournées', icon: '🚛', path: '/admin/routes', color: '#aa00ff' },
+    { id: 'tracking', name: 'Suivi GPS', icon: '🗺️', path: '/admin/map', color: '#00bfa5' },
+    { id: 'pricing', name: 'Tarifs', icon: '💰', path: '/admin/pricing', color: '#ff9100' },
+    { id: 'stock', name: 'Stocks', icon: '📊', path: '/admin/stock', color: '#37474f' },
+    { id: 'history', name: 'Historique', icon: '📜', path: '/admin/history', color: '#00b8d4' },
+    { id: 'announcements', name: 'Annonces', icon: '📢', path: '/admin/announcements', color: '#651fff' },
+    { id: 'optimization', name: 'Optimiser', icon: '⚡', path: '/admin/optimization', color: '#ff6d00' },
+    { id: 'revenue', name: 'Chiffre', icon: '📈', path: '/admin/revenue', color: '#00e676' },
+    { id: 'quartiers', name: 'Quartiers', icon: '🗺️', path: '/admin/quartier-dashboard', color: '#2962ff' },
+  ];
+
   useEffect(() => {
     loadDashboardData();
+    
+    // Set up real-time listeners
+    const unsubscribeRequests = listenToDeliveryRequests((requests) => {
+      setAllRequests(requests);
+      
+      // Check for new requests
+      if (previousRequestsLength.current > 0 && requests.length > previousRequestsLength.current) {
+        const newRequest = requests[0]; // Most recent
+        addNotification({
+          id: Date.now(),
+          icon: '📋',
+          title: 'Nouvelle demande de livraison !',
+          message: `${newRequest.senderName} a envoyé une demande`,
+          time: 'À l\'instant',
+          type: 'new'
+        });
+      }
+      previousRequestsLength.current = requests.length;
+      
+      // Update unread count
+      const pending = requests.filter(r => r.status === 'pending');
+      setUnreadRequests(pending.length);
+    });
+    
+    const unsubscribePackages = listenToPackages((packages) => {
+      setAllPackages(packages);
+      
+      // Check for delivered packages
+      const deliveredPackages = packages.filter(p => p.status === 'delivered');
+      if (previousPackagesLength.current > 0 && deliveredPackages.length > 0) {
+        // Find the latest delivered one
+        const latestDelivered = deliveredPackages.sort((a, b) => {
+          const timeA = a.updatedAt?.toMillis ? a.updatedAt.toMillis() : 0;
+          const timeB = b.updatedAt?.toMillis ? b.updatedAt.toMillis() : 0;
+          return timeB - timeA;
+        })[0];
+        
+        addNotification({
+          id: Date.now() + 1,
+          icon: '📦',
+          title: 'Colis livré !',
+          message: `${latestDelivered.recipientName} a reçu son colis`,
+          time: 'À l\'instant',
+          type: 'success'
+        });
+      }
+      previousPackagesLength.current = packages.length;
+    });
+    
+    // Cleanup listeners on unmount
+    return () => {
+      unsubscribeRequests();
+      unsubscribePackages();
+    };
   }, []);
+
+  const addNotification = (newNotification) => {
+    setNotifications(prev => [newNotification, ...prev].slice(0, 10)); // Keep last 10
+  };
 
   const loadDashboardData = async () => {
     try {
-      const response = await api.get('/dashboard/overview');
-      setStats(response.data.data);
+      const [drivers, requests] = await Promise.all([getDrivers(), getDeliveryRequests()]);
+      const statsData = {
+        totalDrivers: drivers.length,
+        totalDeliveryRequests: requests.length,
+        pendingRequests: requests.filter(r => r.status === 'pending').length,
+        todayRevenue: 0
+      };
+      setStats(statsData);
+      
+      // Initial notifications
+      const initialNotifications = [];
+      
+      if (statsData.pendingRequests > 0) {
+        initialNotifications.push({
+          id: 1,
+          icon: '📋',
+          title: `Nouvelle demande de livraison`,
+          message: `${statsData.pendingRequests} demande(s) en attente d'approbation`,
+          time: 'Il y a quelques minutes',
+          type: 'pending'
+        });
+      }
+      
+      if (statsData.totalDrivers > 0) {
+        initialNotifications.push({
+          id: 2,
+          icon: '👨‍🚚',
+          title: `${statsData.totalDrivers} livreur(s) actif(s)`,
+          message: 'Tous les livreurs sont prêts à travailler',
+          time: 'Il y a 5 min',
+          type: 'info'
+        });
+      }
+      
+      initialNotifications.push({
+        id: 3,
+        icon: '💳',
+        title: 'Revenus du jour',
+        message: 'Vérifiez le chiffre d\'affaires quotidien',
+        time: 'Il y a 10 min',
+        type: 'success'
+      });
+      
+      setNotifications(initialNotifications);
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
     } finally {
@@ -48,241 +164,111 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="admin-dashboard">
-      <header className="dashboard-header">
-        <div className="header-left">
-          <h1>🛵 BETEX EXPRESS</h1>
-          <span className="user-info">Admin: {user?.firstName || user?.email}</span>
+    <div className="page-layout admin-dashboard android-style">
+      {/* Barre de statut Android */}
+      <header className="android-header">
+        <div className="android-header-left">
+          <span className="android-logo">🛵 BETEX</span>
         </div>
-        <div className="header-right">
-          <button onClick={handleLogout} className="btn-logout">
-            Déconnexion
+        <div className="android-header-right">
+          <button 
+            className="android-notif-btn" 
+            onClick={() => setShowNotifications(!showNotifications)}
+          >
+            🔔
+            {unreadRequests > 0 && (
+              <span className="android-notif-badge">{unreadRequests}</span>
+            )}
+          </button>
+          <div className="android-user">
+            <span>{user?.firstName || 'Admin'}</span>
+          </div>
+          <button onClick={handleLogout} className="android-logout">
+            ⚙️
           </button>
         </div>
       </header>
 
-      <NotificationCenter 
-        isOpen={showNotifications} 
-        onClose={() => setShowNotifications(false)} 
-      />
-
-      <ChatSystem 
-        isOpen={showChat} 
-        onClose={() => setShowChat(false)} 
-      />
-
-      <nav className="dashboard-nav">
-        <button 
-          className={activeTab === 'overview' ? 'active' : ''}
-          onClick={() => setActiveTab('overview')}
-          title="Vue d'ensemble"
-        >
-          📊<span className="nav-text">Accueil</span>
-        </button>
-        <button 
-          className={activeTab === 'packages' ? 'active' : ''}
-          onClick={() => navigate('/admin/packages')}
-          title="Gestion des colis"
-        >
-          📦<span className="nav-text">Colis</span>
-        </button>
-        <button 
-          className={activeTab === 'drivers' ? 'active' : ''}
-          onClick={() => navigate('/admin/drivers')}
-          title="Gestion des livreurs"
-        >
-          👨‍🚚<span className="nav-text">Livreurs</span>
-        </button>
-        <button 
-          className={activeTab === 'drivers-folder' ? 'active' : ''}
-          onClick={() => navigate('/admin/drivers-folder')}
-          title="Dossiers des livreurs"
-        >
-          📁<span className="nav-text">Dossiers</span>
-        </button>
-        <button 
-          className={activeTab === 'map' ? 'active' : ''}
-          onClick={() => navigate('/admin/map')}
-          title="Suivi GPS temps réel"
-        >
-          🗺️<span className="nav-text">Carte</span>
-        </button>
-        <button 
-          className={activeTab === 'history' ? 'active' : ''}
-          onClick={() => navigate('/admin/history')}
-          title="Historique des livraisons"
-        >
-          📜<span className="nav-text">Historique</span>
-        </button>
-        <button 
-          className={activeTab === 'routes' ? 'active' : ''}
-          onClick={() => navigate('/admin/routes')}
-          title="Gestion des tournées"
-        >
-          🚛<span className="nav-text">Tournées</span>
-        </button>
-        <button 
-          className={activeTab === 'stock' ? 'active' : ''}
-          onClick={() => navigate('/admin/stock')}
-          title="Gestion des stocks"
-        >
-          📊<span className="nav-text">Stocks</span>
-        </button>
-        <button 
-          className={activeTab === 'optimization' ? 'active' : ''}
-          onClick={() => navigate('/admin/optimization')}
-          title="Optimisation des livraisons"
-        >
-          ⚡<span className="nav-text">Optim</span>
-        </button>
-        <button 
-          className={activeTab === 'delivery-requests' ? 'active' : ''}
-          onClick={() => navigate('/admin/delivery-requests')}
-          title="Demandes de livraison clients"
-        >
-          📋<span className="nav-text">Demandes</span>
-        </button>
-        <button 
-          className={activeTab === 'pricing' ? 'active' : ''}
-          onClick={() => navigate('/admin/pricing')}
-          title="Configuration des tarifs"
-        >
-          💰<span className="nav-text">Tarifs</span>
-        </button>
-        <button 
-          className={activeTab === 'revenue' ? 'active' : ''}
-          onClick={() => navigate('/admin/revenue')}
-          title="Chiffre d'affaires et bénéfices"
-        >
-          📊<span className="nav-text">Chiffre</span>
-        </button>
-      </nav>
-
-      <main className="dashboard-main">
-        <div className="stats-section">
-          <div className="section-header" onClick={() => setIsStatsCollapsed(!isStatsCollapsed)}>
-            <h2 className="section-title">
-              <span className={`section-arrow ${isStatsCollapsed ? 'collapsed' : ''}`}>▶</span>
-              Statistiques
-            </h2>
+      {/* Panneau de notifications */}
+      {showNotifications && (
+        <div className="android-notif-panel">
+          <div className="android-notif-header">
+            <h4>Notifications</h4>
+            <button onClick={() => setShowNotifications(false)} className="android-close">✕</button>
           </div>
-          
-          {!isStatsCollapsed && (
-            <div className="stats-grid">
-              <div className="stat-card">
-                <div className="stat-icon">📦</div>
-                <div className="stat-info">
-                  <h3>Total Colis</h3>
-                  <p className="stat-value">{stats?.totalPackages || 0}</p>
-                </div>
+          <div className="android-notif-list">
+            {notifications.length === 0 ? (
+              <div className="android-notif-empty">
+                <p>Aucune notification pour le moment</p>
               </div>
+            ) : (
+              notifications.map((notif) => (
+                <div 
+                  key={notif.id} 
+                  className={`android-notif-item ${notif.type || 'default'}`}
+                  onClick={() => {
+                    // Naviguer vers la page appropriée
+                    if (notif.type === 'pending') {
+                      navigate('/admin/delivery-requests');
+                    } else if (notif.icon === '👨‍🚚') {
+                      navigate('/admin/drivers');
+                    } else if (notif.icon === '💳') {
+                      navigate('/admin/revenue');
+                    }
+                    setShowNotifications(false);
+                  }}
+                >
+                  <span className="android-notif-icon">{notif.icon}</span>
+                  <div className="android-notif-text">
+                    <p className="android-notif-title">{notif.title}</p>
+                    <span className="android-notif-time">{notif.message}</span>
+                    <span className="android-notif-date">{notif.time}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
 
-              <div className="stat-card">
-                <div className="stat-icon">✅</div>
-                <div className="stat-info">
-                  <h3>Livrés</h3>
-                  <p className="stat-value">{stats?.packagesByStatus?.delivered || 0}</p>
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-icon">🚚</div>
-                <div className="stat-info">
-                  <h3>En livraison</h3>
-                  <p className="stat-value">{stats?.packagesByStatus?.in_delivery || 0}</p>
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-icon">⏳</div>
-                <div className="stat-info">
-                  <h3>En attente</h3>
-                  <p className="stat-value">{stats?.packagesByStatus?.pending || 0}</p>
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-icon">👨‍🚚</div>
-                <div className="stat-info">
-                  <h3>Total Livreurs</h3>
-                  <p className="stat-value">{stats?.totalDrivers || 0}</p>
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-icon">🟢</div>
-                <div className="stat-info">
-                  <h3>Livreurs Actifs</h3>
-                  <p className="stat-value">{stats?.activeDrivers || 0}</p>
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-icon">📈</div>
-                <div className="stat-info">
-                  <h3>Taux de réussite</h3>
-                  <p className="stat-value">{stats?.completionRate || 0}%</p>
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-icon">❌</div>
-                <div className="stat-info">
-                  <h3>Échecs</h3>
-                  <p className="stat-value">{stats?.packagesByStatus?.delivery_failed || 0}</p>
-                </div>
-              </div>
-            </div>
-          )}
+      {/* Zone principale Android */}
+      <main className="android-main">
+        {/* Widgets rapides */}
+        <div className="android-widgets">
+          <div className="android-widget">
+            <span className="android-widget-icon">📦</span>
+            <span className="android-widget-value">{stats?.totalDeliveryRequests || 0}</span>
+            <span className="android-widget-label">Demandes</span>
+          </div>
+          <div className="android-widget">
+            <span className="android-widget-icon">👨‍🚚</span>
+            <span className="android-widget-value">{stats?.totalDrivers || 0}</span>
+            <span className="android-widget-label">Livreurs</span>
+          </div>
+          <div className="android-widget">
+            <span className="android-widget-icon">⏳</span>
+            <span className="android-widget-value">{stats?.pendingRequests || 0}</span>
+            <span className="android-widget-label">En attente</span>
+          </div>
         </div>
 
-        <div className="quick-actions">
-          <div className="section-header" onClick={() => setIsActionsCollapsed(!isActionsCollapsed)}>
-            <h2 className="section-title">
-              <span className={`section-arrow ${isActionsCollapsed ? 'collapsed' : ''}`}>▶</span>
-              Actions rapides
-            </h2>
-          </div>
-          
-          {!isActionsCollapsed && (
-            <div className="actions-grid">
-              <button 
-                className="action-btn"
-                onClick={() => navigate('/admin/packages')}
-              >
-                <span className="action-icon">➕</span>
-                <span>Nouveau colis</span>
-              </button>
-              <button 
-                className="action-btn"
-                onClick={() => navigate('/admin/routes')}
-              >
-                <span className="action-icon">🗺️</span>
-                <span>Créer tournée</span>
-              </button>
-              <button 
-                className="action-btn"
-                onClick={() => navigate('/admin/drivers')}
-              >
-                <span className="action-icon">👤</span>
-                <span>Ajouter livreur</span>
-              </button>
-              <button 
-                className="action-btn"
-                onClick={() => navigate('/admin/stock')}
-              >
-                <span className="action-icon">📊</span>
-                <span>Gérer stocks</span>
-              </button>
-              <button 
-                className="action-btn"
-                onClick={() => navigate('/admin/optimization')}
-              >
-                <span className="action-icon">⚡</span>
-                <span>Optimiser livraisons</span>
-              </button>
+        {/* Grille d'applications */}
+        <div className="android-apps-grid">
+          {apps.map(app => (
+            <div 
+              key={app.id} 
+              className="android-app-icon" 
+              onClick={() => navigate(app.path)}
+            >
+              <div className="android-app-circle" style={{ background: app.color }}>
+                <span className="android-app-emoji">{app.icon}</span>
+              </div>
+              <span className="android-app-name">{app.name}</span>
+              {app.badge > 0 && (
+                <span className="android-app-badge">{app.badge}</span>
+              )}
             </div>
-          )}
+          ))}
         </div>
       </main>
     </div>

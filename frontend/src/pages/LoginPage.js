@@ -1,22 +1,22 @@
 /**
- * Login Page - SIMPLIFIED DEMO MODE
- * Simple and clean login page for demo mode
+ * Login Page - Professional Design
+ * Clean, modern authentication interface
  */
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import '../styles/LoginPage.css';
+import '../styles/AuthPages.css';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
   const { login } = useAuth();
   const navigate = useNavigate();
-  const DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,6 +25,8 @@ const LoginPage = () => {
 
     try {
       const user = await login(email, password);
+      
+      // Navigate based on role
       if (user.role === 'admin' || user.role === 'dispatcher') {
         navigate('/admin/dashboard');
       } else if (user.role === 'driver') {
@@ -35,100 +37,43 @@ const LoginPage = () => {
         navigate('/');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      const errorMsg = err.message || 'Connexion échouée. Veuillez vérifier vos identifiants.';
+      setError(errorMsg);
+      console.error('Login error:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuickLogin = async (demoEmail, demoPassword) => {
-    setError('');
-    setLoading(true);
-    try {
-      const user = await login(demoEmail, demoPassword);
-      if (user.role === 'admin' || user.role === 'dispatcher') {
-        navigate('/admin/dashboard');
-      } else if (user.role === 'driver') {
-        navigate('/driver/dashboard');
-      } else if (user.role === 'client') {
-        navigate('/client');
-      } else {
-        navigate('/');
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="login-page">
-      <div className="login-background">
-        <div className="bg-shape shape-1"></div>
-        <div className="bg-shape shape-2"></div>
-        <div className="bg-shape shape-3"></div>
+    <div className="auth-page">
+      <div className="auth-background">
+        <div className="auth-blob blob-1"></div>
+        <div className="auth-blob blob-2"></div>
+        <div className="auth-blob blob-3"></div>
       </div>
 
-      <div className="login-container">
-        {/* Logo and Brand */}
-        <div className="login-header">
-          <div className="login-logo">
+      <div className="auth-container">
+        {/* Header */}
+        <div className="auth-header">
+          <div className="auth-logo">
             <div className="logo-icon">🛵</div>
           </div>
-          <h1 className="login-title">BETEX EXPRESS</h1>
-          <p className="login-subtitle">Plateforme de gestion de livraison</p>
+          <h1 className="auth-title">BETEX EXPRESS</h1>
+          <p className="auth-subtitle">Plateforme de gestion de livraison</p>
+          <span className="auth-mode-badge">Mode Production</span>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="error-message">
-            <span className="error-icon">⚠️</span>
+          <div className="message message-error">
+            <span className="message-icon">✕</span>
             {error}
           </div>
         )}
 
-        {/* Demo Mode - Quick Login Buttons */}
-        {DEMO_MODE && (
-          <div className="demo-quick-login">
-            <p className="demo-label">🎭 Mode Démo - Connexion Rapide</p>
-            <div className="quick-buttons">
-              <button
-                type="button"
-                className="btn-quick-admin"
-                onClick={() => handleQuickLogin('admin@betex.com', 'admin123')}
-                disabled={loading}
-              >
-                <span className="btn-icon">👨‍💼</span>
-                <span className="btn-text">Admin</span>
-              </button>
-              <button
-                type="button"
-                className="btn-quick-driver"
-                onClick={() => handleQuickLogin('livreur@betex.com', 'livreur123')}
-                disabled={loading}
-              >
-                <span className="btn-icon">🚗</span>
-                <span className="btn-text">Livreur</span>
-              </button>
-              <button
-                type="button"
-                className="btn-quick-client"
-                onClick={() => handleQuickLogin('client@betex.com', 'client123')}
-                disabled={loading}
-              >
-                <span className="btn-icon">👤</span>
-                <span className="btn-text">Client</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Manual Login Form */}
-        <div className="form-divider">
-          <span>Ou connexion manuelle</span>
-        </div>
-
-        <form onSubmit={handleSubmit} className="login-form">
+        {/* Login Form */}
+        <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -136,44 +81,67 @@ const LoginPage = () => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => setError('')}
               required
-              placeholder="votre@email.com"
+              placeholder="admin@betex.com"
               disabled={loading}
+              autoComplete="email"
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="password">Mot de passe</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="••••••••"
-              disabled={loading}
-            />
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setError('')}
+                required
+                placeholder="••••••••"
+                disabled={loading}
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={loading}
+              >
+                {showPassword ? '👁️' : '👁️‍🗨️'}
+              </button>
+            </div>
           </div>
 
           <button 
             type="submit" 
-            className="btn-login"
+            className="btn-primary"
             disabled={loading}
           >
             {loading ? (
               <>
                 <span className="spinner"></span>
-                Connexion...
+                <span>Connexion...</span>
               </>
             ) : (
-              'Se connecter'
+              <span>Se connecter</span>
             )}
           </button>
         </form>
 
+        {/* Register Link */}
+        <div className="auth-links">
+          <p className="auth-link-text">Vous êtes nouveau client ?</p>
+          <Link to="/register" className="auth-link">
+            Créer un compte
+          </Link>
+        </div>
+
         {/* Footer */}
-        <div className="login-footer">
-          <p>© 2024 BETEX EXPRESS - Ouagadougou, Burkina Faso</p>
+        <div className="auth-footer">
+          <p>© 2026 BETEX EXPRESS</p>
+          <p>Plateforme de gestion de livraison - Ouagadougou, Burkina Faso</p>
         </div>
       </div>
     </div>

@@ -1,107 +1,142 @@
 /**
  * Authentication Context
- * Manages user authentication state
+ * Manages user authentication state with Firebase
  */
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import api from '../services/api';
+import { auth, db } from '../services/firebase';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token'));
 
   useEffect(() => {
-    const initAuth = async () => {
-      const storedToken = localStorage.getItem('token');
-      const DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true';
-      
-      if (storedToken) {
-        // En mode démo, charger l'utilisateur depuis le token
-        if (DEMO_MODE) {
-          try {
-            // Le token contient le rôle en mode démo
-            if (storedToken.includes('admin')) {
-              setUser({
-                id: 1,
-                email: 'admin@betex.com',
-                name: 'Administrateur BETEX',
-                role: 'admin'
-              });
-            } else if (storedToken.includes('driver')) {
-              setUser({
-                id: 2,
-                email: 'livreur@betex.com',
-                name: 'Jean Kouassi',
-                role: 'driver'
-              });
-            }
-          } catch (error) {
-            console.error('Failed to load demo user:', error);
-            localStorage.removeItem('token');
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          // Essayer de récupérer les données utilisateur depuis Firestore
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          console.log("Document Firestore récupéré:", userDoc.exists(), userDoc.data());
+          
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setUser({
+              id: firebaseUser.uid,
+              email: firebaseUser.email,
+              name: userData.name || firebaseUser.email,
+              role: userData.role || 'client'
+            });
+          } else {
+            // Si pas de document Firestore, créer un document par défaut
+            const defaultUserData = {
+              email: firebaseUser.email,
+              name: firebaseUser.email,
+              role: 'client',
+              createdAt: new Date()
+            };
+            await setDoc(doc(db, 'users', firebaseUser.uid), defaultUserData);
+            setUser({
+              id: firebaseUser.uid,
+              email: firebaseUser.email,
+              name: firebaseUser.email,
+              role: 'client'
+            });
           }
-        } else {
-          // Mode normal avec backend
-          api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-          try {
-            const response = await api.get('/auth/me');
-            setUser(response.data.data);
-          } catch (error) {
-            console.error('Failed to load user:', error);
-            localStorage.removeItem('token');
-            delete api.defaults.headers.common['Authorization'];
-          }
+        } catch (error) {
+          console.error('Erreur lors de la récupération des données utilisateur:', error);
+          setUser({
+            id: firebaseUser.uid,
+            email: firebaseUser.email,
+            name: firebaseUser.email,
+            role: 'client'
+          });
         }
+      } else {
+        setUser(null);
       }
       setLoading(false);
-    };
-    
-    initAuth();
+    });
+
+    return unsubscribe;
   }, []);
 
   const login = async (email, password) => {
-    const response = await api.post('/auth/login', { email, password });
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const firebaseUser = userCredential.user;
     
-    // En mode démo, la structure de réponse est différente
-    const responseData = response.data.data || response.data;
-    const accessToken = responseData.token || responseData.accessToken;
-    const userData = responseData.user;
-    
-    // Store token
-    localStorage.setItem('token', accessToken);
-    if (!process.env.REACT_APP_DEMO_MODE) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+    try {
+      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+      let userData;
+      if (userDoc.exists()) {
+        const firestoreData = userDoc.data();
+        userData = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email,
+          name: firestoreData.name || firebaseUser.email,
+          role: firestoreData.role || 'client'
+        };
+      } else {
+        userData = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email,
+          name: firebaseUser.email,
+          role: 'client'
+        };
+      }
+      setUser(userData);
+      return userData;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des données utilisateur:', error);
+      const fallbackUserData = {
+        id: firebaseUser.uid,
+        email: firebaseUser.email,
+        name: firebaseUser.email,
+        role: 'client'
+      };
+      setUser(fallbackUserData);
+      return fallbackUserData;
     }
-    
-    // Set user immediately
-    setUser(userData);
-    setToken(accessToken);
-    setLoading(false);
-    
-    return userData;
   };
 
-  const register = async (userData) => {
-    const response = await api.post('/auth/register', userData);
-    const { accessToken, user: newUser } = response.data.data;
+  const register = async (userData, autoLogin = true) => {
+    const { email, password, ...otherData } = userData;
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const firebaseUser = userCredential.user;
     
-    // Store token
-    localStorage.setItem('token', accessToken);
-    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+    // Enregistrer les données utilisateur dans Firestore
+    const userDocData = {
+      ...otherData,
+      email,
+      name: otherData.firstName + ' ' + otherData.lastName,
+      createdAt: new Date(),
+      role: otherData.role || 'client'
+    };
+    await setDoc(doc(db, 'users', firebaseUser.uid), userDocData);
     
-    // Set user immediately
-    setUser(newUser);
-    setLoading(false);
-    
+    const newUser = {
+      id: firebaseUser.uid,
+      email: firebaseUser.email,
+      name: userDocData.name,
+      role: userDocData.role
+    };
+    if (autoLogin) {
+      setUser(newUser);
+    }
     return newUser;
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
+  const logout = async () => {
+    await signOut(auth);
     setUser(null);
-    delete api.defaults.headers.common['Authorization'];
   };
 
   const value = {

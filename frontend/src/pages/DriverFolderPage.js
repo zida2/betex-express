@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../services/api';
+import { getDrivers, getPackages } from '../services/firebaseService';
 import { translateStatus, getStatusIcon } from '../utils/translations';
 import '../styles/DriverFolderPage.css';
 
@@ -26,8 +26,7 @@ const DriverFolderPage = () => {
 
   const loadDrivers = async () => {
     try {
-      const response = await api.get('/drivers');
-      const driversData = response.data.data?.drivers || response.data.data || [];
+      const driversData = await getDrivers();
       setDrivers(driversData);
     } catch (error) {
       console.error('Failed to load drivers:', error);
@@ -40,11 +39,9 @@ const DriverFolderPage = () => {
   const loadDriverHistory = async (driverId) => {
     try {
       setHistoryLoading(true);
-      const response = await api.get('/packages/history', {
-        params: { driverId }
-      });
-      
-      const history = response.data.data || [];
+      const allPackages = await getPackages();
+      // Filter packages where assignedDriver.id === driverId
+      const history = allPackages.filter(pkg => pkg.assignedDriver?.id === driverId || pkg.driverId === driverId);
       // Sort by date (most recent first)
       history.sort((a, b) => 
         new Date(b.deliveredAt || b.createdAt) - new Date(a.deliveredAt || a.createdAt)
