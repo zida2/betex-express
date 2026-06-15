@@ -57,31 +57,37 @@ const LoginPage = () => {
         {/* Header */}
         <div className="auth-header">
           <div className="auth-logo">
-            <svg viewBox="0 0 200 200" className="betex-logo">
-              {/* Rider */}
-              <circle cx="110" cy="80" r="15" fill="#1a365d" />
-              <path d="M110 95 L110 130" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
-              <path d="M110 105 L95 120" stroke="#1a365d" strokeWidth="6" fill="none" strokeLinecap="round"/>
-              <path d="M110 105 L125 115" stroke="#1a365d" strokeWidth="6" fill="none" strokeLinecap="round"/>
-              <path d="M110 130 L90 150" stroke="#1a365d" strokeWidth="6" fill="none" strokeLinecap="round"/>
-              <path d="M110 130 L130 145" stroke="#1a365d" strokeWidth="6" fill="none" strokeLinecap="round"/>
+            <svg viewBox="0 0 240 200" className="betex-logo">
+              {/* Background Wheels (Orange) */}
+              <circle cx="80" cy="130" r="35" fill="none" stroke="#ff6b35" strokeWidth="8"/>
+              <circle cx="80" cy="130" r="22" fill="none" stroke="#ff6b35" strokeWidth="4"/>
+              <circle cx="160" cy="130" r="35" fill="none" stroke="#ff6b35" strokeWidth="8"/>
+              <circle cx="160" cy="130" r="22" fill="none" stroke="#ff6b35" strokeWidth="4"/>
               
-              {/* Motorcycle body */}
-              <path d="M80 135 L110 115 L140 135 L130 155 L90 155 Z" fill="#1a365d"/>
+              {/* Motorcycle Body */}
+              <path d="M60 110 L120 80 L180 110 L170 140 L70 140 Z" fill="#1a365d"/>
               
-              {/* Wheels */}
-              <circle cx="90" cy="155" r="25" fill="none" stroke="#ff6b35" strokeWidth="6"/>
-              <circle cx="90" cy="155" r="15" fill="none" stroke="#ff6b35" strokeWidth="3"/>
-              <circle cx="130" cy="155" r="25" fill="none" stroke="#ff6b35" strokeWidth="6"/>
-              <circle cx="130" cy="155" r="15" fill="none" stroke="#ff6b35" strokeWidth="3"/>
+              {/* Rider Head */}
+              <circle cx="120" cy="55" r="18" fill="#1a365d"/>
               
-              {/* Delivery box */}
-              <rect x="135" y="100" width="40" height="40" rx="5" fill="#1a365d" transform="rotate(-10 155 120)"/>
+              {/* Rider Body */}
+              <path d="M120 73 L120 105" stroke="#1a365d" strokeWidth="10" fill="none" strokeLinecap="round"/>
               
-              {/* Motion lines */}
-              <path d="M60 160 Q70 165 80 160" stroke="#ff6b35" strokeWidth="3" fill="none" opacity="0.7"/>
-              <path d="M50 155 Q60 160 70 155" stroke="#ff6b35" strokeWidth="2" fill="none" opacity="0.5"/>
-              <path d="M40 150 Q50 155 60 150" stroke="#ff6b35" strokeWidth="1.5" fill="none" opacity="0.3"/>
+              {/* Rider Arms */}
+              <path d="M120 82 L100 95" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
+              <path d="M120 82 L140 90" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
+              
+              {/* Rider Legs */}
+              <path d="M120 105 L100 130" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
+              <path d="M120 105 L140 125" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
+              
+              {/* Delivery Box */}
+              <rect x="170" y="70" width="50" height="45" rx="6" fill="#1a365d" transform="rotate(-8 195 92.5)"/>
+              
+              {/* Motion Lines */}
+              <path d="M30 135 Q45 142 60 135" stroke="#ff6b35" strokeWidth="4" fill="none" opacity="0.8"/>
+              <path d="M20 128 Q35 135 50 128" stroke="#ff6b35" strokeWidth="3" fill="none" opacity="0.6"/>
+              <path d="M10 121 Q25 128 40 121" stroke="#ff6b35" strokeWidth="2" fill="none" opacity="0.4"/>
             </svg>
           </div>
           <h1 className="auth-title">
