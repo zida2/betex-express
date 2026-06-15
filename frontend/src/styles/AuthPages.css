@@ -179,7 +179,7 @@ html {
 
 .betex-logo {
   width: 100%;
-  max-width: 220px;
+  max-width: 300px;
   height: auto;
   object-fit: contain;
   border-radius: 50%;
@@ -703,7 +703,7 @@ html {
   }
 
   .betex-logo {
-    max-width: 180px;
+    max-width: 250px;
   }
 
   .blob-1,
@@ -724,7 +724,7 @@ html {
   }
 
   .betex-logo {
-    max-width: 160px;
+    max-width: 220px;
   }
 
   .auth-form {
