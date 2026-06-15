@@ -14,7 +14,8 @@ import {
   where,
   orderBy,
   serverTimestamp,
-  onSnapshot
+  onSnapshot,
+  increment
 } from 'firebase/firestore';
 
 // Configuration Firebase (même que dans firebase.js)
@@ -142,6 +143,37 @@ export const createPackage = async (data) => {
 
 export const updatePackage = async (id, data) => {
   const docRef = doc(db, 'packages', id);
+  
+  // If we're marking as delivered, update driver stats
+  if (data.status === 'delivered' || data.status === 'delivery_failed') {
+    // Get current package data to find the driver
+    const packageDoc = await getDoc(docRef);
+    if (packageDoc.exists()) {
+      const packageData = packageDoc.data();
+      const driverId = packageData.driverId || (packageData.assignedDriver && packageData.assignedDriver.id);
+      if (driverId) {
+        // Update driver's stats
+        const driverDocRef = doc(db, 'users', driverId);
+        const driverDoc = await getDoc(driverDocRef);
+        
+        if (driverDoc.exists()) {
+          const updates = {
+            totalDeliveries: increment(1)
+          };
+          if (data.status === 'delivered') {
+            updates.successfulDeliveries = increment(1);
+          }
+          await updateDoc(driverDocRef, updates);
+        }
+      }
+      
+      // Add deliveredAt timestamp if not present
+      if (data.status === 'delivered' && !data.deliveredAt) {
+        data.deliveredAt = new Date();
+      }
+    }
+  }
+  
   await updateDoc(docRef, data);
   return { id, ...data };
 };

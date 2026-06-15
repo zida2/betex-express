@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../services/api';
+import { getPackages } from '../services/firebaseService';
 import { translateStatus, getStatusIcon } from '../utils/translations';
 import '../styles/DriverHistoryPage.css';
 
@@ -19,18 +19,21 @@ const DriverHistoryPage = () => {
 
   useEffect(() => {
     loadHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadHistory = async () => {
     try {
-      const response = await api.get('/packages', {
-        params: { driverId: user.id }
-      });
+      const allPackages = await getPackages();
       
-      const allPackages = response.data.data || [];
+      // Filter packages assigned to this driver (check both driverId and assignedDriver.id)
+      const driverPackages = allPackages.filter(pkg => 
+        pkg.driverId === user.id || 
+        (pkg.assignedDriver && pkg.assignedDriver.id === user.id)
+      );
       
       // Filter only completed deliveries (delivered or failed)
-      const completedDeliveries = allPackages.filter(pkg => 
+      const completedDeliveries = driverPackages.filter(pkg => 
         pkg.status === 'delivered' || pkg.status === 'delivery_failed'
       );
       

@@ -29,15 +29,21 @@ const DriverDashboard = () => {
       // Load all packages assigned to this driver
       const allPackages = await getPackages();
       const driverPackages = allPackages.filter(pkg => 
-        pkg.driverId === user.id && 
+        (pkg.driverId === user.id || (pkg.assignedDriver && pkg.assignedDriver.id === user.id)) && 
         (pkg.status === 'pending' || pkg.status === 'collected' || pkg.status === 'in_delivery' || pkg.status === 'assigned')
       );
       setPackages(driverPackages);
 
-      // Load driver statistics from user document
+      // Calculate statistics from packages
+      const completedDeliveries = allPackages.filter(pkg => 
+        (pkg.driverId === user.id || (pkg.assignedDriver && pkg.assignedDriver.id === user.id)) && 
+        (pkg.status === 'delivered' || pkg.status === 'delivery_failed')
+      );
+      
+      // Load driver statistics from user document if available, else calculate
       setStats({
-        successfulDeliveries: user.successfulDeliveries || 0,
-        totalDeliveries: user.totalDeliveries || 0,
+        successfulDeliveries: user.successfulDeliveries || completedDeliveries.filter(p => p.status === 'delivered').length,
+        totalDeliveries: user.totalDeliveries || completedDeliveries.length,
         rating: user.rating || 5
       });
     } catch (error) {
