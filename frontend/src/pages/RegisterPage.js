@@ -123,55 +123,47 @@ const RegisterPage = () => {
         {/* Header */}
         <div className="auth-header">
           <div className="auth-logo">
-            <svg viewBox="0 0 240 200" className="betex-logo">
+            <svg viewBox="0 0 240 250" className="betex-logo">
               {/* White Rounded Background */}
-              <circle cx="120" cy="100" r="85" fill="white"/>
+              <circle cx="120" cy="125" r="115" fill="white"/>
               
               {/* Motion Lines Behind (to the left) */}
-              <path d="M45 150 Q55 156 65 150" stroke="#ff6b35" strokeWidth="3" fill="none" opacity="0.7"/>
-              <path d="M35 143 Q45 149 55 143" stroke="#ff6b35" strokeWidth="2" fill="none" opacity="0.5"/>
+              <path d="M50 165 Q60 171 70 165" stroke="#ff6b35" strokeWidth="3" fill="none" opacity="0.7"/>
+              <path d="M40 158 Q50 164 60 158" stroke="#ff6b35" strokeWidth="2" fill="none" opacity="0.5"/>
               
-              {/* Wheels (Orange with Blue Center) */}
-              <circle cx="100" cy="135" r="28" fill="none" stroke="#ff6b35" strokeWidth="8"/>
-              <circle cx="100" cy="135" r="12" fill="#1a365d"/>
-              <circle cx="160" cy="135" r="28" fill="none" stroke="#ff6b35" strokeWidth="8"/>
-              <circle cx="160" cy="135" r="12" fill="#1a365d"/>
+              {/* Modern Delivery Icon */}
+              <g transform="translate(120, 100)">
+                {/* Package Box */}
+                <rect x="-25" y="-35" width="50" height="40" rx="6" fill="#1a365d"/>
+                <rect x="-15" y="-30" width="30" height="3" rx="1.5" fill="#ff6b35"/>
+                <rect x="-15" y="-20" width="30" height="3" rx="1.5" fill="#ff6b35"/>
+                
+                {/* Delivery Vehicle - Scooter */}
+                <circle cx="-20" cy="25" r="16" fill="none" stroke="#1a365d" strokeWidth="5"/>
+                <circle cx="20" cy="25" r="16" fill="none" stroke="#1a365d" strokeWidth="5"/>
+                <path d="M-20 25 L-20 10 L0 5 L20 10 L20 25" stroke="#1a365d" strokeWidth="6" fill="none" strokeLinecap="round"/>
+                
+                {/* Rider */}
+                <circle cx="0" cy="-10" r="10" fill="#1a365d"/>
+                <path d="M0 0 L0 10" stroke="#1a365d" strokeWidth="6" fill="none" strokeLinecap="round"/>
+                <path d="M0 2 L-12 12" stroke="#1a365d" strokeWidth="5" fill="none" strokeLinecap="round"/>
+                <path d="M0 10 L-15 25" stroke="#1a365d" strokeWidth="5" fill="none" strokeLinecap="round"/>
+                <path d="M0 10 L15 25" stroke="#1a365d" strokeWidth="5" fill="none" strokeLinecap="round"/>
+              </g>
               
-              {/* Motion Lines Under Wheels */}
-              <path d="M75 150 Q85 156 95 150" stroke="#ff6b35" strokeWidth="3" fill="none" opacity="0.7"/>
-              <path d="M135 150 Q145 156 155 150" stroke="#ff6b35" strokeWidth="3" fill="none" opacity="0.7"/>
+              {/* Text: Betex Express */}
+              <text x="120" y="190" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="24" fontWeight="bold">
+                <tspan fill="#1a365d">Betex</tspan>
+                <tspan fill="#ff6b35">Express</tspan>
+              </text>
               
-              {/* Rider Head */}
-              <circle cx="130" cy="55" r="18" fill="#1a365d"/>
-              
-              {/* Rider Body and Pose */}
-              <path d="M130 73 L130 100" stroke="#1a365d" strokeWidth="10" fill="none" strokeLinecap="round"/>
-              
-              {/* Rider Right Arm (holding box) */}
-              <path d="M130 78 L165 75" stroke="#1a365d" strokeWidth="9" fill="none" strokeLinecap="round"/>
-              
-              {/* Rider Left Arm */}
-              <path d="M130 82 L110 95" stroke="#1a365d" strokeWidth="8" fill="none" strokeLinecap="round"/>
-              
-              {/* Rider Right Leg (forward) */}
-              <path d="M130 100 L150 130" stroke="#1a365d" strokeWidth="9" fill="none" strokeLinecap="round"/>
-              
-              {/* Rider Left Leg (back) */}
-              <path d="M130 100 L110 120" stroke="#1a365d" strokeWidth="9" fill="none" strokeLinecap="round"/>
-              
-              {/* Rider's Feet on Wheels */}
-              <circle cx="150" cy="132" r="7" fill="#1a365d"/>
-              <circle cx="110" cy="122" r="7" fill="#1a365d"/>
-              
-              {/* Delivery Box */}
-              <rect x="168" y="60" width="45" height="40" rx="4" fill="#1a365d"/>
+              {/* Text: Livraison - Coursiers */}
+              <text x="120" y="215" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="12" fill="#666">
+                Livraison - Coursiers
+              </text>
             </svg>
           </div>
-          <h1 className="auth-title">
-            <span className="betex">Betex</span>
-            <span className="express">Express</span>
-          </h1>
-          <p className="auth-subtitle">Créer votre compte client</p>
+          <p className="auth-subtitle" style={{ marginTop: '10px', color: '#e2e8f0' }}>Créer votre compte client</p>
         </div>
 
         {/* Success Message */}

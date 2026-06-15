@@ -171,9 +171,9 @@ html {
 }
 
 .betex-logo {
-  width: 100px;
-  height: 100px;
-  filter: drop-shadow(0 8px 24px rgba(26, 54, 93, 0.4));
+  width: 220px;
+  height: 230px;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.2));
 }
 
 @keyframes bounce-in {
