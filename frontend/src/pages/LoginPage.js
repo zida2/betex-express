@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/AuthPages.css';
+import logo from '../assets/logo.png';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -57,69 +58,7 @@ const LoginPage = () => {
         {/* Header */}
         <div className="auth-header">
           <div className="auth-logo">
-            <svg viewBox="0 0 240 250" className="betex-logo">
-              {/* White Background Circle */}
-              <circle cx="120" cy="125" r="110" fill="white"/>
-              
-              {/* Icon Group */}
-              <g transform="translate(120, 110)">
-                {/* Wheels (Orange with Blue Center) */}
-                <circle cx="-35" cy="25" r="22" fill="#ff6b35"/>
-                <circle cx="-35" cy="25" r="10" fill="#1a365d"/>
-                <circle cx="35" cy="25" r="22" fill="#ff6b35"/>
-                <circle cx="35" cy="25" r="10" fill="#1a365d"/>
-                
-                {/* Motion Lines Under Wheels */}
-                <path d="M-55 48 Q-35 55 -15 48" stroke="#ff6b35" strokeWidth="3" fill="none"/>
-                <path d="M15 48 Q35 55 55 48" stroke="#ff6b35" strokeWidth="3" fill="none"/>
-                
-                {/* Rider and Scooter Body */}
-                <g fill="#1a365d">
-                  {/* Rider Head */}
-                  <circle cx="0" cy="-25" r="12"/>
-                  {/* Rider Cap */}
-                  <ellipse cx="0" cy="-35" rx="14" ry="5"/>
-                  <rect x="-8" y="-40" width="16" height="5" rx="2"/>
-                  
-                  {/* Rider Body (torso) */}
-                  <path d="M0 -13 L0 8" strokeWidth="10" stroke="#1a365d" fill="none" strokeLinecap="round"/>
-                  
-                  {/* Rider Right Arm (holding package) */}
-                  <path d="M5 -10 L35 -20" strokeWidth="9" stroke="#1a365d" fill="none" strokeLinecap="round"/>
-                  
-                  {/* Rider Left Arm */}
-                  <path d="M-5 -10 L-25 0" strokeWidth="8" stroke="#1a365d" fill="none" strokeLinecap="round"/>
-                  
-                  {/* Rider Right Leg (forward) */}
-                  <path d="M0 8 L25 25" strokeWidth="9" stroke="#1a365d" fill="none" strokeLinecap="round"/>
-                  
-                  {/* Rider Left Leg (back) */}
-                  <path d="M0 8 L-25 18" strokeWidth="9" stroke="#1a365d" fill="none" strokeLinecap="round"/>
-                  
-                  {/* Scooter Frame */}
-                  <path d="M-35 25 L-35 5 L0 0 L35 5 L35 25" strokeWidth="6" stroke="#1a365d" fill="none" strokeLinecap="round"/>
-                  
-                  {/* Package Box */}
-                  <rect x="40" y="-40" width="35" height="30" rx="4"/>
-                </g>
-              </g>
-              
-              {/* Text: Betex Express */}
-              <defs>
-                <filter id="textShadow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feDropShadow dx="0" dy="1" stdDeviation="1" floodColor="#000" floodOpacity="0.15"/>
-                </filter>
-              </defs>
-              <text x="120" y="195" textAnchor="middle" fontFamily="Arial, Helvetica, sans-serif" fontSize="26" fontWeight="bold" filter="url(#textShadow)">
-                <tspan fill="#1a365d">Betex</tspan>
-                <tspan fill="#ff6b35">Express</tspan>
-              </text>
-              
-              {/* Text: Livraison - Coursiers */}
-              <text x="120" y="220" textAnchor="middle" fontFamily="Arial, Helvetica, sans-serif" fontSize="13" fill="#555">
-                Livraison - Coursiers
-              </text>
-            </svg>
+            <img src={logo} alt="Betex Express" className="betex-logo" />
           </div>
         </div>
 
